@@ -1,0 +1,28 @@
+/* Custom CSS di atas Bootstrap 5.3 */
+:root {
+    --sim-navy: #0f2a4a;
+    --sim-blue: #1d5fbf;
+    --sim-bg: #f3f6fb;
+}
+
+body {
+    background-color: var(--sim-bg);
+}
+
+.echo-card {
+    max-width: 560px;
+    border: 0;
+    border-top: 4px solid var(--sim-blue);
+}
+
+.echo-card h1 {
+    color: var(--sim-navy);
+}
+
+.echo-output {
+    background-color: #eef3fb;
+    border-left: 4px solid var(--sim-blue);
+    color: var(--sim-navy);
+    min-height: 3rem;
+    word-break: break-word;
+}
