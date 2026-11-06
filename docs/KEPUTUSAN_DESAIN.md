@@ -36,6 +36,32 @@ Catatan keputusan yang telah disetujui pemilik proyek. Dokumen ini **khusus peng
 
 > **Perlu diselaraskan pada dokumentasi final.** SRS v1.1 (§2.3 dan Access Control Matrix) membedakan **Admin** dan **Petugas**. Satu-satunya hak yang khusus Admin di SRS adalah "Kelola pengguna dan role", yang tidak dibangun pada prototipe. Seluruh hak Petugas di SRS (buku, anggota, pinjam, kembali, verifikasi booking, laporan) dijalankan oleh peran **Admin** di prototipe. Use Case Diagram juga hanya memuat aktor "Admin", sehingga prototipe sejalan dengan UML, tetapi berbeda dengan pembagian peran di SRS v1.1. Dokumen SRS/UML final perlu diperbarui atau diberi catatan atas keputusan ini.
 
+## Keputusan implementasi Phase 3 (master data Admin)
+
+Perlu dikonfirmasi pemilik proyek; semuanya diterapkan pada prototipe.
+
+| # | Topik | Keputusan | Dasar |
+| --- | --- | --- | --- |
+| 3.1 | Rute Ubah | Ditambahkan `/demo/admin/anggota/{kodeAnggota}/ubah` dan `/demo/admin/buku/{kodeBuku}/ubah` karena Phase 1 hanya punya rute Tambah. Tidak ada rute lain yang ditambahkan. | FR-006, FR-008 |
+| 3.2 | Lihat detail | Aksi "Lihat" membuka panel samping di halaman daftar (tanpa rute baru). Panel buku menampilkan daftar eksemplar dan aksi Tambah Eksemplar. | A02/A03 "Tampilkan hasil pencarian / detail" |
+| 3.3 | Kode tidak dapat diubah | Kode Anggota dan Kode Buku hanya diisi saat Tambah; pada Ubah bersifat baca-saja karena dirujuk transaksi/eksemplar. **Keputusan prototipe, belum final** — SRS tidak mengaturnya. | Integritas relasi SRS 6.2 (inferensi) |
+| 3.4 | Nonaktifkan anggota | **Direvisi di Phase 4:** boleh kapan pun; transaksi berjalan tidak dibatalkan. Perubahan Aktif → Nonaktif meminta konfirmasi dan menampilkan jumlah transaksi berjalan. Anggota Nonaktif tidak dapat membuat peminjaman baru (BR-01) dan tidak dapat merealisasikan booking (FR-026). | FR-022, BR-01, FR-026, SRS 3.1 (konfirmasi) |
+| 3.5 | Anggota baru | Dibuat tanpa akun login (`idPengguna: null`); penyediaan akun masih TBD-02. | SRS 6.1 `members.user_id?` |
+| 3.6 | Status eksemplar | Eksemplar baru selalu Tersedia; Dipesan/Dipinjam tampil di pilihan tetapi nonaktif. Status eksemplar lama tidak dapat diubah dari formulir buku. | State Machine Eksemplar, FR-034/035 |
+| 3.7 | Hapus | Tidak ada aksi hapus anggota/buku/eksemplar tersimpan. Hanya eksemplar baru yang belum disimpan dapat dilepas dari daftar formulir. Audit Phase 4: SRS **tidak mewajibkan** hapus (FR-005/006/008 hanya tambah, ubah, cari, lihat; SRS 6.2 menghindari penghapusan fisik; kebijakan penghapusan = TBD-08). | FR-005, FR-006, FR-008, SRS 6.2, TBD-08, A02/A03 |
+| 3.8 | Validasi | Field wajib; kode unik (tidak peka huruf besar/kecil), tanpa spasi, maks. 20 karakter; Tahun Terbit 4 digit dan tidak melebihi tahun demo (2026); buku minimal satu eksemplar. | FR-021, FR-023, SRS 3.1 |
+| 3.9 | Penyimpanan | Simulasi di browser: store reaktif dari salinan data mock (`useDataPerpustakaan`). Berlaku selama sesi; muat ulang mengembalikan data awal. Pesan sukses menyebut hal ini dan tidak mengklaim tersimpan permanen. | Instruksi prototipe statis |
+| 3.10 | Pencarian | Anggota: kode, nama, kontak + filter status. Buku: kode buku, judul, kategori (penulis/penerbit tidak termasuk). | FR-007, FR-008 |
+
+### Evaluasi aturan inferensi (awal Phase 4)
+
+| Aturan | Dasar | Status |
+| --- | --- | --- |
+| Larangan menonaktifkan anggota dengan transaksi berjalan | Tidak ada di SRS; FR-022 justru membolehkan menonaktifkan tanpa menghapus riwayat. | **Dihapus.** |
+| Kode Anggota/Buku tidak dapat diubah | Tidak diatur SRS. | Dipertahankan sebagai **keputusan prototipe, belum final**. |
+| Buku minimal satu eksemplar | SRS 6.2 "Buku 1 → 1..* EksemplarBuku" dan Class Diagram (1..*). | Dipertahankan (didukung model data). FR-020 memakai kata "dapat memiliki satu atau lebih". |
+| Invariant validator Phase 2: transaksi berjalan hanya untuk anggota Aktif; booking Diajukan hanya untuk eksemplar Tersedia | Aturan saat pembuatan transaksi (BR-01, FR-026, FR-031), bukan invariant sepanjang waktu. | Dipindahkan dari `periksaKonsistensi` ke validasi aksi (`utils/validasiTransaksi.js`). |
+
 ## Perbedaan SRS vs UML yang diselesaikan dengan SRS v1.1
 
 - **Peminjaman:** A04/S04 memakai "anggota valid" dan "stok tersedia". Implementasi memakai status per eksemplar: anggota `Aktif` dan eksemplar `Tersedia` (BR-01, FR-020).

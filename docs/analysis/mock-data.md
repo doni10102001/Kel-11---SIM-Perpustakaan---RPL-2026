@@ -114,7 +114,7 @@ Ringkasan Dashboard Anggota AG-001 (`ringkasanAnggota`): 1 booking aktif, 1 pemi
 
 1. Kode/ID unik dan berformat benar (USR-, AG-, BK-, EK-, PJ-, KB-, BP- + 3 digit); username unik.
 2. Status hanya dari kosakata resmi (`resources/js/utils/status.js`); tidak ada "Menunggu".
-3. Relasi valid: eksemplar → buku; buku punya ≥ 1 eksemplar; peminjaman → anggota & eksemplar; pengembalian → peminjaman (0..1); booking → anggota, eksemplar, peminjaman realisasi; pemroses/pemutus adalah Admin; nama anggota sama dengan akunnya.
+3. Relasi valid (anggota boleh belum punya akun: `idPengguna: null`, SRS 6.1 `members.user_id?`): eksemplar → buku; buku punya ≥ 1 eksemplar; peminjaman → anggota & eksemplar; pengembalian → peminjaman (0..1); booking → anggota, eksemplar, peminjaman realisasi; pemroses/pemutus adalah Admin; nama anggota sama dengan akunnya.
 4. Peminjaman Aktif ⇔ tanpa pengembalian; Selesai ⇔ punya tepat satu pengembalian. Maksimal satu peminjaman Aktif per eksemplar.
 5. Status eksemplar = status turunan transaksi saat ini (Dipinjam / Dipesan / Tersedia). Eksemplar tidak boleh dipesan sekaligus dipinjam; maksimal satu booking Disetujui per eksemplar.
 6. Booking: Diajukan tanpa keputusan; Disetujui/Ditolak/Direalisasikan punya waktu & pelaku keputusan; alasan penolakan hanya pada Ditolak; Direalisasikan ⇔ punya `idPeminjaman` dengan anggota & eksemplar yang sama dan tanggal pinjam ≥ tanggal keputusan; satu peminjaman berasal dari maksimal satu booking.

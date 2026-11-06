@@ -17,15 +17,37 @@ export function useDemo() {
     const menu = computed(() => demo.value.menu ?? []);
     const adalahAdmin = computed(() => peran.value === 'admin');
 
-    /**
-     * URL dari peta rute terpusat. Kunci yang tidak terdaftar dicatat sebagai
-     * error di console agar tautan patah langsung terdeteksi saat pengujian.
-     */
-    function rute(kunci) {
-        const url = demo.value.rute?.[kunci];
+    /** Parameter rute aktif, mis. { kodeAnggota: 'AG-001' }. */
+    const parameter = computed(() => demo.value.parameter ?? {});
 
-        if (!url) {
+    /**
+     * URL dari peta rute terpusat. Rute berparameter berupa templat
+     * (mis. ".../anggota/{kodeAnggota}/ubah") dan diisi dari `isian`.
+     * Kunci atau parameter yang tidak ada dicatat sebagai error di console
+     * agar tautan patah langsung terdeteksi saat pengujian.
+     */
+    function rute(kunci, isian = {}) {
+        const templat = demo.value.rute?.[kunci];
+
+        if (!templat) {
             console.error(`[navigasi] Rute "${kunci}" tidak terdaftar untuk peran "${peran.value}".`);
+
+            return '#';
+        }
+
+        let gagal = false;
+        const url = templat.replace(/\{(\w+)\}/g, (_, nama) => {
+            if (isian[nama] === undefined || isian[nama] === null || isian[nama] === '') {
+                gagal = true;
+
+                return '';
+            }
+
+            return encodeURIComponent(isian[nama]);
+        });
+
+        if (gagal) {
+            console.error(`[navigasi] Rute "${kunci}" membutuhkan parameter yang belum diisi.`);
 
             return '#';
         }
@@ -33,5 +55,5 @@ export function useDemo() {
         return url;
     }
 
-    return { demo, peran, akun, halaman, menu, adalahAdmin, rute };
+    return { demo, peran, akun, halaman, menu, adalahAdmin, parameter, rute };
 }

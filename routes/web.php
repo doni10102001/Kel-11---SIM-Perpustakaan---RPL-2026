@@ -27,7 +27,9 @@ Route::prefix('demo')->name('demo.')->group(function () {
             ->name("{$peran}.")
             ->group(function () use ($peran) {
                 foreach (NavigasiDemo::halaman($peran) as $kunci => $halaman) {
-                    Route::inertia($halaman['uri'], $halaman['komponen'])->name($kunci);
+                    Route::inertia($halaman['uri'], $halaman['komponen'])
+                        ->name($kunci)
+                        ->where(['kodeAnggota' => NavigasiDemo::POLA_KODE, 'kodeBuku' => NavigasiDemo::POLA_KODE]);
                 }
             });
     }

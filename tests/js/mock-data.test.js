@@ -56,7 +56,7 @@ describe('Validator konsistensi', () => {
         ['realisasi ke peminjaman anggota lain', (d) => (d.booking.find((b) => b.idBooking === 'BP-004').idPeminjaman = 'PJ-006'), /berbeda dengan peminjaman/],
         ['booking Ditolak tanpa alasan', (d) => (d.booking.find((b) => b.status === 'Ditolak').alasanPenolakan = null), /tanpa alasan penolakan/],
         ['status di luar kosakata (Menunggu)', (d) => (d.booking.find((b) => b.status === 'Diajukan').status = 'Menunggu'), /bukan status booking yang valid/],
-        ['peminjaman Aktif untuk anggota Nonaktif', (d) => (d.anggota.find((a) => a.kodeAnggota === 'AG-002').status = 'Nonaktif'), /anggota yang tidak Aktif/],
+        ['eksemplar dipesan sekaligus dipinjam', (d) => (d.booking.find((b) => b.idBooking === 'BP-001').kodeEksemplar = 'EK-003'), /dipesan .* sekaligus dipinjam/],
         ['tanggal transaksi melewati tanggal demo', (d) => (d.peminjaman[0].tanggalPinjam = '2026-12-01'), /melewati tanggal acuan/],
         ['tanggal tidak valid', (d) => (d.booking[0].tanggalBooking = '2026-02-30'), /tidak valid/],
         ['dikembalikan sebelum dipinjam', (d) => (d.pengembalian[0].tanggalKembali = '2026-10-01'), /dikembalikan sebelum dipinjam/],

@@ -36,6 +36,16 @@ export function ringkasanAdmin(data) {
     };
 }
 
+/**
+ * Rekap jumlah per status untuk satu daftar, berurutan sesuai kosakata resmi.
+ * @param {Array<{status: string}>} daftar
+ * @param {string[]} urutanStatus  mis. daftarStatus('booking')
+ * @returns {Array<{status: string, jumlah: number}>}
+ */
+export function rekapStatus(daftar, urutanStatus) {
+    return urutanStatus.map((status) => ({ status, jumlah: hitung(daftar, (r) => r.status === status) }));
+}
+
 /** Ringkasan untuk Dashboard Anggota — hanya data milik anggota tersebut. */
 export function ringkasanAnggota(data, kodeAnggota) {
     const booking = bookingAnggota(data, kodeAnggota);

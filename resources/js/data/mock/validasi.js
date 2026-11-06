@@ -85,6 +85,8 @@ export function periksaKonsistensi(data, { tanggalAcuan } = {}) {
     const adalahAdmin = (id) => pengguna.get(id)?.peran === 'admin';
 
     data.anggota.forEach((a) => {
+        // members.user_id opsional (SRS 6.1): anggota baru boleh belum punya akun.
+        if (a.idPengguna === null) return;
         const akun = pengguna.get(a.idPengguna);
         if (!akun) salah(`Anggota ${a.kodeAnggota}: idPengguna ${a.idPengguna} tidak ditemukan`);
         else if (akun.peran !== 'anggota') salah(`Anggota ${a.kodeAnggota}: akun ${a.idPengguna} bukan peran anggota`);
@@ -179,24 +181,11 @@ export function periksaKonsistensi(data, { tanggalAcuan } = {}) {
             realisasiPer.set(b.idPeminjaman, b.idBooking);
         });
 
-    // Transaksi yang masih berjalan hanya untuk anggota Aktif (BR-01, FR-031).
-    data.peminjaman
-        .filter((p) => p.status === 'Aktif')
-        .forEach((p) => {
-            if (anggota.get(p.kodeAnggota)?.status !== 'Aktif') salah(`Peminjaman ${p.idPeminjaman}: Aktif untuk anggota yang tidak Aktif`);
-        });
-    data.booking
-        .filter((b) => b.status === 'Diajukan' || b.status === 'Disetujui')
-        .forEach((b) => {
-            if (anggota.get(b.kodeAnggota)?.status !== 'Aktif') salah(`Booking ${b.idBooking}: ${b.status} untuk anggota yang tidak Aktif`);
-        });
-    // Booking Diajukan menunjuk eksemplar yang masih Tersedia (FR-031).
-    data.booking
-        .filter((b) => b.status === 'Diajukan')
-        .forEach((b) => {
-            const e = eksemplar.get(b.kodeEksemplar);
-            if (e && e.status !== 'Tersedia') salah(`Booking ${b.idBooking}: Diajukan untuk eksemplar berstatus ${e.status}`);
-        });
+    // Catatan: syarat "anggota Aktif" (BR-01, FR-026, FR-031) dan "eksemplar Tersedia
+    // saat booking diajukan" (FR-031) berlaku SAAT transaksi dibuat, bukan invariant
+    // sepanjang waktu — anggota boleh dinonaktifkan kemudian (FR-022) dan eksemplar
+    // booking Diajukan boleh dipinjam langsung (BR-07 hanya melindungi Dipesan).
+    // Aturan tersebut diperiksa di utils/validasiTransaksi.js.
 
     // ---------------------------------------------------------------- 6. Tanggal
     const cekTanggal = (nilai, label, bolehMasaDepan = false) => {

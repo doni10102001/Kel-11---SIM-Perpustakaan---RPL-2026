@@ -64,18 +64,61 @@ class NavigasiDemoTest extends TestCase
                 ]));
     }
 
+    /** Contoh nilai parameter untuk rute berparameter. */
+    private const CONTOH_PARAMETER = ['{kodeAnggota}' => 'AG-001', '{kodeBuku}' => 'BK-001'];
+
     public function test_every_admin_page_renders(): void
     {
         foreach (NavigasiDemo::halamanAdmin() as $kunci => $halaman) {
-            $this->get("/demo/admin/{$halaman['uri']}")
+            $uri = strtr($halaman['uri'], self::CONTOH_PARAMETER);
+
+            $this->get("/demo/admin/{$uri}")
                 ->assertOk()
                 ->assertInertia(fn (Assert $page) => $page
                     ->component($halaman['komponen'])
                     ->where('demo.peran', 'admin')
                     ->where('demo.labelPeran', 'Admin')
                     ->where('demo.halaman.judul', $halaman['judul'])
+                    // Rute berparameter dikirim sebagai templat, mis. .../anggota/{kodeAnggota}/ubah
                     ->where('demo.rute', fn ($rute) => $rute[$kunci] === url("/demo/admin/{$halaman['uri']}")));
         }
+    }
+
+    public function test_phase3_pages_use_final_components(): void
+    {
+        $harapan = [
+            '/demo/admin/dashboard' => 'Admin/Dashboard',
+            '/demo/admin/anggota' => 'Admin/Anggota/Index',
+            '/demo/admin/anggota/tambah' => 'Admin/Anggota/Form',
+            '/demo/admin/anggota/AG-001/ubah' => 'Admin/Anggota/Form',
+            '/demo/admin/buku' => 'Admin/Buku/Index',
+            '/demo/admin/buku/tambah' => 'Admin/Buku/Form',
+            '/demo/admin/buku/BK-001/ubah' => 'Admin/Buku/Form',
+        ];
+
+        foreach ($harapan as $url => $komponen) {
+            $this->get($url)->assertOk()->assertInertia(fn (Assert $page) => $page->component($komponen));
+        }
+
+        // Halaman phase berikutnya tetap memakai kerangka sementara.
+        $this->get('/demo/admin/peminjaman')->assertInertia(fn (Assert $page) => $page->component(NavigasiDemo::KOMPONEN_DISIAPKAN));
+    }
+
+    public function test_edit_routes_share_route_parameters(): void
+    {
+        $this->get('/demo/admin/anggota/AG-003/ubah')->assertInertia(fn (Assert $page) => $page
+            ->where('demo.parameter', ['kodeAnggota' => 'AG-003'])
+            ->where('demo.halaman.judul', 'Ubah Anggota')
+            ->where('demo.halaman.remah.1.label', 'Data Anggota'));
+
+        $this->get('/demo/admin/buku/BK-010/ubah')->assertInertia(fn (Assert $page) => $page
+            ->where('demo.parameter', ['kodeBuku' => 'BK-010'])
+            ->where('demo.halaman.judul', 'Ubah Buku')
+            ->where('demo.halaman.remah.1.label', 'Data Buku & Eksemplar'));
+
+        // Kode dengan karakter tidak sah ditolak oleh pola rute.
+        $this->get('/demo/admin/anggota/AG%20001/ubah')->assertNotFound();
+        $this->get('/demo/admin/buku/BK<1>/ubah')->assertNotFound();
     }
 
     public function test_every_anggota_page_renders(): void
@@ -98,7 +141,7 @@ class NavigasiDemoTest extends TestCase
         $this->get('/demo/petugas/dashboard')->assertNotFound();
 
         foreach (NavigasiDemo::halamanAdmin() as $halaman) {
-            $this->get("/demo/petugas/{$halaman['uri']}")->assertNotFound();
+            $this->get('/demo/petugas/'.strtr($halaman['uri'], self::CONTOH_PARAMETER))->assertNotFound();
         }
     }
 
@@ -128,6 +171,8 @@ class NavigasiDemoTest extends TestCase
         $harapan = [
             '/demo/admin/dashboard' => 'Dashboard',
             '/demo/admin/anggota/tambah' => 'Data Anggota',
+            '/demo/admin/anggota/AG-002/ubah' => 'Data Anggota',
+            '/demo/admin/buku/BK-002/ubah' => 'Data Buku & Eksemplar',
             '/demo/admin/buku/tambah' => 'Data Buku & Eksemplar',
             '/demo/admin/booking/realisasi' => 'Verifikasi Booking',
             '/demo/admin/laporan' => 'Laporan',

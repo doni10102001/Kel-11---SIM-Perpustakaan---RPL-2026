@@ -2,7 +2,7 @@
 
 Sistem Informasi Manajemen Perpustakaan — **satu proyek Laravel terintegrasi**. Vue 3 berjalan di dalam Laravel melalui Inertia.js dan Vite (tidak ada proyek frontend/backend terpisah).
 
-> **Status: Phase 2 — data mock terpusat** (di atas Phase 1: layout bersama, navigasi, halaman Masuk, komponen UI).
+> **Status: Phase 3 — halaman master data Admin** (Dashboard, Data Anggota, Form Anggota, Data Buku & Eksemplar, Form Buku). Di atas Phase 1 (layout, navigasi, Masuk, komponen) dan Phase 2 (data mock).
 > Prototipe UI statis dengan **dua peran: Admin dan Anggota**. Tidak ada database, API, maupun autentikasi backend.
 > Halaman Masuk hanya **pratinjau peran**, bukan sistem login yang aman. Isi halaman modul dibangun pada Phase 2–5.
 
@@ -91,8 +91,10 @@ Basis: <http://localhost:8000>. Semua halaman dapat dibuka langsung tanpa login.
 | Admin | `/demo/admin/dashboard` | Dashboard |
 | Admin | `/demo/admin/anggota` | Data Anggota |
 | Admin | `/demo/admin/anggota/tambah` | Tambah Anggota |
+| Admin | `/demo/admin/anggota/{kodeAnggota}/ubah` | Ubah Anggota (mis. `AG-001`) |
 | Admin | `/demo/admin/buku` | Data Buku & Eksemplar |
 | Admin | `/demo/admin/buku/tambah` | Tambah Buku |
+| Admin | `/demo/admin/buku/{kodeBuku}/ubah` | Ubah Buku & tambah eksemplar (mis. `BK-001`) |
 | Admin | `/demo/admin/peminjaman` | Peminjaman Buku |
 | Admin | `/demo/admin/pengembalian` | Pengembalian Buku |
 | Admin | `/demo/admin/booking/verifikasi` | Verifikasi Booking |
@@ -145,14 +147,18 @@ resources/
 │   ├── config/demo.js           # akun pratinjau (dari data mock) & tanggal demo tetap (2026-11-07)
 │   ├── data/mock/               # data mock terpusat: users, members, books, bookCopies, loans,
 │   │                            # returns, bookings + relasi, dashboard, validasi (lihat docs/analysis/mock-data.md)
-│   ├── composables/useDemo.js   # akses peran, akun, menu, peta rute
+│   ├── composables/useDemo.js   # akses peran, akun, menu, peta rute (templat berparameter)
+│   ├── composables/useDataPerpustakaan.js # store reaktif sesi (salinan data mock) untuk simulasi simpan
 │   ├── utils/status.js          # kosakata status resmi + tampilan badge
 │   ├── utils/format.js          # format tanggal Indonesia (WIB), inisial
+│   ├── utils/pencarian.js       # pencarian & filter (anggota, buku)
+│   ├── utils/validasiMaster.js  # validasi form anggota, buku, eksemplar
 │   ├── Components/              # AppSidebar, AppHeader, PageHeader, BaseButton, BaseInput,
 │   │                            # BaseSelect, BaseTable, StatusBadge, FormFeedback,
-│   │                            # EmptyState, ConfirmationModal, BrandMark
+│   │                            # EmptyState, ConfirmationModal, BrandMark, SearchInput, DetailPanel, StatCard
 │   ├── Layouts/                 # AppShell, AdminLayout, AnggotaLayout
-│   └── Pages/                   # Auth/Login, Sistem/HalamanDisiapkan, Sistem/PratinjauKomponen, HelloEcho
+│   └── Pages/                   # Auth/Login, Admin/Dashboard, Admin/Anggota/{Index,Form}, Admin/Buku/{Index,Form},
+│                                # Sistem/HalamanDisiapkan (halaman phase berikutnya), Sistem/PratinjauKomponen, HelloEcho
 └── views/app.blade.php          # root template: @vite, <x-inertia::head>, <x-inertia::app>
 ```
 
@@ -164,6 +170,6 @@ Menambah halaman: daftarkan di `NavigasiDemo::halamanAdmin()` / `halamanAnggota(
 export PATH="/opt/homebrew/opt/php@8.4/bin:$PATH"
 php artisan route:list
 php artisan test             # rute, menu, breadcrumb, batas peran, tanpa query database
-npm run test:data            # konsistensi data mock (relasi, status, tanggal, dashboard)
+npm run test:data            # data mock + logika pencarian, validasi form, dan store (81 tes)
 npm run build
 ```

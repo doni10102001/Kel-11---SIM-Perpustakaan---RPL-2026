@@ -56,35 +56,49 @@ class NavigasiDemo
                 'judul' => 'Dashboard',
                 'deskripsi' => 'Ringkasan data dan layanan perpustakaan.',
                 'induk' => null,
-                'komponen' => self::KOMPONEN_DISIAPKAN,
+                'komponen' => 'Admin/Dashboard',
             ],
             'anggota.index' => [
                 'uri' => 'anggota',
                 'judul' => 'Data Anggota',
                 'deskripsi' => 'Kelola data dan status keanggotaan perpustakaan.',
                 'induk' => 'dashboard',
-                'komponen' => self::KOMPONEN_DISIAPKAN,
+                'komponen' => 'Admin/Anggota/Index',
             ],
             'anggota.tambah' => [
                 'uri' => 'anggota/tambah',
                 'judul' => 'Tambah Anggota',
                 'deskripsi' => 'Daftarkan anggota baru perpustakaan.',
                 'induk' => 'anggota.index',
-                'komponen' => self::KOMPONEN_DISIAPKAN,
+                'komponen' => 'Admin/Anggota/Form',
+            ],
+            'anggota.ubah' => [
+                'uri' => 'anggota/{kodeAnggota}/ubah',
+                'judul' => 'Ubah Anggota',
+                'deskripsi' => 'Perbarui data dan status keanggotaan.',
+                'induk' => 'anggota.index',
+                'komponen' => 'Admin/Anggota/Form',
             ],
             'buku.index' => [
                 'uri' => 'buku',
                 'judul' => 'Data Buku & Eksemplar',
                 'deskripsi' => 'Kelola data bibliografi buku beserta eksemplar fisiknya.',
                 'induk' => 'dashboard',
-                'komponen' => self::KOMPONEN_DISIAPKAN,
+                'komponen' => 'Admin/Buku/Index',
             ],
             'buku.tambah' => [
                 'uri' => 'buku/tambah',
                 'judul' => 'Tambah Buku',
                 'deskripsi' => 'Tambahkan data buku beserta eksemplarnya.',
                 'induk' => 'buku.index',
-                'komponen' => self::KOMPONEN_DISIAPKAN,
+                'komponen' => 'Admin/Buku/Form',
+            ],
+            'buku.ubah' => [
+                'uri' => 'buku/{kodeBuku}/ubah',
+                'judul' => 'Ubah Buku',
+                'deskripsi' => 'Perbarui data buku dan tambahkan eksemplar.',
+                'induk' => 'buku.index',
+                'komponen' => 'Admin/Buku/Form',
             ],
             'peminjaman' => [
                 'uri' => 'peminjaman',
@@ -212,6 +226,14 @@ class NavigasiDemo
         ];
     }
 
+    /** Pola nilai parameter kode (mis. AG-001, BK-010) pada rute berparameter. */
+    public const POLA_KODE = '[A-Za-z0-9._-]+';
+
+    public static function punyaParameter(string $uri): bool
+    {
+        return str_contains($uri, '{');
+    }
+
     public static function namaRute(string $peran, string $halaman): string
     {
         return "demo.{$peran}.{$halaman}";
@@ -260,6 +282,11 @@ class NavigasiDemo
             'menu' => $peran ? self::menu($request, $peran) : [],
             'rute' => self::rute($peran),
             'halaman' => $peran ? self::metaHalaman($request, $peran) : null,
+            // Route::inertia tidak meneruskan parameter rute; dibagikan di sini.
+            // Hanya parameter URI (bukan defaults rute seperti component/props).
+            'parameter' => $request->route()
+                ? array_intersect_key($request->route()->parameters(), array_flip($request->route()->parameterNames()))
+                : [],
         ];
     }
 
@@ -313,8 +340,10 @@ class NavigasiDemo
             return $rute;
         }
 
-        foreach (array_keys(self::halaman($peran)) as $kunci) {
-            $rute[$kunci] = self::url($peran, $kunci);
+        foreach (self::halaman($peran) as $kunci => $halaman) {
+            $rute[$kunci] = self::punyaParameter($halaman['uri'])
+                ? url("/demo/{$peran}/{$halaman['uri']}")
+                : self::url($peran, $kunci);
         }
 
         return $rute;
