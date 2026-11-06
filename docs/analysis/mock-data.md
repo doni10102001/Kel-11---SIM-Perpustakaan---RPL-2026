@@ -118,7 +118,7 @@ Ringkasan Dashboard Anggota AG-001 (`ringkasanAnggota`): 1 booking aktif, 1 pemi
 4. Peminjaman Aktif ⇔ tanpa pengembalian; Selesai ⇔ punya tepat satu pengembalian. Maksimal satu peminjaman Aktif per eksemplar.
 5. Status eksemplar = status turunan transaksi saat ini (Dipinjam / Dipesan / Tersedia). Eksemplar tidak boleh dipesan sekaligus dipinjam; maksimal satu booking Disetujui per eksemplar.
 6. Booking: Diajukan tanpa keputusan; Disetujui/Ditolak/Direalisasikan punya waktu & pelaku keputusan; alasan penolakan hanya pada Ditolak; Direalisasikan ⇔ punya `idPeminjaman` dengan anggota & eksemplar yang sama dan tanggal pinjam ≥ tanggal keputusan; satu peminjaman berasal dari maksimal satu booking.
-7. Transaksi berjalan (peminjaman Aktif, booking Diajukan/Disetujui) hanya untuk anggota Aktif; booking Diajukan menunjuk eksemplar Tersedia.
+7. (Dihapus di Phase 4) Syarat "anggota Aktif" dan "eksemplar Tersedia saat booking diajukan" bukan invariant sepanjang waktu — anggota boleh dinonaktifkan kemudian (FR-022) dan eksemplar booking Diajukan boleh dipinjam langsung (BR-07). Syarat ini diperiksa saat aksi dibuat di `utils/validasiTransaksi.js`.
 8. Tanggal valid; tanggal kejadian ≤ tanggal demo; jatuh tempo > tanggal pinjam; kembali ≥ pinjam; keputusan ≥ pengajuan; periode peminjaman pada eksemplar yang sama tidak tumpang tindih.
 
 Kondisi tabel kosong untuk halaman nanti: filter tanpa hasil (mis. pencarian kata kunci yang tidak ada) atau anggota tanpa transaksi (AG-009 tidak punya peminjaman maupun booking).

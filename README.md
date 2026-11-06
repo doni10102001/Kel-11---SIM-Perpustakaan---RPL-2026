@@ -2,7 +2,7 @@
 
 Sistem Informasi Manajemen Perpustakaan — **satu proyek Laravel terintegrasi**. Vue 3 berjalan di dalam Laravel melalui Inertia.js dan Vite (tidak ada proyek frontend/backend terpisah).
 
-> **Status: Phase 3 — halaman master data Admin** (Dashboard, Data Anggota, Form Anggota, Data Buku & Eksemplar, Form Buku). Di atas Phase 1 (layout, navigasi, Masuk, komponen) dan Phase 2 (data mock).
+> **Status: Phase 4 — transaksi & laporan Admin** (Peminjaman, Pengembalian, Verifikasi & Realisasi Booking, Laporan). Seluruh halaman Admin selesai; halaman Anggota menyusul di Phase 5.
 > Prototipe UI statis dengan **dua peran: Admin dan Anggota**. Tidak ada database, API, maupun autentikasi backend.
 > Halaman Masuk hanya **pratinjau peran**, bukan sistem login yang aman. Isi halaman modul dibangun pada Phase 2–5.
 
@@ -98,8 +98,8 @@ Basis: <http://localhost:8000>. Semua halaman dapat dibuka langsung tanpa login.
 | Admin | `/demo/admin/peminjaman` | Peminjaman Buku |
 | Admin | `/demo/admin/pengembalian` | Pengembalian Buku |
 | Admin | `/demo/admin/booking/verifikasi` | Verifikasi Booking |
-| Admin | `/demo/admin/booking/realisasi` | Realisasi Booking (dibuka dari alur verifikasi) |
-| Admin | `/demo/admin/laporan` | Laporan |
+| Admin | `/demo/admin/booking/realisasi` | Realisasi Booking (dibuka dari alur verifikasi; `?booking=BP-001` memilih booking) |
+| Admin | `/demo/admin/laporan` | Laporan (filter dari URL: `?jenis=peminjaman&awal=2026-11-01&akhir=2026-11-07`) |
 | Anggota | `/demo/anggota/dashboard` | Dashboard |
 | Anggota | `/demo/anggota/cari-buku` | Cari Buku |
 | Anggota | `/demo/anggota/booking/ajukan` | Ajukan Booking |
@@ -153,11 +153,15 @@ resources/
 │   ├── utils/format.js          # format tanggal Indonesia (WIB), inisial
 │   ├── utils/pencarian.js       # pencarian & filter (anggota, buku)
 │   ├── utils/validasiMaster.js  # validasi form anggota, buku, eksemplar
+│   ├── utils/validasiTransaksi.js # validasi peminjaman, pengembalian, setujui/tolak/realisasi booking
+│   ├── utils/laporan.js         # penyusun laporan (buku, anggota, peminjaman, pengembalian)
 │   ├── Components/              # AppSidebar, AppHeader, PageHeader, BaseButton, BaseInput,
 │   │                            # BaseSelect, BaseTable, StatusBadge, FormFeedback,
-│   │                            # EmptyState, ConfirmationModal, BrandMark, SearchInput, DetailPanel, StatCard
+│   │                            # EmptyState, ConfirmationModal, BrandMark, SearchInput, DetailPanel, StatCard,
+│   │                            # SegmentedTabs, ReadonlyField
 │   ├── Layouts/                 # AppShell, AdminLayout, AnggotaLayout
 │   └── Pages/                   # Auth/Login, Admin/Dashboard, Admin/Anggota/{Index,Form}, Admin/Buku/{Index,Form},
+│                                # Admin/Peminjaman, Admin/Pengembalian, Admin/Booking/{Verifikasi,Realisasi}, Admin/Laporan,
 │                                # Sistem/HalamanDisiapkan (halaman phase berikutnya), Sistem/PratinjauKomponen, HelloEcho
 └── views/app.blade.php          # root template: @vite, <x-inertia::head>, <x-inertia::app>
 ```
@@ -170,6 +174,6 @@ Menambah halaman: daftarkan di `NavigasiDemo::halamanAdmin()` / `halamanAnggota(
 export PATH="/opt/homebrew/opt/php@8.4/bin:$PATH"
 php artisan route:list
 php artisan test             # rute, menu, breadcrumb, batas peran, tanpa query database
-npm run test:data            # data mock + logika pencarian, validasi form, dan store (81 tes)
+npm run test:data            # data mock, validasi, store atomik, transaksi, laporan (118 tes)
 npm run build
 ```

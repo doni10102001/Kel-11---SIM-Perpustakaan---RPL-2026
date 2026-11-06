@@ -53,6 +53,22 @@ Perlu dikonfirmasi pemilik proyek; semuanya diterapkan pada prototipe.
 | 3.9 | Penyimpanan | Simulasi di browser: store reaktif dari salinan data mock (`useDataPerpustakaan`). Berlaku selama sesi; muat ulang mengembalikan data awal. Pesan sukses menyebut hal ini dan tidak mengklaim tersimpan permanen. | Instruksi prototipe statis |
 | 3.10 | Pencarian | Anggota: kode, nama, kontak + filter status. Buku: kode buku, judul, kategori (penulis/penerbit tidak termasuk). | FR-007, FR-008 |
 
+## Keputusan implementasi Phase 4 (transaksi & laporan Admin)
+
+| # | Topik | Keputusan | Dasar | Status |
+| --- | --- | --- | --- | --- |
+| 4.1 | Tanggal transaksi | Tanggal Pinjam, Tanggal Kembali, dan tanggal keputusan booking dicatat otomatis = tanggal demo (7 Nov 2026); tampil sebagai field baca-saja. | FR-024, FR-028, FR-033 ("sistem menyimpan") | Prototipe |
+| 4.2 | Tanggal Jatuh Tempo | Input manual, wajib, harus setelah Tanggal Pinjam; tanpa durasi default, tanpa keterlambatan/denda/perpanjangan. | FR-024, TBD-05 | Sesuai keputusan Phase 0 |
+| 4.3 | Admin Pemroses | Label UI "Admin Pemroses"; nilainya akun Admin aktif (`diprosesOleh`/`diputuskanOleh` = SRS `staff_id`). | SRS 6.1, keputusan dua peran | Final prototipe |
+| 4.4 | Pinjam eksemplar yang punya booking Diajukan | Diizinkan (hanya Dipesan yang dilindungi) dengan informasi kepada Admin. | BR-07, FR-034 | Prototipe |
+| 4.5 | Syarat Setujui | Booking Diajukan dan eksemplar Tersedia (tanpa peminjaman Aktif/booking Disetujui lain). Status anggota **tidak** diperiksa saat persetujuan karena SRS tidak mengaturnya. | State Machine 04 `setujui [eksemplarTersedia]`, FR-034 | **Belum final** |
+| 4.6 | Syarat Tolak | Booking Diajukan; Alasan Penolakan wajib (maks. 200 karakter). Penolakan boleh untuk alasan apa pun; bila eksemplar tidak tersedia, Tolak adalah satu-satunya pilihan. | FR-033 (diutamakan), State Machine 04 `tolak [eksemplarTidakTersedia]` | **Belum final** — guard UML lebih sempit dari SRS |
+| 4.7 | Syarat Realisasi | Booking Disetujui, anggota Aktif, eksemplar Dipesan untuk booking tersebut tanpa peminjaman Aktif; Tanggal Pinjam tidak sebelum tanggal persetujuan. | FR-026, FR-035, BR-07 | Prototipe |
+| 4.8 | Pembatalan booking oleh Admin | Tidak dibuat. Transisi Disetujui → Dibatalkan ada di State Machine tetapi aktornya tidak ditetapkan; FR-032 hanya untuk Anggota. | FR-032, State Machine 04, TBD-06 | **Belum final** |
+| 4.9 | Laporan | Jenis: Daftar Buku, Daftar Anggota, Peminjaman, Pengembalian. Periode hanya untuk Peminjaman (Tanggal Pinjam) dan Pengembalian (Tanggal Kembali); daftar buku/anggota = keadaan saat ini. Cetak memakai dialog cetak browser; tidak ada ekspor PDF/Excel/CSV. | FR-014, FR-015, FR-029, TBD-07, A06 | Sesuai SRS |
+| 4.10 | Atomisitas | Setiap aksi divalidasi, diterapkan pada draf, diperiksa `periksaKonsistensi`, lalu baru diterapkan; gagal = tanpa perubahan sebagian. | AC-16, NFR-006, NFR-020 | Final prototipe |
+| 4.11 | Bukti & konfirmasi | Peminjaman dan realisasi menampilkan kartu bukti; pengembalian menampilkan "Konfirmasi pengembalian". Aksi penting memakai dialog konfirmasi. | A04 "bukti peminjaman", A05, SRS 3.1 | Sesuai UML |
+
 ### Evaluasi aturan inferensi (awal Phase 4)
 
 | Aturan | Dasar | Status |

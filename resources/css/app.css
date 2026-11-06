@@ -2223,7 +2223,363 @@ h6 {
 }
 
 /* ---------------------------------------------------------------------------
-   19. Halaman teknis /hello/echo (smoke test Task 00)
+   19. Transaksi: tab, field tampilan, bukti, laporan
+   --------------------------------------------------------------------------- */
+.btn-outline-danger {
+    --bs-btn-color: var(--sim-danger-text);
+    --bs-btn-bg: var(--sim-surface);
+    --bs-btn-border-color: var(--sim-danger-border);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #c0291d;
+    --bs-btn-hover-border-color: #c0291d;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #a32217;
+    --bs-btn-active-border-color: #a32217;
+    --bs-btn-disabled-color: #e3958e;
+    --bs-btn-disabled-bg: var(--sim-surface);
+    --bs-btn-disabled-border-color: var(--sim-danger-border);
+    --bs-btn-focus-box-shadow: 0 0 0 3px rgba(192, 41, 29, 0.2);
+}
+
+.sim-tabs {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    overflow-x: auto;
+    border-radius: var(--sim-radius);
+    background: var(--sim-neutral-bg);
+    scrollbar-width: none;
+}
+
+.sim-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.sim-tabs__item {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4375rem 0.875rem;
+    border: 0;
+    border-radius: var(--sim-radius-sm);
+    background: transparent;
+    color: var(--sim-text-secondary);
+    font-size: var(--sim-fs-sm);
+    font-weight: 600;
+    white-space: nowrap;
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.sim-tabs__item:hover {
+    color: var(--sim-text);
+}
+
+.sim-tabs__item.is-active {
+    background: var(--sim-surface);
+    box-shadow: var(--sim-shadow-sm);
+    color: var(--sim-text);
+}
+
+.sim-tabs__count {
+    min-width: 1.375rem;
+    padding: 0 0.375rem;
+    border-radius: var(--sim-radius-pill);
+    background: rgba(15, 30, 51, 0.08);
+    color: var(--sim-text-secondary);
+    font-size: var(--sim-fs-xs);
+    line-height: 1.25rem;
+    text-align: center;
+}
+
+.sim-tabs__item.is-active .sim-tabs__count {
+    background: var(--sim-blue-100);
+    color: var(--sim-blue-700);
+}
+
+.sim-readonly {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.875rem;
+    border: 1px solid var(--sim-border);
+    border-radius: var(--sim-radius);
+    background: var(--sim-surface-muted);
+    color: var(--sim-text);
+    font-size: var(--sim-fs-base);
+}
+
+.sim-readonly .sim-cell-sub {
+    display: inline;
+}
+
+/* Bukti transaksi (setelah berhasil) */
+.sim-receipt {
+    border: 1px solid var(--sim-success-border);
+    border-radius: var(--sim-radius-lg);
+    background: var(--sim-surface);
+    box-shadow: var(--sim-shadow-xs);
+    overflow: hidden;
+}
+
+.sim-receipt__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1rem 1.25rem;
+    background: var(--sim-success-bg);
+}
+
+.sim-receipt__icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--sim-surface);
+    color: var(--sim-success-text);
+    font-size: 1.25rem;
+}
+
+.sim-receipt__title {
+    margin: 0;
+    color: var(--sim-success-text);
+    font-size: var(--sim-fs-md);
+    font-weight: 700;
+}
+
+.sim-receipt__subtitle {
+    margin: 0.125rem 0 0;
+    color: var(--sim-text-secondary);
+    font-size: var(--sim-fs-sm);
+}
+
+.sim-receipt__body {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem 1.5rem;
+    padding: 1.25rem;
+}
+
+.sim-receipt__item dt {
+    color: var(--sim-text-muted);
+    font-size: var(--sim-fs-xs);
+    font-weight: 500;
+}
+
+.sim-receipt__item dd {
+    margin: 0.25rem 0 0;
+    color: var(--sim-text);
+    font-weight: 600;
+}
+
+.sim-receipt__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    border-top: 1px solid var(--sim-border);
+    color: var(--sim-text-muted);
+    font-size: var(--sim-fs-sm);
+}
+
+@media (max-width: 991.98px) {
+    .sim-receipt__body {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 459.98px) {
+    .sim-receipt__body {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Laporan */
+.sim-filter-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(0, 1fr)) auto;
+    align-items: start;
+    gap: 1rem 1.25rem;
+}
+
+.sim-filter-grid__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-top: 1.6875rem;
+}
+
+@media (max-width: 1199.98px) {
+    .sim-filter-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .sim-filter-grid__actions {
+        grid-column: 1 / -1;
+        padding-top: 0;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .sim-filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sim-filter-grid__actions > .btn {
+        flex: 1 1 0;
+    }
+}
+
+.sim-report__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding: 1.5rem 1.5rem 1.25rem;
+    border-bottom: 1px solid var(--sim-border);
+}
+
+.sim-report__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sim-report__org {
+    display: block;
+    color: var(--sim-text-muted);
+    font-size: var(--sim-fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.sim-report__title {
+    margin: 0.125rem 0 0;
+    color: var(--sim-text);
+    font-size: var(--sim-fs-lg);
+    font-weight: 700;
+}
+
+.sim-report__meta {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 0.25rem 1rem;
+    margin: 0;
+    font-size: var(--sim-fs-sm);
+}
+
+.sim-report__meta dt {
+    color: var(--sim-text-muted);
+    font-weight: 500;
+}
+
+.sim-report__meta dd {
+    margin: 0;
+    color: var(--sim-text);
+    font-weight: 600;
+}
+
+.sim-report__summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--sim-border);
+    background: var(--sim-surface-muted);
+}
+
+.sim-report__chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid var(--sim-border);
+    border-radius: var(--sim-radius);
+    background: var(--sim-surface);
+    color: var(--sim-text-secondary);
+    font-size: var(--sim-fs-sm);
+}
+
+.sim-report__chip strong {
+    color: var(--sim-text);
+    font-size: var(--sim-fs-md);
+    font-variant-numeric: tabular-nums;
+}
+
+.sim-report__footnote {
+    padding: 0.875rem 1.5rem;
+    border-top: 1px solid var(--sim-border);
+    color: var(--sim-text-muted);
+    font-size: var(--sim-fs-xs);
+}
+
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 12mm;
+    }
+
+    body {
+        background: #fff !important;
+    }
+
+    .sim-sidebar,
+    .sim-sidebar-backdrop,
+    .sim-header,
+    .sim-footer,
+    .sim-skip-link,
+    .sim-page-header,
+    .no-print {
+        display: none !important;
+    }
+
+    .sim-main {
+        margin-left: 0 !important;
+    }
+
+    .sim-content {
+        max-width: none;
+        padding: 0 !important;
+    }
+
+    .sim-report {
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .sim-report__summary {
+        background: #fff;
+    }
+
+    .sim-table thead th {
+        background: #f1f4f8 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .sim-table tr {
+        break-inside: avoid;
+    }
+
+    .sim-badge {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   20. Halaman teknis /hello/echo (smoke test Task 00)
    --------------------------------------------------------------------------- */
 .echo-card {
     max-width: 560px;

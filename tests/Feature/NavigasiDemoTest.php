@@ -100,8 +100,28 @@ class NavigasiDemoTest extends TestCase
             $this->get($url)->assertOk()->assertInertia(fn (Assert $page) => $page->component($komponen));
         }
 
-        // Halaman phase berikutnya tetap memakai kerangka sementara.
-        $this->get('/demo/admin/peminjaman')->assertInertia(fn (Assert $page) => $page->component(NavigasiDemo::KOMPONEN_DISIAPKAN));
+        // Halaman Anggota (Phase 5) masih memakai kerangka sementara.
+        $this->get('/demo/anggota/cari-buku')->assertInertia(fn (Assert $page) => $page->component(NavigasiDemo::KOMPONEN_DISIAPKAN));
+    }
+
+    public function test_phase4_pages_use_final_components(): void
+    {
+        $harapan = [
+            '/demo/admin/peminjaman' => 'Admin/Peminjaman',
+            '/demo/admin/pengembalian' => 'Admin/Pengembalian',
+            '/demo/admin/booking/verifikasi' => 'Admin/Booking/Verifikasi',
+            '/demo/admin/booking/realisasi' => 'Admin/Booking/Realisasi',
+            '/demo/admin/laporan' => 'Admin/Laporan',
+        ];
+
+        foreach ($harapan as $url => $komponen) {
+            $this->get($url)->assertOk()->assertInertia(fn (Assert $page) => $page->component($komponen));
+        }
+
+        // Tidak ada lagi halaman Admin yang memakai kerangka sementara.
+        foreach (NavigasiDemo::halamanAdmin() as $halaman) {
+            $this->assertNotSame(NavigasiDemo::KOMPONEN_DISIAPKAN, $halaman['komponen']);
+        }
     }
 
     public function test_edit_routes_share_route_parameters(): void
