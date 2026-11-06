@@ -148,3 +148,53 @@ export function validasiRealisasi(idBooking, isian, data, { tanggalPinjam }) {
 
     return tanpaKosong(galat);
 }
+
+/**
+ * Ajukan booking (FR-031): anggota terdaftar & Aktif; eksemplar terdaftar dan
+ * Tersedia (tanpa peminjaman Aktif & tanpa booking Disetujui).
+ * Pengajuan ganda yang identik (anggota & eksemplar sama dengan booking yang masih
+ * Diajukan/Disetujui) ditolak — mencegah pengiriman ganda. Kuota, masa berlaku, dan
+ * antrean booking masih TBD-06, sehingga tidak dibatasi.
+ * @param {{kodeEksemplar: string}} isian
+ */
+export function validasiAjukanBooking(isian, data, { kodeAnggota }) {
+    const galat = {};
+
+    const anggota = data.anggota.find((a) => a.kodeAnggota === kodeAnggota);
+    if (!anggota) return { umum: 'Booking ditolak: akun anggota tidak terdaftar.' };
+    if (anggota.status !== 'Aktif') return { umum: 'Booking ditolak: keanggotaan Anda berstatus Nonaktif. Hubungi Admin perpustakaan.' };
+
+    const eksemplar = data.eksemplar.find((e) => e.kodeEksemplar === isian.kodeEksemplar);
+    const bukuTanpaTersedia = isian.kodeBuku && !data.eksemplar.some((e) => e.kodeBuku === isian.kodeBuku && eksemplarDapatDipesan(data, e.kodeEksemplar));
+    if (!isian.kodeEksemplar) {
+        galat.kodeEksemplar = bukuTanpaTersedia ? 'Buku ini tidak memiliki eksemplar Tersedia untuk dibooking.' : 'Pilih Kode Eksemplar.';
+    } else if (!eksemplar) {
+        galat.kodeEksemplar = 'Kode Eksemplar tidak terdaftar.';
+    } else if (isian.kodeBuku && eksemplar.kodeBuku !== isian.kodeBuku) {
+        galat.kodeEksemplar = 'Kode Eksemplar tidak terdaftar untuk buku ini.';
+    } else if (!eksemplarDapatDipesan(data, eksemplar.kodeEksemplar)) {
+        galat.kodeEksemplar = `Booking ditolak: eksemplar ${eksemplar.kodeEksemplar} berstatus ${eksemplar.status}. Hanya eksemplar Tersedia yang dapat dibooking.`;
+    } else {
+        const ganda = data.booking.find(
+            (b) => b.kodeAnggota === kodeAnggota && b.kodeEksemplar === eksemplar.kodeEksemplar && (b.status === 'Diajukan' || b.status === 'Disetujui'),
+        );
+        if (ganda) galat.kodeEksemplar = `Anda sudah memiliki booking ${ganda.idBooking} (${ganda.status}) untuk eksemplar ini.`;
+    }
+
+    return tanpaKosong(galat);
+}
+
+/**
+ * Batalkan booking oleh anggota (FR-032, State Machine 04): hanya booking milik
+ * sendiri yang berstatus Diajukan atau Disetujui (belum direalisasikan).
+ */
+export function validasiBatalkanBooking(idBooking, data, { kodeAnggota }) {
+    const booking = data.booking.find((b) => b.idBooking === idBooking);
+
+    if (!booking || booking.kodeAnggota !== kodeAnggota) return { umum: `Booking ${idBooking} tidak ditemukan pada akun Anda.` };
+    if (booking.status !== 'Diajukan' && booking.status !== 'Disetujui') {
+        return { umum: `Booking ${idBooking} berstatus ${booking.status} dan tidak dapat dibatalkan.` };
+    }
+
+    return {};
+}

@@ -29,6 +29,11 @@ export function filterBuku(daftar, { kataKunci = '' } = {}) {
     return daftar.filter((b) => cocokKataKunci([b.kodeBuku, b.judul, b.kategori], kataKunci));
 }
 
+/** Katalog (Cari Buku): kata kunci pada kode buku, judul, atau kategori; filter kategori opsional. */
+export function filterKatalog(daftar, { kataKunci = '', kategori = '' } = {}) {
+    return filterBuku(daftar, { kataKunci }).filter((b) => kategori === '' || b.kategori === kategori);
+}
+
 /**
  * Usulan kode berikutnya untuk placeholder, mis. AG-010 → "AG-011".
  * Hanya contoh di placeholder; kode tetap diisi pengguna.

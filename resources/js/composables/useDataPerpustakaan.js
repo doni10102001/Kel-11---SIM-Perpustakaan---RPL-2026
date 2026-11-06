@@ -20,6 +20,8 @@ import { DATA_MOCK, ID_ADMIN_DEMO, periksaKonsistensi, salin } from '../data/moc
 import { kodeBerikutnya } from '../utils/pencarian.js';
 import { normalKode, validasiAnggota, validasiBuku } from '../utils/validasiMaster.js';
 import {
+    validasiAjukanBooking,
+    validasiBatalkanBooking,
     validasiPeminjaman,
     validasiPengembalian,
     validasiRealisasi,
@@ -246,6 +248,52 @@ export function realisasikanBooking(idBooking, isian, { tanggalPinjam = TANGGAL_
     });
 }
 
+// ---------------------------------------------------------------- Booking oleh Anggota (Phase 5)
+
+/**
+ * Ajukan booking (FR-031): booking baru berstatus Diajukan. Eksemplar TIDAK
+ * dikunci — status Dipesan baru diberikan saat Admin menyetujui (FR-034).
+ * @param {{kodeBuku?: string, kodeEksemplar: string}} isian
+ */
+export function ajukanBooking(isian, { kodeAnggota, tanggalBooking = TANGGAL_DEMO }) {
+    gagalBila(validasiAjukanBooking(isian, data, { kodeAnggota }));
+
+    return jalankanTransaksi('Pengajuan booking', (d) => {
+        const booking = {
+            idBooking: kodeBerikutnya(d.booking, 'idBooking', 'BP'),
+            kodeAnggota,
+            kodeEksemplar: isian.kodeEksemplar,
+            tanggalBooking,
+            status: 'Diajukan',
+            tanggalKeputusan: null,
+            diputuskanOleh: null,
+            alasanPenolakan: null,
+            idPeminjaman: null,
+        };
+        d.booking.push(booking);
+
+        return booking;
+    });
+}
+
+/**
+ * Batalkan booking milik anggota (FR-032): Diajukan/Disetujui → Dibatalkan.
+ * Bila sudah Disetujui, reservasi eksemplar dilepas (Dipesan → Tersedia, FR-035).
+ * Tanggal pembatalan tidak dicatat karena tidak ada field-nya di SRS.
+ */
+export function batalkanBooking(idBooking, { kodeAnggota }) {
+    gagalBila(validasiBatalkanBooking(idBooking, data, { kodeAnggota }));
+
+    return jalankanTransaksi('Pembatalan booking', (d) => {
+        const booking = d.booking.find((b) => b.idBooking === idBooking);
+        const melepasReservasi = booking.status === 'Disetujui';
+        booking.status = 'Dibatalkan';
+        if (melepasReservasi) setStatusEksemplar(d, booking.kodeEksemplar, 'Tersedia');
+
+        return booking;
+    });
+}
+
 // ---------------------------------------------------------------- Pesan & utilitas
 
 /** Pesan satu kali untuk ditampilkan di halaman tujuan setelah penyimpanan. */
@@ -284,6 +332,8 @@ export function useDataPerpustakaan() {
         setujuiBooking,
         tolakBooking,
         realisasikanBooking,
+        ajukanBooking,
+        batalkanBooking,
         setPesan,
         ambilPesan,
     };

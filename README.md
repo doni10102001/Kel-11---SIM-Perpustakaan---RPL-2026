@@ -2,7 +2,7 @@
 
 Sistem Informasi Manajemen Perpustakaan — **satu proyek Laravel terintegrasi**. Vue 3 berjalan di dalam Laravel melalui Inertia.js dan Vite (tidak ada proyek frontend/backend terpisah).
 
-> **Status: Phase 4 — transaksi & laporan Admin** (Peminjaman, Pengembalian, Verifikasi & Realisasi Booking, Laporan). Seluruh halaman Admin selesai; halaman Anggota menyusul di Phase 5.
+> **Status: Phase 5 — seluruh halaman Admin dan Anggota selesai** (12 halaman Admin + 5 halaman Anggota + Masuk). Simulasi transaksi berjalan di browser dan dibagi antarperan dalam satu sesi; muat ulang mengembalikan data awal.
 > Prototipe UI statis dengan **dua peran: Admin dan Anggota**. Tidak ada database, API, maupun autentikasi backend.
 > Halaman Masuk hanya **pratinjau peran**, bukan sistem login yang aman. Isi halaman modul dibangun pada Phase 2–5.
 
@@ -102,7 +102,7 @@ Basis: <http://localhost:8000>. Semua halaman dapat dibuka langsung tanpa login.
 | Admin | `/demo/admin/laporan` | Laporan (filter dari URL: `?jenis=peminjaman&awal=2026-11-01&akhir=2026-11-07`) |
 | Anggota | `/demo/anggota/dashboard` | Dashboard |
 | Anggota | `/demo/anggota/cari-buku` | Cari Buku |
-| Anggota | `/demo/anggota/booking/ajukan` | Ajukan Booking |
+| Anggota | `/demo/anggota/booking/ajukan` | Ajukan Booking (`?buku=BK-001` atau `?eksemplar=EK-001` memilih buku/eksemplar) |
 | Anggota | `/demo/anggota/booking/status` | Status Booking |
 | Anggota | `/demo/anggota/history` | History Peminjaman |
 | Pengembang | `/demo/komponen` | Katalog komponen UI (tidak ditautkan dari navigasi) |
@@ -162,7 +162,8 @@ resources/
 │   ├── Layouts/                 # AppShell, AdminLayout, AnggotaLayout
 │   └── Pages/                   # Auth/Login, Admin/Dashboard, Admin/Anggota/{Index,Form}, Admin/Buku/{Index,Form},
 │                                # Admin/Peminjaman, Admin/Pengembalian, Admin/Booking/{Verifikasi,Realisasi}, Admin/Laporan,
-│                                # Sistem/HalamanDisiapkan (halaman phase berikutnya), Sistem/PratinjauKomponen, HelloEcho
+│                                # Anggota/Dashboard, Anggota/CariBuku, Anggota/Booking/{Ajukan,Status}, Anggota/History,
+│                                # Sistem/PratinjauKomponen, HelloEcho
 └── views/app.blade.php          # root template: @vite, <x-inertia::head>, <x-inertia::app>
 ```
 
@@ -174,6 +175,6 @@ Menambah halaman: daftarkan di `NavigasiDemo::halamanAdmin()` / `halamanAnggota(
 export PATH="/opt/homebrew/opt/php@8.4/bin:$PATH"
 php artisan route:list
 php artisan test             # rute, menu, breadcrumb, batas peran, tanpa query database
-npm run test:data            # data mock, validasi, store atomik, transaksi, laporan (118 tes)
+npm run test:data            # data mock, validasi, store atomik, transaksi, laporan, booking Anggota & alur lintas peran (142 tes)
 npm run build
 ```

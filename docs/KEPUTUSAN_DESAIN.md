@@ -53,6 +53,20 @@ Perlu dikonfirmasi pemilik proyek; semuanya diterapkan pada prototipe.
 | 3.9 | Penyimpanan | Simulasi di browser: store reaktif dari salinan data mock (`useDataPerpustakaan`). Berlaku selama sesi; muat ulang mengembalikan data awal. Pesan sukses menyebut hal ini dan tidak mengklaim tersimpan permanen. | Instruksi prototipe statis |
 | 3.10 | Pencarian | Anggota: kode, nama, kontak + filter status. Buku: kode buku, judul, kategori (penulis/penerbit tidak termasuk). | FR-007, FR-008 |
 
+## Keputusan implementasi Phase 5 (halaman Anggota)
+
+| # | Topik | Keputusan | Dasar | Status |
+| --- | --- | --- | --- | --- |
+| 5.1 | Identitas | Semua halaman Anggota memakai akun demo AG-001 (Nadia Rahmawati) dan hanya menampilkan booking/peminjaman miliknya. Katalog tidak menampilkan siapa yang meminjam/memesan. | FR-018, FR-036, NFR-022, BR-08 | Final prototipe |
+| 5.2 | Cari Buku | Pencarian kata kunci pada judul, kode buku, atau kategori + filter kategori; ketersediaan dihitung dari status eksemplar saat ini; detail menampilkan daftar eksemplar dan statusnya. | FR-007, FR-030, SRS 4.7.2 ("kata kunci atau filter"), A07/S07 | Sesuai SRS |
+| 5.3 | Syarat ajukan booking | Anggota Aktif dan eksemplar Tersedia (tanpa peminjaman Aktif/booking Disetujui). Booking baru berstatus Diajukan dengan ID unik dan tanggal pengajuan = tanggal demo. Eksemplar **tidak** dikunci saat diajukan; tidak ada persetujuan atau peminjaman otomatis. | FR-031, FR-034, BR-06 | Sesuai SRS |
+| 5.4 | Pengajuan ganda | Ditolak bila anggota yang sama sudah punya booking Diajukan/Disetujui untuk eksemplar yang sama (mencegah pengiriman ganda). | Pencegahan transaksi ganda | Keputusan prototipe |
+| 5.5 | Kuota, antrean, masa berlaku | **Tidak dibatasi.** Anggota lain boleh mengajukan eksemplar yang sama selama belum Dipesan; Admin yang memutuskan. Booking untuk eksemplar Dipinjam tidak diizinkan (FR-031 "eksemplar yang tersedia"). | TBD-06, SRS 6.2 ("booking aktif serentak memerlukan batasan terpisah") | **Belum final** |
+| 5.6 | Pembatalan oleh Anggota | Hanya booking milik sendiri berstatus **Diajukan** atau **Disetujui**; Disetujui → Dibatalkan melepas reservasi (Dipesan → Tersedia). Ditolak, Dibatalkan, Direalisasikan tidak dapat dibatalkan. Tanggal pembatalan tidak dicatat (tidak ada field di SRS). | FR-032, SRS 4.8.2 langkah 4, BR-06, State Machine 04, FR-035 | **Pembatalan setelah Disetujui masih TBD-06** |
+| 5.7 | History Peminjaman | Filter status (Semua/Aktif/Selesai); Aktif tanpa Tanggal Kembali; detail menampilkan jatuh tempo dan asal transaksi (realisasi booking atau peminjaman langsung). Tanpa denda/perpanjangan. | FR-013, FR-036, FR-037, SRS 3.1 Histori, A09/S09 | Sesuai SRS |
+| 5.8 | Anggota Nonaktif | Dashboard menampilkan peringatan; Ajukan Booking dinonaktifkan; riwayat tetap terlihat. | FR-022, FR-031 | Prototipe |
+| 5.9 | Integrasi lintas peran | Admin dan Anggota memakai store yang sama; perpindahan peran lewat Keluar → Masuk adalah navigasi Inertia (tanpa muat ulang), sehingga simulasi berlanjut dalam satu sesi. Muat ulang browser mengembalikan data awal. | Instruksi prototipe statis | Final prototipe |
+
 ## Keputusan implementasi Phase 4 (transaksi & laporan Admin)
 
 | # | Topik | Keputusan | Dasar | Status |
@@ -98,6 +112,6 @@ Identitas tidak peka huruf besar/kecil dan spasi di tepi diabaikan. Kata sandi a
 ## Catatan untuk phase berikutnya
 
 - **Phase 2 (selesai):** data mock terpusat di `resources/js/data/mock/`; akun pratinjau di `config/demo.js` kini diambil dari dataset (Admin USR-001 Rina Wulandari, Anggota AG-001 Nadia Rahmawati). Pemetaan field dan penyesuaian terhadap Object Diagram ("Anggota A/B" → nama fiktif realistis) dijelaskan di `docs/analysis/mock-data.md`.
-- **Phase 3–5:** rute yang isinya belum dibangun memakai komponen sementara `Sistem/HalamanDisiapkan` (diatur di `NavigasiDemo`, kunci `komponen`). Setiap phase mengganti komponen tersebut dengan halaman final.
+- **Phase 3–5 (selesai):** seluruh rute memakai halaman final; komponen sementara `Sistem/HalamanDisiapkan` dihapus di Phase 5.
 - **Phase 4 — field petugas pemroses:** SRS 6.1 (`loans.staff_id`, `returns.staff_id`, `bookings.staff_id`) dan FR-024/FR-028/FR-033 mencatat identitas *petugas* yang memproses transaksi. Field ini **tetap ada** (tidak diubah); di prototipe nilainya diisi akun Admin yang sedang aktif. Label field final (mis. "Petugas Proses" sesuai file phase) dikonfirmasi saat Phase 4.
 - **Tanggal demo** tetap `2026-11-07` (`TANGGAL_DEMO`) agar tampilan dan screenshot deterministik.

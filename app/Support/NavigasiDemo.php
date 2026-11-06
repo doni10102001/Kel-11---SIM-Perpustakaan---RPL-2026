@@ -31,9 +31,6 @@ class NavigasiDemo
         self::PERAN_ANGGOTA => 'Anggota',
     ];
 
-    /** Komponen sementara untuk halaman yang isinya dibangun pada phase berikutnya. */
-    public const KOMPONEN_DISIAPKAN = 'Sistem/HalamanDisiapkan';
-
     /**
      * Daftar halaman per peran. Kunci = akhiran nama rute `demo.{peran}.{kunci}`.
      *
@@ -147,35 +144,35 @@ class NavigasiDemo
                 'judul' => 'Dashboard',
                 'deskripsi' => 'Ringkasan booking dan peminjaman Anda.',
                 'induk' => null,
-                'komponen' => self::KOMPONEN_DISIAPKAN,
+                'komponen' => 'Anggota/Dashboard',
             ],
             'cari-buku' => [
                 'uri' => 'cari-buku',
                 'judul' => 'Cari Buku',
                 'deskripsi' => 'Temukan buku berdasarkan judul, kode buku, atau kategori.',
                 'induk' => 'dashboard',
-                'komponen' => self::KOMPONEN_DISIAPKAN,
+                'komponen' => 'Anggota/CariBuku',
             ],
             'booking.ajukan' => [
                 'uri' => 'booking/ajukan',
                 'judul' => 'Ajukan Booking',
                 'deskripsi' => 'Ajukan booking untuk eksemplar buku yang tersedia.',
                 'induk' => 'dashboard',
-                'komponen' => self::KOMPONEN_DISIAPKAN,
+                'komponen' => 'Anggota/Booking/Ajukan',
             ],
             'booking.status' => [
                 'uri' => 'booking/status',
                 'judul' => 'Status Booking',
                 'deskripsi' => 'Pantau status booking yang telah Anda ajukan.',
                 'induk' => 'dashboard',
-                'komponen' => self::KOMPONEN_DISIAPKAN,
+                'komponen' => 'Anggota/Booking/Status',
             ],
             'history' => [
                 'uri' => 'history',
                 'judul' => 'History Peminjaman',
                 'deskripsi' => 'Riwayat peminjaman dan pengembalian buku Anda.',
                 'induk' => 'dashboard',
-                'komponen' => self::KOMPONEN_DISIAPKAN,
+                'komponen' => 'Anggota/History',
             ],
         ];
     }

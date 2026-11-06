@@ -2579,7 +2579,72 @@ h6 {
 }
 
 /* ---------------------------------------------------------------------------
-   20. Halaman teknis /hello/echo (smoke test Task 00)
+   20. Halaman Anggota
+   --------------------------------------------------------------------------- */
+.sim-stat-grid.is-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 767.98px) {
+    .sim-stat-grid.is-3 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Ketersediaan buku (teks + ikon, tidak bergantung warna saja) */
+.sim-avail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: var(--sim-fs-sm);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.sim-avail.is-yes {
+    color: var(--sim-success-text);
+}
+
+.sim-avail.is-no {
+    color: var(--sim-neutral-text);
+}
+
+.sim-avail__note {
+    display: block;
+    color: var(--sim-text-muted);
+    font-size: var(--sim-fs-xs);
+    font-weight: 500;
+}
+
+.sim-note {
+    color: var(--sim-text-secondary);
+    font-size: var(--sim-fs-sm);
+}
+
+.sim-note.is-danger {
+    color: var(--sim-danger-text);
+}
+
+.sim-reason {
+    padding: 0.75rem 0.875rem;
+    border: 1px solid var(--sim-danger-border);
+    border-radius: var(--sim-radius);
+    background: var(--sim-danger-bg);
+    color: var(--sim-text);
+}
+
+.sim-reason__label {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--sim-danger-text);
+    font-size: var(--sim-fs-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------------------
+   21. Halaman teknis /hello/echo (smoke test Task 00)
    --------------------------------------------------------------------------- */
 .echo-card {
     max-width: 560px;
