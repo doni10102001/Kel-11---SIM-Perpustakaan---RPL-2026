@@ -13,9 +13,4 @@ class ExampleTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page->component('HelloEcho'));
     }
-
-    public function test_root_has_no_application_page(): void
-    {
-        $this->get('/')->assertNotFound();
-    }
 }

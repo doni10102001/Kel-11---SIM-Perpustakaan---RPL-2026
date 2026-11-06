@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\NavigasiDemo;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -37,7 +38,8 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            //
+            // Konteks pratinjau statis: peran dari URL, menu, peta rute, dan meta halaman.
+            'demo' => fn () => NavigasiDemo::konteks($request),
         ];
     }
 }
