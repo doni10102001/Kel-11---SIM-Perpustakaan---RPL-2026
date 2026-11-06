@@ -121,6 +121,22 @@ Kata sandi apa pun yang tidak kosong diterima; identitas lain ditolak dengan pes
 
 Route bawaan framework yang tetap ada (bukan halaman aplikasi): `GET /up` (health check) dan `storage/{path}` (disk lokal Laravel). Route DevTools Inertia dimatikan dengan `INERTIA_DEVTOOLS_ENABLED=false`.
 
+## Screenshot untuk Google Stitch
+
+Paket screenshot PNG halaman final (tanpa URL publik) ada di `docs/stitch/`:
+
+- `screenshots/` — 18 screenshot utama (1440 px, full-page) + 8 screenshot state
+- `SCREENSHOT_MANIFEST.md` — halaman, URL lokal, file, dimensi, validasi
+- `QA_REPORT.md` — hasil QA final
+- `SIM_PERPUSTAKAAN_SCREENSHOTS.zip` — screenshot + manifest
+
+Buat ulang (aplikasi harus berjalan dengan aset `npm run build`):
+
+```bash
+npm run screenshots:stitch                              # basis http://127.0.0.1:8000
+npm run screenshots:stitch -- --base=http://127.0.0.1:8013
+```
+
 ## Konfigurasi tanpa database
 
 `.env.example` diatur agar aplikasi boot tanpa database:

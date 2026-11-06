@@ -155,7 +155,7 @@ const tanggal = (nilai, gaya = 'pendek') => formatTanggal(nilai, gaya);
             <div class="sim-toolbar">
                 <SegmentedTabs v-model="tab" :options="opsiTab" label="Status booking" />
                 <div class="sim-toolbar__search">
-                    <SearchInput v-model="kataKunci" label="Cari booking" placeholder="Cari ID, anggota, judul, atau eksemplar" />
+                    <SearchInput v-model="kataKunci" label="Cari booking" placeholder="Cari ID, anggota, atau judul" />
                 </div>
             </div>
 

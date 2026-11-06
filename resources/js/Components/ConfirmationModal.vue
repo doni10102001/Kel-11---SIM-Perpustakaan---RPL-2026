@@ -34,6 +34,9 @@ const IKON = {
 const VARIAN = { primary: 'primary', danger: 'danger', warning: 'primary', success: 'success' };
 
 const ikon = computed(() => props.icon ?? IKON[props.tone] ?? IKON.primary);
+
+// Kode seperti EK-018 atau BP-008 tidak boleh terpotong di tanda hubung saat teks dibungkus.
+const pesanTampil = computed(() => props.message?.replace(/\b([A-Z]{2,3})-(\d+)\b/g, '$1\u2011$2') ?? null);
 const varian = computed(() => VARIAN[props.tone] ?? 'primary');
 
 const id = useId();
@@ -134,7 +137,7 @@ onBeforeUnmount(() => {
                         </div>
                         <div class="flex-grow-1 min-w-0">
                             <h2 :id="idJudul" class="sim-modal__title">{{ title }}</h2>
-                            <p v-if="message" :id="idPesan" class="sim-modal__message">{{ message }}</p>
+                            <p v-if="message" :id="idPesan" class="sim-modal__message">{{ pesanTampil }}</p>
                             <div v-if="$slots.default" class="sim-modal__extra">
                                 <slot />
                             </div>
