@@ -55,7 +55,7 @@ Identitas tidak peka huruf besar/kecil dan spasi di tepi diabaikan. Kata sandi a
 
 ## Catatan untuk phase berikutnya
 
-- **Phase 2:** identitas Anggota `AG-001` (Nadia Rahmawati) harus sama dengan data di `resources/js/data/mock/members.js`. Object Diagram memakai nama placeholder "Anggota A"; prototipe memakai nama fiktif yang realistis.
+- **Phase 2 (selesai):** data mock terpusat di `resources/js/data/mock/`; akun pratinjau di `config/demo.js` kini diambil dari dataset (Admin USR-001 Rina Wulandari, Anggota AG-001 Nadia Rahmawati). Pemetaan field dan penyesuaian terhadap Object Diagram ("Anggota A/B" → nama fiktif realistis) dijelaskan di `docs/analysis/mock-data.md`.
 - **Phase 3–5:** rute yang isinya belum dibangun memakai komponen sementara `Sistem/HalamanDisiapkan` (diatur di `NavigasiDemo`, kunci `komponen`). Setiap phase mengganti komponen tersebut dengan halaman final.
 - **Phase 4 — field petugas pemroses:** SRS 6.1 (`loans.staff_id`, `returns.staff_id`, `bookings.staff_id`) dan FR-024/FR-028/FR-033 mencatat identitas *petugas* yang memproses transaksi. Field ini **tetap ada** (tidak diubah); di prototipe nilainya diisi akun Admin yang sedang aktif. Label field final (mis. "Petugas Proses" sesuai file phase) dikonfirmasi saat Phase 4.
 - **Tanggal demo** tetap `2026-11-07` (`TANGGAL_DEMO`) agar tampilan dan screenshot deterministik.

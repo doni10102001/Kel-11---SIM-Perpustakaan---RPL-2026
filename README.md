@@ -2,7 +2,7 @@
 
 Sistem Informasi Manajemen Perpustakaan — **satu proyek Laravel terintegrasi**. Vue 3 berjalan di dalam Laravel melalui Inertia.js dan Vite (tidak ada proyek frontend/backend terpisah).
 
-> **Status: Phase 1 — layout bersama, navigasi, halaman Masuk, dan komponen UI.**
+> **Status: Phase 2 — data mock terpusat** (di atas Phase 1: layout bersama, navigasi, halaman Masuk, komponen UI).
 > Prototipe UI statis dengan **dua peran: Admin dan Anggota**. Tidak ada database, API, maupun autentikasi backend.
 > Halaman Masuk hanya **pratinjau peran**, bukan sistem login yang aman. Isi halaman modul dibangun pada Phase 2–5.
 
@@ -142,7 +142,9 @@ resources/
 ├── css/app.css                  # design tokens + komponen (di atas Bootstrap 5.3)
 ├── js/
 │   ├── app.js                   # entry Inertia + font Inter, Bootstrap, Bootstrap Icons
-│   ├── config/demo.js           # akun pratinjau & tanggal demo tetap (2026-11-07)
+│   ├── config/demo.js           # akun pratinjau (dari data mock) & tanggal demo tetap (2026-11-07)
+│   ├── data/mock/               # data mock terpusat: users, members, books, bookCopies, loans,
+│   │                            # returns, bookings + relasi, dashboard, validasi (lihat docs/analysis/mock-data.md)
 │   ├── composables/useDemo.js   # akses peran, akun, menu, peta rute
 │   ├── utils/status.js          # kosakata status resmi + tampilan badge
 │   ├── utils/format.js          # format tanggal Indonesia (WIB), inisial
@@ -162,5 +164,6 @@ Menambah halaman: daftarkan di `NavigasiDemo::halamanAdmin()` / `halamanAnggota(
 export PATH="/opt/homebrew/opt/php@8.4/bin:$PATH"
 php artisan route:list
 php artisan test             # rute, menu, breadcrumb, batas peran, tanpa query database
+npm run test:data            # konsistensi data mock (relasi, status, tanggal, dashboard)
 npm run build
 ```

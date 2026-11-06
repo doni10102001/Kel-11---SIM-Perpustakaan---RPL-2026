@@ -4,7 +4,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "test:data": "node --test tests/js/"
     },
     "devDependencies": {
         "@inertiajs/vite": "^3.11.0",
