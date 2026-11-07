@@ -4,6 +4,8 @@
  * - Data awal (resources/js/data/mock/) tidak pernah diubah.
  * - Perubahan hanya berlaku selama sesi halaman; memuat ulang browser
  *   mengembalikan data awal. Tidak ada server, database, API, maupun localStorage.
+ * - Akses login Anggota (pasca-Final Audit) juga hanya di memori; kata sandi
+ *   disimpan sebagai hash bergaram, BUKAN autentikasi aman.
  * - Setiap aksi berjalan ATOMIK (SRS AC-16, NFR-006, NFR-020):
  *     1. validasi aksi (utils/validasiMaster.js, utils/validasiTransaksi.js);
  *     2. perubahan diterapkan pada salinan draf;
@@ -15,10 +17,11 @@
  */
 import { reactive } from 'vue';
 
-import { TANGGAL_DEMO } from '../config/demo.js';
+import { AKUN_DEMO, TANGGAL_DEMO } from '../config/demo.js';
 import { DATA_MOCK, ID_ADMIN_DEMO, periksaKonsistensi, salin } from '../data/mock/index.js';
 import { kodeBerikutnya } from '../utils/pencarian.js';
-import { normalKode, validasiAnggota, validasiBuku } from '../utils/validasiMaster.js';
+import { cocokKataSandi, hashKataSandi } from '../utils/kredensial.js';
+import { normalKode, relasiAkunValid, samaUsername, validasiAksesLogin, validasiAnggota, validasiBuku } from '../utils/validasiMaster.js';
 import {
     validasiAjukanBooking,
     validasiBatalkanBooking,
@@ -68,9 +71,34 @@ function jalankanTransaksi(aksi, ubah) {
 
 // ---------------------------------------------------------------- Master data (Phase 3)
 
-/** Tambah anggota baru. Akun login belum dibuat (members.user_id opsional, SRS 6.1). */
-export function tambahAnggota(isian) {
-    gagalBila(validasiAnggota(isian, data, { mode: 'tambah' }));
+/**
+ * Akun login baru untuk anggota (peran anggota, kata sandi disimpan sebagai hash).
+ * `statusAkun` dipertahankan untuk kompatibilitas (Class Diagram Pengguna.statusAkun)
+ * tetapi SELALU diturunkan dari Status Anggota — tidak ada Status Akses terpisah.
+ */
+function buatAkunAnggota(d, anggota, akses) {
+    const akun = {
+        idPengguna: kodeBerikutnya(d.pengguna, 'idPengguna', 'USR'),
+        username: akses.username.trim(),
+        nama: anggota.nama,
+        peran: 'anggota',
+        statusAkun: anggota.status,
+        passwordHash: hashKataSandi(akses.kataSandi),
+    };
+    d.pengguna.push(akun);
+    anggota.idPengguna = akun.idPengguna;
+
+    return akun;
+}
+
+/**
+ * Tambah anggota baru (FR-005). Akses login opsional (members.user_id?, SRS 6.1):
+ * bila `akses.buatAkses`, anggota + akun dibuat dan dihubungkan dalam SATU transaksi.
+ * @param {{kodeAnggota, nama, kontak, status}} isian
+ * @param {{buatAkses, username, kataSandi, konfirmasiKataSandi}|null} akses
+ */
+export function tambahAnggota(isian, akses = null) {
+    gagalBila({ ...validasiAnggota(isian, data, { mode: 'tambah' }), ...validasiAksesLogin(akses, data) });
 
     return jalankanTransaksi('Tambah anggota', (d) => {
         const anggota = {
@@ -81,15 +109,26 @@ export function tambahAnggota(isian) {
             status: isian.status,
         };
         d.anggota.push(anggota);
+        if (akses?.buatAkses) buatAkunAnggota(d, anggota, akses);
 
         return anggota;
     });
 }
 
-/** Ubah data anggota. Kode Anggota tidak diubah (keputusan prototipe). */
-export function ubahAnggota(kodeAnggota, isian) {
-    if (!data.anggota.some((a) => a.kodeAnggota === kodeAnggota)) throw new GalatValidasi({ umum: `Anggota ${kodeAnggota} tidak ditemukan.` });
-    gagalBila(validasiAnggota(isian, data, { mode: 'ubah' }));
+/**
+ * Ubah data anggota (FR-006). Kode Anggota tidak diubah (keputusan prototipe).
+ * Akses login (opsional):
+ *  - anggota tanpa akun + `akses.buatAkses` → akun baru dibuat & dihubungkan;
+ *  - anggota dengan akun → kata sandi hanya berubah bila `akses.resetKataSandi`
+ *    (kata sandi lama tidak pernah dibaca/ditampilkan).
+ * Status Anggota adalah SATU-SATUNYA sumber status: `statusAkun` akun anggota
+ * selalu disalin dari Status Anggota (nilai `akses.statusAkun` diabaikan).
+ * Akun dan riwayat transaksi tidak pernah dihapus karena perubahan status.
+ */
+export function ubahAnggota(kodeAnggota, isian, akses = null) {
+    const lama = data.anggota.find((a) => a.kodeAnggota === kodeAnggota);
+    if (!lama) throw new GalatValidasi({ umum: `Anggota ${kodeAnggota} tidak ditemukan.` });
+    gagalBila({ ...validasiAnggota(isian, data, { mode: 'ubah' }), ...validasiAksesLogin(akses, data, { anggota: lama }) });
 
     return jalankanTransaksi('Ubah anggota', (d) => {
         const anggota = d.anggota.find((a) => a.kodeAnggota === kodeAnggota);
@@ -97,11 +136,14 @@ export function ubahAnggota(kodeAnggota, isian) {
         anggota.kontak = isian.kontak.trim();
         anggota.status = isian.status;
 
-        // Akun login anggota mengikuti nama dan status keanggotaan.
         const akun = d.pengguna.find((p) => p.idPengguna === anggota.idPengguna);
         if (akun) {
+            // Nama dan status akun mengikuti data anggota.
             akun.nama = anggota.nama;
             akun.statusAkun = anggota.status;
+            if (akses?.resetKataSandi) akun.passwordHash = hashKataSandi(akses.kataSandi);
+        } else if (akses?.buatAkses) {
+            buatAkunAnggota(d, anggota, akses);
         }
 
         return anggota;
@@ -294,6 +336,97 @@ export function batalkanBooking(idBooking, { kodeAnggota }) {
     });
 }
 
+// ---------------------------------------------------------------- Masuk SIMULASI (pasca-Final Audit)
+
+/**
+ * Akun yang sedang "masuk" pada sesi SPA ini. Hanya `idPengguna` yang disimpan,
+ * di memori — tidak ada token, cookie, localStorage, maupun sessionStorage.
+ * Muat ulang browser menghapusnya (halaman kembali memakai akun pratinjau).
+ */
+const sesi = reactive({ idPengguna: null });
+
+/** Akun pratinjau bawaan: menerima kata sandi apa pun SELAMA Admin belum mengatur kata sandinya. */
+const ID_AKUN_PRATINJAU = new Set(Object.values(AKUN_DEMO).map((a) => a.idPengguna));
+
+export const PESAN_MASUK = Object.freeze({
+    // Generik (FR-003): tidak menyebut apakah username atau kata sandi yang salah.
+    gagal: 'Identitas pengguna atau kata sandi tidak sesuai. Periksa kembali, lalu coba lagi.',
+    // Hanya untuk akun Admin; status login Anggota mengikuti Status Anggota.
+    akunNonaktif: 'Akun ini sedang nonaktif. Hubungi Admin perpustakaan.',
+    anggotaNonaktif: 'Keanggotaan Anda sedang nonaktif sehingga tidak dapat masuk. Hubungi Admin perpustakaan.',
+    relasiTidakValid: 'Akun ini belum terhubung dengan data anggota yang valid. Hubungi Admin perpustakaan.',
+});
+
+/**
+ * Verifikasi masuk SIMULASI. Urutan: (1) username ditemukan, (2) kata sandi cocok,
+ * lalu untuk Anggota (3) akun terhubung ke tepat satu anggota yang valid dan
+ * (4) Status Anggota = Aktif — satu-satunya sumber izin login Anggota.
+ * Akun Admin tidak terpengaruh aturan Status Anggota. Status baru diungkap setelah
+ * kredensial cocok agar pesan tidak membocorkan keberadaan akun.
+ * Berhasil → sesi diisi; gagal → GalatValidasi { umum } tanpa mengubah sesi.
+ * BUKAN autentikasi aman: berjalan sepenuhnya di browser (lihat utils/kredensial.js).
+ * @returns {{idPengguna: string, peran: 'admin'|'anggota'}}
+ */
+export function masuk(identitas, kataSandi) {
+    const akun = data.pengguna.find((p) => samaUsername(p.username, identitas));
+    const sandi = String(kataSandi ?? '');
+
+    const cocok =
+        Boolean(akun) &&
+        sandi !== '' &&
+        (akun.passwordHash ? cocokKataSandi(sandi, akun.passwordHash) : ID_AKUN_PRATINJAU.has(akun.idPengguna));
+    if (!cocok) throw new GalatValidasi({ umum: PESAN_MASUK.gagal });
+
+    if (akun.peran === 'anggota') {
+        const terhubung = data.anggota.filter((a) => a.idPengguna === akun.idPengguna);
+        if (terhubung.length !== 1 || !relasiAkunValid(data, terhubung[0])) throw new GalatValidasi({ umum: PESAN_MASUK.relasiTidakValid });
+        if (terhubung[0].status !== 'Aktif') throw new GalatValidasi({ umum: PESAN_MASUK.anggotaNonaktif });
+    } else if (akun.peran === 'admin') {
+        if (akun.statusAkun !== 'Aktif') throw new GalatValidasi({ umum: PESAN_MASUK.akunNonaktif });
+    } else {
+        throw new GalatValidasi({ umum: PESAN_MASUK.gagal });
+    }
+
+    sesi.idPengguna = akun.idPengguna;
+
+    return { idPengguna: akun.idPengguna, peran: akun.peran };
+}
+
+/** Keluar: hapus akun aktif dari sesi SPA. */
+export function keluar() {
+    sesi.idPengguna = null;
+}
+
+/**
+ * Akun aktif untuk halaman berperan `peran` (header, data milik Anggota).
+ * Bila belum masuk pada sesi ini (mis. URL dibuka langsung atau setelah muat
+ * ulang), dipakai akun pratinjau bawaan AKUN_DEMO[peran] seperti sebelumnya.
+ */
+export function akunAktif(peran) {
+    const akun = sesi.idPengguna ? data.pengguna.find((p) => p.idPengguna === sesi.idPengguna) : null;
+
+    if (akun && akun.peran === peran) {
+        if (peran === 'anggota') {
+            const anggota = data.anggota.find((a) => a.idPengguna === akun.idPengguna);
+            if (anggota) {
+                return {
+                    peran: 'anggota',
+                    identitas: akun.username,
+                    idPengguna: akun.idPengguna,
+                    kodeAnggota: anggota.kodeAnggota,
+                    nama: anggota.nama,
+                    labelPeran: 'Anggota',
+                    keterangan: anggota.kodeAnggota,
+                };
+            }
+        } else if (peran === 'admin') {
+            return { ...AKUN_DEMO.admin, idPengguna: akun.idPengguna, identitas: akun.username, nama: akun.nama };
+        }
+    }
+
+    return AKUN_DEMO[peran] ?? null;
+}
+
 // ---------------------------------------------------------------- Pesan & utilitas
 
 /** Pesan satu kali untuk ditampilkan di halaman tujuan setelah penyimpanan. */
@@ -313,6 +446,7 @@ export function aturUlangData() {
     const awal = salin(DATA_MOCK);
     Object.keys(awal).forEach((kunci) => data[kunci].splice(0, data[kunci].length, ...awal[kunci]));
     pesanTertunda = null;
+    sesi.idPengguna = null;
 }
 
 /** Uji atomisitas: jalankan perubahan sembarang lewat jalur transaksi (khusus tes). */
@@ -334,6 +468,9 @@ export function useDataPerpustakaan() {
         realisasikanBooking,
         ajukanBooking,
         batalkanBooking,
+        masuk,
+        keluar,
+        akunAktif,
         setPesan,
         ambilPesan,
     };

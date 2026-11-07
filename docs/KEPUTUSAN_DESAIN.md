@@ -46,7 +46,7 @@ Perlu dikonfirmasi pemilik proyek; semuanya diterapkan pada prototipe.
 | 3.2 | Lihat detail | Aksi "Lihat" membuka panel samping di halaman daftar (tanpa rute baru). Panel buku menampilkan daftar eksemplar dan aksi Tambah Eksemplar. | A02/A03 "Tampilkan hasil pencarian / detail" |
 | 3.3 | Kode tidak dapat diubah | Kode Anggota dan Kode Buku hanya diisi saat Tambah; pada Ubah bersifat baca-saja karena dirujuk transaksi/eksemplar. **Keputusan prototipe, belum final** — SRS tidak mengaturnya. | Integritas relasi SRS 6.2 (inferensi) |
 | 3.4 | Nonaktifkan anggota | **Direvisi di Phase 4:** boleh kapan pun; transaksi berjalan tidak dibatalkan. Perubahan Aktif → Nonaktif meminta konfirmasi dan menampilkan jumlah transaksi berjalan. Anggota Nonaktif tidak dapat membuat peminjaman baru (BR-01) dan tidak dapat merealisasikan booking (FR-026). | FR-022, BR-01, FR-026, SRS 3.1 (konfirmasi) |
-| 3.5 | Anggota baru | Dibuat tanpa akun login (`idPengguna: null`); penyediaan akun masih TBD-02. | SRS 6.1 `members.user_id?` |
+| 3.5 | Anggota baru | Dibuat tanpa akun login (`idPengguna: null`); penyediaan akun masih TBD-02. **Direvisi pasca-Final Audit (L.1):** Admin dapat membuat akses login opsional; tanpa akses login perilakunya tetap sama. | SRS 6.1 `members.user_id?` |
 | 3.6 | Status eksemplar | Eksemplar baru selalu Tersedia; Dipesan/Dipinjam tampil di pilihan tetapi nonaktif. Status eksemplar lama tidak dapat diubah dari formulir buku. | State Machine Eksemplar, FR-034/035 |
 | 3.7 | Hapus | Tidak ada aksi hapus anggota/buku/eksemplar tersimpan. Hanya eksemplar baru yang belum disimpan dapat dilepas dari daftar formulir. Audit Phase 4: SRS **tidak mewajibkan** hapus (FR-005/006/008 hanya tambah, ubah, cari, lihat; SRS 6.2 menghindari penghapusan fisik; kebijakan penghapusan = TBD-08). | FR-005, FR-006, FR-008, SRS 6.2, TBD-08, A02/A03 |
 | 3.8 | Validasi | Field wajib; kode unik (tidak peka huruf besar/kecil), tanpa spasi, maks. 20 karakter; Tahun Terbit 4 digit dan tidak melebihi tahun demo (2026); buku minimal satu eksemplar. | FR-021, FR-023, SRS 3.1 |
@@ -57,7 +57,7 @@ Perlu dikonfirmasi pemilik proyek; semuanya diterapkan pada prototipe.
 
 | # | Topik | Keputusan | Dasar | Status |
 | --- | --- | --- | --- | --- |
-| 5.1 | Identitas | Semua halaman Anggota memakai akun demo AG-001 (Nadia Rahmawati) dan hanya menampilkan booking/peminjaman miliknya. Katalog tidak menampilkan siapa yang meminjam/memesan. | FR-018, FR-036, NFR-022, BR-08 | Final prototipe |
+| 5.1 | Identitas | Semua halaman Anggota memakai akun demo AG-001 (Nadia Rahmawati) dan hanya menampilkan booking/peminjaman miliknya. Katalog tidak menampilkan siapa yang meminjam/memesan. **Direvisi pasca-Final Audit (L.6):** halaman Anggota memakai akun yang masuk pada sesi SPA; AG-001 hanya bawaan bila belum masuk. | FR-018, FR-036, NFR-022, BR-08 | Final prototipe |
 | 5.2 | Cari Buku | Pencarian kata kunci pada judul, kode buku, atau kategori + filter kategori; ketersediaan dihitung dari status eksemplar saat ini; detail menampilkan daftar eksemplar dan statusnya. | FR-007, FR-030, SRS 4.7.2 ("kata kunci atau filter"), A07/S07 | Sesuai SRS |
 | 5.3 | Syarat ajukan booking | Anggota Aktif dan eksemplar Tersedia (tanpa peminjaman Aktif/booking Disetujui). Booking baru berstatus Diajukan dengan ID unik dan tanggal pengajuan = tanggal demo. Eksemplar **tidak** dikunci saat diajukan; tidak ada persetujuan atau peminjaman otomatis. | FR-031, FR-034, BR-06 | Sesuai SRS |
 | 5.4 | Pengajuan ganda | Ditolak bila anggota yang sama sudah punya booking Diajukan/Disetujui untuk eksemplar yang sama (mencegah pengiriman ganda). | Pencegahan transaksi ganda | Keputusan prototipe |
@@ -100,14 +100,44 @@ Perlu dikonfirmasi pemilik proyek; semuanya diterapkan pada prototipe.
 
 ## Akun pratinjau (bukan autentikasi)
 
-Halaman Login hanya simulasi di sisi browser. Tidak ada verifikasi kata sandi, sesi, atau otorisasi di server.
+Halaman Login hanya simulasi di sisi browser. Tidak ada sesi, otorisasi, atau verifikasi apa pun di server.
 
 | Identitas Pengguna | Peran | Tujuan |
 | --- | --- | --- |
 | `admin` | Admin (Rina Wulandari) | `/demo/admin/dashboard` |
 | `AG-001` | Anggota (Nadia Rahmawati) | `/demo/anggota/dashboard` |
 
-Identitas tidak peka huruf besar/kecil dan spasi di tepi diabaikan. Kata sandi apa pun yang tidak kosong diterima. Identitas lain (termasuk `petugas`) menampilkan pesan gagal yang generik (FR-003). Akun pratinjau didefinisikan di `resources/js/config/demo.js`.
+Identitas tidak peka huruf besar/kecil dan spasi di tepi diabaikan. Kedua akun pratinjau menerima kata sandi apa pun yang tidak kosong **selama Admin belum mereset kata sandinya** (lihat L.5). Identitas lain (termasuk `petugas`) menampilkan pesan gagal yang generik (FR-003), kecuali akun yang kata sandinya ditetapkan Admin pada sesi yang sama. Akun pratinjau didefinisikan di `resources/js/config/demo.js`; verifikasi ada di `masuk()` pada `resources/js/composables/useDataPerpustakaan.js`.
+
+## Penambahan scope pasca-Final Audit: Akses Login Anggota (7 November 2026)
+
+Fitur ini ditambahkan **setelah** Final Compliance Audit. Laporan di `docs/audit/FINAL_*` dan matriks keterlacakan **tidak diubah** dan tidak mencakup fitur ini; temuan khusus fitur ada di `docs/audit/ADDENDUM_AKSES_LOGIN_ANGGOTA.md`. SRS dan UML asli tidak diubah.
+
+| # | Topik | Keputusan | Dasar | Status |
+| --- | --- | --- | --- | --- |
+| L.1 | Pendaftaran | Anggota hanya didaftarkan oleh **Admin**. **Tidak ada registrasi mandiri.** Akses login **opsional**: anggota tetap dapat disimpan tanpa akun (`idPengguna: null`). | SRS 6.1 `members.user_id?`, FR-005 | Prototipe |
+| L.2 | Field | Bagian "Akses Login Anggota" pada Tambah/Ubah Anggota: switch *Buat akses login untuk anggota ini*, **Username**, **Kata Sandi**, **Konfirmasi Kata Sandi**, **Status Akses** (Aktif/Nonaktif). Label memakai "Kata Sandi" agar konsisten dengan halaman Masuk. | Instruksi fitur, Class Diagram `Pengguna` | **Digantikan S.1–S.4** (sebelumnya: Prototipe) |
+| L.3 | Validasi | Username wajib, 3–30 karakter, tanpa spasi, hanya huruf/angka/`.`/`_`/`-`, **unik terhadap semua akun termasuk Admin**, tidak peka huruf besar/kecil. Kata Sandi wajib saat membuat/mereset, 6–64 karakter. Konfirmasi wajib sama. Batas panjang/karakter adalah **keputusan prototipe** (SRS tidak menetapkannya). | Instruksi fitur | **Belum final** (batas panjang) |
+| L.4 | Ubah Anggota | Akun ada → Username baca-saja, Status Akses dapat diubah, aksi **Reset Kata Sandi** (Kata Sandi Baru + Konfirmasi). Kata sandi lama tidak pernah ditampilkan/diisi; tanpa reset, hash tidak berubah. Akun belum ada → switch *Buat akses login* (tanpa membuat anggota baru). Satu anggota maksimal satu akun; akun kedua ditolak. Relasi rusak → bagian akses dikunci dengan pesan. | Instruksi fitur | **Digantikan S.1–S.4** (sebelumnya: Prototipe) |
+| L.5 | Status | **Status Akses terpisah dari Status Anggota** (sebelumnya `ubahAnggota` menyalin status anggota ke `statusAkun`; sinkronisasi status dihapus, sinkronisasi nama tetap). Masuk ditolak bila Status Akses Nonaktif **atau** Anggota Nonaktif. Menonaktifkan akses tidak menghapus riwayat booking/peminjaman. | FR-017, FR-022 | **Digantikan S.1–S.4** (sebelumnya: Prototipe) |
+| L.6 | Masuk | `masuk()` memeriksa: (1) username + kata sandi → pesan generik bila salah; (2) Status Akses; (3) relasi akun → tepat satu anggota; (4) Status Anggota. Status baru diungkap setelah kredensial cocok. Akun tanpa `passwordHash` hanya dapat masuk bila termasuk akun pratinjau (`admin`, `AG-001`); akun anggota bawaan lain (AG-002…AG-010) harus direset kata sandinya oleh Admin. Sesi = `idPengguna` di memori; Keluar menghapusnya. Halaman Anggota memakai akun sesi; tanpa sesi → AG-001. | FR-001, FR-003, FR-017 (sebagian) | **Digantikan S.1–S.4** (sebelumnya: Prototipe) |
+| L.7 | Penyimpanan kredensial | Hanya **hash SHA-256 bergaram** di `pengguna.passwordHash` (field Class Diagram) pada store memori; data mock awal selalu `passwordHash: null`. Plaintext tidak disimpan di store, data anggota, tabel, laporan, localStorage, sessionStorage, log, URL, atau Git. Field kata sandi dikosongkan setelah simpan/batal. | Instruksi fitur, UML Class Diagram | Prototipe |
+| L.8 | Atomisitas | Anggota + akun dibuat/diubah dalam satu `jalankanTransaksi`; `periksaKonsistensi` kini juga memeriksa username unik (case-insensitive), `statusAkun` valid, format `passwordHash`, satu akun ↔ satu anggota, dan akun peran anggota wajib terhubung. Gagal = tanpa perubahan sebagian. | AC-16, NFR-006, NFR-020 | Final prototipe |
+| L.9 | Keterbatasan | **Bukan autentikasi aman** dan **bukan** implementasi FR-002/FR-019: tanpa server, database, rate limit, penguncian akun, sesi tahan muat ulang, atau perlindungan URL; SHA-256 tunggal di browser bukan penyimpanan kata sandi produksi. **Muat ulang** mengembalikan data ke mock awal sehingga akun/kata sandi buatan Admin hilang. Sesi tidak dicabut otomatis bila Admin menonaktifkan akses ketika anggota sedang "masuk" di tab yang sama. | Lingkup prototipe statis | Diketahui |
+
+## Keputusan final: Status Anggota tunggal (7 November 2026)
+
+> **Hanya Status Anggota yang mengendalikan status aktif/nonaktif Anggota dan izin login. Status Akses tidak dikelola terpisah.**
+
+Menggantikan L.2, L.4, L.5, dan bagian status pada L.6. Catatan perubahan & regresi: `docs/audit/REGRESI_STATUS_ANGGOTA_TUNGGAL.md`.
+
+| # | Topik | Keputusan | Status |
+| --- | --- | --- | --- |
+| S.1 | Sumber status | Status Anggota (`anggota.status`) satu-satunya sumber status Anggota. `pengguna.statusAkun` **dipertahankan** untuk kompatibilitas data (Class Diagram `Pengguna.statusAkun`, seed `users.js`) tetapi **selalu diturunkan**: diisi = Status Anggota saat akun dibuat dan disalin ulang setiap `ubahAnggota`. Nilai `statusAkun` dari isian formulir/pemanggil diabaikan. `periksaKonsistensi` menolak akun anggota yang `statusAkun`-nya berbeda dari Status Anggota. Akun **Admin** tidak terpengaruh. | Final prototipe |
+| S.2 | Formulir | Dropdown **Status Akses dihapus** dari Tambah dan Ubah Anggota; hanya ada satu dropdown **Status Anggota**. Bagian Akses Login menampilkan field baca-saja **Status Login** (badge mengikuti Status Anggota yang sedang dipilih) dengan keterangan "Akses login tersedia karena status anggota Aktif." / "Akses login dinonaktifkan otomatis karena status anggota Nonaktif." Tambah: switch, Username, Kata Sandi, Konfirmasi. Ubah (akun ada): Username baca-saja, Status Login, tombol **Reset Kata Sandi** yang membuka panel inline (Kata Sandi Baru, Konfirmasi Kata Sandi Baru, Batal). Field kata sandi tidak dirender sampai Reset diklik. Ubah (tanpa akun): switch Buat akses login. | Final prototipe |
+| S.3 | Masuk | Urutan: (1) username ditemukan, (2) kata sandi cocok, (3) akun terhubung ke tepat satu anggota yang valid, (4) Status Anggota = Aktif. Anggota Nonaktif ditolak walau kredensial benar; diaktifkan kembali → kredensial lama berlaku lagi tanpa akun/kata sandi baru. Anggota tanpa akun tidak dapat masuk. Admin: perilaku tidak berubah. | Final prototipe |
+| S.4 | Data | Mengubah status tidak menghapus akun, kata sandi, maupun riwayat. Ubah nama/kontak/status tanpa Reset tidak mengubah `passwordHash`. Reset tidak menyentuh transaksi. Dialog konfirmasi menonaktifkan anggota menyebut bahwa akses login ikut dinonaktifkan. | Final prototipe |
+| S.5 | F-01 | Tidak ada perubahan aturan booking (TBD-06 tetap terbuka). Interaksi dengan F-01 dicatat sebagai temuan terpisah (RS-01) di laporan regresi. | **Perlu keputusan** |
 
 ## Catatan untuk phase berikutnya
 

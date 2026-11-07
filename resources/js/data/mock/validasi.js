@@ -8,6 +8,7 @@
  */
 import { statusEksemplarDariTransaksi } from './relasi.js';
 import { STATUS } from '../../utils/status.js';
+import { POLA_HASH } from '../../utils/kredensial.js';
 
 const ISO_TANGGAL = /^\d{4}-\d{2}-\d{2}$/;
 const POLA_KODE = {
@@ -57,10 +58,13 @@ export function periksaKonsistensi(data, { tanggalAcuan } = {}) {
     cekUnik(data.pengembalian, 'idPengembalian', 'Pengembalian');
     cekUnik(data.booking, 'idBooking', 'Booking');
 
+    // Username unik dan tidak peka huruf besar/kecil.
     const username = new Set();
     data.pengguna.forEach((p) => {
-        if (username.has(p.username)) salah(`Pengguna: username "${p.username}" duplikat`);
-        username.add(p.username);
+        const kunci = String(p.username ?? '').trim().toLowerCase();
+        if (kunci === '') salah(`Pengguna ${p.idPengguna}: username kosong`);
+        if (username.has(kunci)) salah(`Pengguna: username "${p.username}" duplikat`);
+        username.add(kunci);
     });
 
     // ---------------------------------------------------------------- 2. Kosakata status
@@ -74,6 +78,9 @@ export function periksaKonsistensi(data, { tanggalAcuan } = {}) {
     cekStatus(data.booking, 'booking', 'idBooking', 'Booking');
     data.pengguna.forEach((p) => {
         if (!['admin', 'anggota'].includes(p.peran)) salah(`Pengguna ${p.idPengguna}: peran "${p.peran}" tidak dikenal`);
+        if (!['Aktif', 'Nonaktif'].includes(p.statusAkun)) salah(`Pengguna ${p.idPengguna}: statusAkun "${p.statusAkun}" tidak valid`);
+        // Kata sandi hanya boleh tersimpan sebagai hash (Class Diagram Pengguna.passwordHash), tidak pernah plaintext.
+        if (p.passwordHash != null && !POLA_HASH.test(p.passwordHash)) salah(`Pengguna ${p.idPengguna}: passwordHash bukan hash yang valid`);
     });
 
     // ---------------------------------------------------------------- 3. Relasi (foreign key)
@@ -91,7 +98,22 @@ export function periksaKonsistensi(data, { tanggalAcuan } = {}) {
         if (!akun) salah(`Anggota ${a.kodeAnggota}: idPengguna ${a.idPengguna} tidak ditemukan`);
         else if (akun.peran !== 'anggota') salah(`Anggota ${a.kodeAnggota}: akun ${a.idPengguna} bukan peran anggota`);
         else if (akun.nama !== a.nama) salah(`Anggota ${a.kodeAnggota}: nama berbeda dengan akun ${a.idPengguna}`);
+        // Status Anggota satu-satunya sumber status: status akun tidak boleh bertentangan.
+        else if (akun.statusAkun !== a.status) salah(`Anggota ${a.kodeAnggota}: statusAkun akun ${a.idPengguna} berbeda dengan Status Anggota`);
     });
+
+    // Member → User Account: satu akun hanya untuk satu anggota, dan setiap akun
+    // berperan anggota harus terhubung ke tepat satu anggota.
+    const pemilikAkun = new Map();
+    data.anggota
+        .filter((a) => a.idPengguna !== null)
+        .forEach((a) => pemilikAkun.set(a.idPengguna, [...(pemilikAkun.get(a.idPengguna) ?? []), a.kodeAnggota]));
+    pemilikAkun.forEach((kode, id) => {
+        if (kode.length > 1) salah(`Pengguna ${id}: terhubung ke lebih dari satu anggota (${kode.join(', ')})`);
+    });
+    data.pengguna
+        .filter((p) => p.peran === 'anggota' && !pemilikAkun.has(p.idPengguna))
+        .forEach((p) => salah(`Pengguna ${p.idPengguna}: akun anggota tidak terhubung ke data anggota mana pun`));
 
     data.eksemplar.forEach((e) => {
         if (!buku.has(e.kodeBuku)) salah(`Eksemplar ${e.kodeEksemplar}: kodeBuku ${e.kodeBuku} tidak ditemukan`);

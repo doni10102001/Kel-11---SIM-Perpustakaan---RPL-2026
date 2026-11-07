@@ -5,6 +5,7 @@ Sistem Informasi Manajemen Perpustakaan — **satu proyek Laravel terintegrasi**
 > **Status: Phase 5 — seluruh halaman Admin dan Anggota selesai** (12 halaman Admin + 5 halaman Anggota + Masuk). Simulasi transaksi berjalan di browser dan dibagi antarperan dalam satu sesi; muat ulang mengembalikan data awal.
 > Prototipe UI statis dengan **dua peran: Admin dan Anggota**. Tidak ada database, API, maupun autentikasi backend.
 > Halaman Masuk hanya **pratinjau peran**, bukan sistem login yang aman. Isi halaman modul dibangun pada Phase 2–5.
+> **Penambahan scope setelah Final Audit:** Admin dapat membuat akses login opsional untuk Anggota (Tambah/Ubah Anggota). Kredensial ini hanya simulasi di memori browser — lihat [Akses login Anggota](#akses-login-anggota-simulasi).
 
 ## Versi terpasang
 
@@ -115,7 +116,19 @@ Basis: <http://localhost:8000>. Semua halaman dapat dibuka langsung tanpa login.
 | `admin` | Admin |
 | `AG-001` | Anggota |
 
-Kata sandi apa pun yang tidak kosong diterima; identitas lain ditolak dengan pesan generik. Peran hanya dibaca dari URL `/demo/{peran}/...`; **tidak ada** sesi, verifikasi kata sandi, atau otorisasi server.
+Kedua akun pratinjau menerima kata sandi apa pun yang tidak kosong **selama Admin belum mereset kata sandinya**; identitas lain ditolak dengan pesan generik kecuali akun yang kata sandinya ditetapkan Admin (lihat di bawah). Peran halaman tetap dibaca dari URL `/demo/{peran}/...`; **tidak ada** sesi server, otorisasi, maupun perlindungan URL.
+
+### Akses login Anggota (simulasi)
+
+Fitur tambahan **setelah Final Audit** (belum tercakup laporan `docs/audit/FINAL_*`; lihat `docs/audit/ADDENDUM_AKSES_LOGIN_ANGGOTA.md`).
+
+- Pendaftaran Anggota dilakukan oleh **Admin**. **Tidak ada registrasi mandiri.**
+- Akses login **opsional**: Admin → Data Anggota → Tambah/Ubah Anggota → bagian *Akses Login Anggota* (Username, Kata Sandi, Konfirmasi; **Reset Kata Sandi** pada Ubah).
+- **Hanya Status Anggota yang mengendalikan status aktif/nonaktif Anggota dan izin login.** Tidak ada Status Akses terpisah: Anggota Nonaktif tidak dapat masuk (akun, kata sandi, dan riwayat tetap tersimpan), dan dapat masuk lagi dengan kredensial lama setelah diaktifkan kembali.
+- Masuk ditolak bila kredensial salah (pesan generik), Anggota Nonaktif, anggota belum punya akun, atau relasi akun–anggota tidak valid. Setelah masuk, halaman Anggota menampilkan data milik akun tersebut.
+- **Bukan autentikasi aman.** Verifikasi berjalan di browser; kata sandi disimpan sebagai hash SHA-256 bergaram **hanya di memori**. Tidak ada server, database, rate limit, atau sesi yang tahan muat ulang. Kata sandi tidak ditulis ke localStorage/sessionStorage, log, URL, maupun Git.
+- **Muat ulang browser** mengembalikan data ke mock awal: anggota, akun, dan kata sandi yang dibuat Admin hilang, dan halaman Anggota kembali memakai akun pratinjau AG-001.
+- Fitur ini **bukan** implementasi FR-002 (validasi kredensial ke basis data) maupun FR-019 (blokir sesi tidak valid).
 
 > SRS v1.1 membedakan Admin dan Petugas. Prototipe memakai dua peran (Admin dan Anggota); detail dan catatan penyelarasan ada di `docs/KEPUTUSAN_DESAIN.md`.
 
@@ -125,7 +138,7 @@ Route bawaan framework yang tetap ada (bukan halaman aplikasi): `GET /up` (healt
 
 Paket screenshot PNG halaman final (tanpa URL publik) ada di `docs/stitch/`:
 
-- `screenshots/` — 18 screenshot utama (1440 px, full-page) + 8 screenshot state
+- `screenshots/` — 18 screenshot utama (1440 px, full-page) + 10 screenshot state
 - `SCREENSHOT_MANIFEST.md` — halaman, URL lokal, file, dimensi, validasi
 - `QA_REPORT.md` — hasil QA final
 - `SIM_PERPUSTAKAAN_SCREENSHOTS.zip` — screenshot + manifest
@@ -191,6 +204,6 @@ Menambah halaman: daftarkan di `NavigasiDemo::halamanAdmin()` / `halamanAnggota(
 export PATH="/opt/homebrew/opt/php@8.4/bin:$PATH"
 php artisan route:list
 php artisan test             # rute, menu, breadcrumb, batas peran, tanpa query database
-npm run test:data            # data mock, validasi, store atomik, transaksi, laporan, booking Anggota & alur lintas peran (142 tes)
+npm run test:data            # data mock, validasi, store atomik, transaksi, laporan, booking Anggota, alur lintas peran & akses login Anggota (184 tes)
 npm run build
 ```

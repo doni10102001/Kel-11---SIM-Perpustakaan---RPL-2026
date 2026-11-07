@@ -6,13 +6,15 @@ import BaseButton from '@/Components/BaseButton.vue';
 import BaseInput from '@/Components/BaseInput.vue';
 import BrandMark from '@/Components/BrandMark.vue';
 import FormFeedback from '@/Components/FormFeedback.vue';
+import { GalatValidasi, masuk as verifikasiMasuk } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
-import { AKUN_DEMO, cariAkunDemo } from '@/config/demo.js';
+import { AKUN_DEMO } from '@/config/demo.js';
 
 /**
  * Halaman Masuk bersama (Admin dan Anggota).
- * PRATINJAU STATIS: tidak ada autentikasi, sesi, atau verifikasi kata sandi.
- * Identitas dicocokkan dengan akun pratinjau lalu membuka dashboard sesuai peran.
+ * PRATINJAU STATIS: tidak ada autentikasi server maupun sesi yang tahan muat ulang.
+ * Kredensial dicocokkan di browser (simulasi) lalu membuka dashboard sesuai peran.
+ * Kata sandi tidak pernah disimpan, dicatat, atau dimasukkan ke URL.
  */
 const { rute } = useDemo();
 
@@ -54,15 +56,18 @@ function masuk() {
         return;
     }
 
-    const akun = cariAkunDemo(form.identitas);
-
-    if (!akun) {
-        // Pesan generik: tidak menyebutkan bagian mana yang salah.
-        pesanGagal.value = 'Identitas pengguna atau kata sandi tidak sesuai. Periksa kembali, lalu coba lagi.';
+    let akun;
+    try {
+        akun = verifikasiMasuk(form.identitas, form.kataSandi);
+    } catch (e) {
+        if (!(e instanceof GalatValidasi)) throw e;
+        // Pesan kredensial generik: tidak menyebutkan bagian mana yang salah.
+        pesanGagal.value = e.galat.umum;
 
         return;
     }
 
+    form.kataSandi = '';
     memproses.value = true;
     router.visit(rute(`beranda.${akun.peran}`), {
         onFinish: () => {
@@ -175,7 +180,8 @@ function masuk() {
                         Mode pratinjau
                     </p>
                     <p class="sim-demo-note__text">
-                        Autentikasi belum diaktifkan. Pilih akun pratinjau, lalu isi Kata Sandi dengan teks apa pun.
+                        Autentikasi server belum diaktifkan. Pilih akun pratinjau, lalu isi Kata Sandi dengan teks apa pun.
+                        Akun anggota yang dibuat Admin memakai kata sandi dari Admin dan hanya berlaku sampai halaman dimuat ulang.
                     </p>
                     <div class="sim-demo-note__accounts">
                         <button

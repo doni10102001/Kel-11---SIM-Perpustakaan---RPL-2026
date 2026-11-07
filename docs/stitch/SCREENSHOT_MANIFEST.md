@@ -5,8 +5,8 @@ Paket screenshot PNG halaman final untuk direplikasi di Google Stitch. Website L
 ## Ringkasan
 
 - Screenshot utama: **18** (1 Masuk, 12 Admin, 5 Anggota)
-- Screenshot state tambahan (panel/dialog): **8**
-- Lolos validasi: **26/26**
+- Screenshot state tambahan (panel/dialog): **10**
+- Lolos validasi: **28/28**
 - Basis URL saat capture: `http://127.0.0.1:8013` (lokal; tidak ada URL publik)
 - Tanggal data demo: 7 November 2026 (tetap). Setiap halaman dimuat ulang penuh sehingga memakai dataset awal.
 
@@ -31,8 +31,8 @@ Paket screenshot PNG halaman final untuk direplikasi di Google Stitch. Website L
 | 1 | — | Masuk | `/login` | `01-login.png` | 1440 × 900 | 316 KB | Mode presentasi: kotak "Mode pratinjau" disembunyikan saat capture. | ✓ Lolos |
 | 2 | Admin | Dashboard | `/demo/admin/dashboard` | `admin/01-dashboard.png` | 1440 × 1672 | 230 KB | — | ✓ Lolos |
 | 3 | Admin | Data Anggota | `/demo/admin/anggota` | `admin/02-data-anggota.png` | 1440 × 1016 | 166 KB | — | ✓ Lolos |
-| 4 | Admin | Tambah Anggota | `/demo/admin/anggota/tambah` | `admin/03-tambah-anggota.png` | 1440 × 900 | 108 KB | — | ✓ Lolos |
-| 5 | Admin | Ubah Anggota | `/demo/admin/anggota/AG-001/ubah` | `admin/04-ubah-anggota.png` | 1440 × 900 | 118 KB | Contoh anggota AG-001. | ✓ Lolos |
+| 4 | Admin | Tambah Anggota | `/demo/admin/anggota/tambah` | `admin/03-tambah-anggota.png` | 1440 × 905 | 130 KB | — | ✓ Lolos |
+| 5 | Admin | Ubah Anggota | `/demo/admin/anggota/AG-001/ubah` | `admin/04-ubah-anggota.png` | 1440 × 1091 | 156 KB | Contoh anggota AG-001. | ✓ Lolos |
 | 6 | Admin | Data Buku & Eksemplar | `/demo/admin/buku` | `admin/05-data-buku.png` | 1440 × 1105 | 183 KB | — | ✓ Lolos |
 | 7 | Admin | Tambah Buku | `/demo/admin/buku/tambah` | `admin/06-tambah-buku.png` | 1440 × 1381 | 156 KB | — | ✓ Lolos |
 | 8 | Admin | Ubah Buku | `/demo/admin/buku/BK-001/ubah` | `admin/07-ubah-buku.png` | 1440 × 1389 | 162 KB | Contoh buku BK-001 (3 eksemplar: Tersedia & Dipinjam). | ✓ Lolos |
@@ -52,13 +52,15 @@ Paket screenshot PNG halaman final untuk direplikasi di Google Stitch. Website L
 | No | Peran | Halaman | URL lokal | File PNG | Dimensi (px) | Ukuran | State / catatan | Validasi |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | Admin | Data Anggota — panel Detail Anggota | `/demo/admin/anggota` | `admin/states/02a-data-anggota-panel-detail.png` | 1440 × 900 | 139 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
-| 2 | Admin | Data Buku — panel Detail Buku & Daftar Eksemplar | `/demo/admin/buku` | `admin/states/05a-data-buku-panel-detail.png` | 1440 × 900 | 157 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
-| 3 | Admin | Verifikasi Booking — panel Detail Booking | `/demo/admin/booking/verifikasi` | `admin/states/10a-verifikasi-panel-detail.png` | 1440 × 900 | 117 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
-| 4 | Admin | Verifikasi Booking — dialog Tolak (Alasan Penolakan) | `/demo/admin/booking/verifikasi` | `admin/states/10b-verifikasi-dialog-tolak.png` | 1440 × 900 | 113 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
-| 5 | Admin | Laporan — sebelum laporan ditampilkan | `/demo/admin/laporan` | `admin/states/12a-laporan-filter-awal.png` | 1440 × 900 | 91 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
-| 6 | Anggota | Cari Buku — panel Detail Buku | `/demo/anggota/cari-buku` | `anggota/states/02a-cari-buku-panel-detail.png` | 1440 × 900 | 147 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
-| 7 | Anggota | Status Booking — panel Detail Booking (Direalisasikan) | `/demo/anggota/booking/status` | `anggota/states/04a-status-booking-panel-detail.png` | 1440 × 900 | 125 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
-| 8 | Anggota | History Peminjaman — panel Detail Riwayat | `/demo/anggota/history` | `anggota/states/05a-history-panel-detail.png` | 1440 × 900 | 103 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
+| 2 | Admin | Tambah Anggota — Akses Login Anggota diaktifkan | `/demo/admin/anggota/tambah` | `admin/states/03a-tambah-anggota-akses-login.png` | 1440 × 1104 | 154 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
+| 3 | Admin | Ubah Anggota — Reset Kata Sandi akses login | `/demo/admin/anggota/AG-001/ubah` | `admin/states/04a-ubah-anggota-reset-kata-sandi.png` | 1440 × 1180 | 167 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
+| 4 | Admin | Data Buku — panel Detail Buku & Daftar Eksemplar | `/demo/admin/buku` | `admin/states/05a-data-buku-panel-detail.png` | 1440 × 900 | 157 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
+| 5 | Admin | Verifikasi Booking — panel Detail Booking | `/demo/admin/booking/verifikasi` | `admin/states/10a-verifikasi-panel-detail.png` | 1440 × 900 | 117 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
+| 6 | Admin | Verifikasi Booking — dialog Tolak (Alasan Penolakan) | `/demo/admin/booking/verifikasi` | `admin/states/10b-verifikasi-dialog-tolak.png` | 1440 × 900 | 113 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
+| 7 | Admin | Laporan — sebelum laporan ditampilkan | `/demo/admin/laporan` | `admin/states/12a-laporan-filter-awal.png` | 1440 × 900 | 91 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
+| 8 | Anggota | Cari Buku — panel Detail Buku | `/demo/anggota/cari-buku` | `anggota/states/02a-cari-buku-panel-detail.png` | 1440 × 900 | 147 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
+| 9 | Anggota | Status Booking — panel Detail Booking (Direalisasikan) | `/demo/anggota/booking/status` | `anggota/states/04a-status-booking-panel-detail.png` | 1440 × 900 | 125 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
+| 10 | Anggota | History Peminjaman — panel Detail Riwayat | `/demo/anggota/history` | `anggota/states/05a-history-panel-detail.png` | 1440 × 900 | 103 KB | Panel/dialog terbuka; viewport 1440 × 900 | ✓ Lolos |
 
 ## Validasi yang dijalankan
 

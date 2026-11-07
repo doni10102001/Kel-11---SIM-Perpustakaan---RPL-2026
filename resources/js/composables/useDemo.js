@@ -1,7 +1,7 @@
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-import { AKUN_DEMO } from '@/config/demo.js';
+import { akunAktif } from '@/composables/useDataPerpustakaan.js';
 
 /**
  * Akses konteks pratinjau yang dibagikan Laravel (HandleInertiaRequests):
@@ -12,7 +12,8 @@ export function useDemo() {
 
     const demo = computed(() => page.props.demo ?? {});
     const peran = computed(() => demo.value.peran ?? null);
-    const akun = computed(() => (peran.value ? AKUN_DEMO[peran.value] : null));
+    // Akun yang masuk pada sesi SPA ini; tanpa sesi → akun pratinjau bawaan.
+    const akun = computed(() => (peran.value ? akunAktif(peran.value) : null));
     const halaman = computed(() => demo.value.halaman ?? null);
     const menu = computed(() => demo.value.menu ?? []);
     const adalahAdmin = computed(() => peran.value === 'admin');

@@ -2,8 +2,12 @@
  * Konfigurasi pratinjau statis (khusus pengembang).
  *
  * Prototipe memakai DUA peran: Admin dan Anggota.
- * TIDAK ADA autentikasi: halaman Masuk hanya mencocokkan identitas di bawah
- * lalu membuka dashboard sesuai peran. Kata sandi tidak diverifikasi.
+ * TIDAK ADA autentikasi server. Halaman Masuk memakai `masuk()` di
+ * composables/useDataPerpustakaan.js (simulasi di browser):
+ *  - akun pratinjau di bawah menerima kata sandi apa pun yang tidak kosong
+ *    SELAMA kata sandinya belum diatur Admin;
+ *  - akun lain hanya dapat masuk dengan kata sandi yang ditetapkan Admin
+ *    (Akses Login Anggota) dan hanya selama sesi browser yang sama.
  */
 import { ANGGOTA, KODE_ANGGOTA_DEMO } from '../data/mock/members.js';
 import { ID_ADMIN_DEMO, PENGGUNA } from '../data/mock/users.js';

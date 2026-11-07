@@ -67,6 +67,87 @@ export function validasiAnggota(isian, data, { mode }) {
     return tanpaKosong(galat);
 }
 
+// ---------------------------------------------------------------- Akses login Anggota (pasca-Final Audit)
+
+const USERNAME_MIN = 3;
+const USERNAME_MAKS = 30;
+const KATA_SANDI_MIN = 6;
+const KATA_SANDI_MAKS = 64;
+
+export const samaUsername = (a, b) => String(a ?? '').trim().toLowerCase() === String(b ?? '').trim().toLowerCase();
+
+/** Akun login yang terhubung ke anggota (null bila belum ada). */
+export function akunAnggota(data, anggota) {
+    if (!anggota?.idPengguna) return null;
+
+    return data.pengguna.find((p) => p.idPengguna === anggota.idPengguna) ?? null;
+}
+
+/**
+ * Relasi Anggota → Pengguna valid bila: akun ada, berperan anggota, dan tidak
+ * dipakai anggota lain. Anggota tanpa akun (`idPengguna: null`) juga valid.
+ */
+export function relasiAkunValid(data, anggota) {
+    if (!anggota?.idPengguna) return true;
+    const akun = akunAnggota(data, anggota);
+
+    return Boolean(akun) && akun.peran === 'anggota' && data.anggota.filter((a) => a.idPengguna === anggota.idPengguna).length === 1;
+}
+
+function galatKataSandi(galat, akses) {
+    const sandi = String(akses.kataSandi ?? '');
+    if (sandi === '') galat.kataSandi = 'Kata Sandi wajib diisi.';
+    else if (sandi.length < KATA_SANDI_MIN) galat.kataSandi = `Kata Sandi minimal ${KATA_SANDI_MIN} karakter.`;
+    else if (sandi.length > KATA_SANDI_MAKS) galat.kataSandi = `Kata Sandi maksimal ${KATA_SANDI_MAKS} karakter.`;
+
+    if (String(akses.konfirmasiKataSandi ?? '') === '') galat.konfirmasiKataSandi = 'Konfirmasi Kata Sandi wajib diisi.';
+    else if (akses.konfirmasiKataSandi !== sandi) galat.konfirmasiKataSandi = 'Konfirmasi Kata Sandi tidak sama dengan Kata Sandi.';
+}
+
+/**
+ * Validasi bagian "Akses Login Anggota". Pesan galat tidak pernah memuat kata sandi.
+ * Tidak ada Status Akses: status login selalu mengikuti Status Anggota, sehingga
+ * properti `statusAkun` pada isian (bila ada) diabaikan.
+ *
+ * @param {{buatAkses?: boolean, username?: string, kataSandi?: string,
+ *          konfirmasiKataSandi?: string, resetKataSandi?: boolean}|null} akses
+ * @param {object} data       dataset aktif
+ * @param {{anggota?: object|null}} opsi   anggota yang diubah (null saat Tambah)
+ * @returns {Record<string, string>}  galat per field: username, kataSandi, konfirmasiKataSandi, akses
+ */
+export function validasiAksesLogin(akses, data, { anggota = null } = {}) {
+    const galat = {};
+    if (!akses) return galat;
+
+    if (anggota && !relasiAkunValid(data, anggota)) {
+        return { akses: 'Relasi akun login dengan data anggota ini tidak valid. Perubahan akses login tidak dapat disimpan.' };
+    }
+
+    const akunLama = anggota ? akunAnggota(data, anggota) : null;
+
+    if (akunLama) {
+        // Akun yang sudah ada: hanya reset kata sandi (opsional, eksplisit).
+        if (akses.buatAkses) galat.akses = 'Anggota ini sudah memiliki akses login. Satu anggota hanya dapat memiliki satu akun login.';
+        if (akses.resetKataSandi) galatKataSandi(galat, akses);
+
+        return tanpaKosong(galat);
+    }
+
+    if (!akses.buatAkses) return galat;
+
+    const username = String(akses.username ?? '').trim();
+    if (username === '') galat.username = 'Username wajib diisi.';
+    else if (/\s/.test(username)) galat.username = 'Username tidak boleh mengandung spasi.';
+    else if (!/^[A-Za-z0-9._-]+$/.test(username)) galat.username = 'Username hanya boleh berisi huruf, angka, titik, garis bawah, atau tanda hubung.';
+    else if (username.length < USERNAME_MIN || username.length > USERNAME_MAKS) galat.username = `Username harus ${USERNAME_MIN}–${USERNAME_MAKS} karakter.`;
+    // Unik terhadap SEMUA akun (termasuk Admin), tidak peka huruf besar/kecil.
+    else if (data.pengguna.some((p) => samaUsername(p.username, username))) galat.username = 'Username sudah digunakan. Gunakan username lain.';
+
+    galatKataSandi(galat, akses);
+
+    return tanpaKosong(galat);
+}
+
 /**
  * Validasi kode eksemplar baru sebelum ditambahkan ke daftar formulir.
  * @param {string} kode

@@ -5,6 +5,7 @@ import { onBeforeUnmount, ref, watch } from 'vue';
 import AppHeader from '@/Components/AppHeader.vue';
 import AppSidebar from '@/Components/AppSidebar.vue';
 import ConfirmationModal from '@/Components/ConfirmationModal.vue';
+import { keluar as akhiriSesi } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
 
 /** Kerangka aplikasi bersama: sidebar, header, area konten, dan dialog Keluar. */
@@ -49,8 +50,9 @@ function mintaKeluar() {
 }
 
 function keluar() {
-    // Pratinjau statis: tidak ada sesi server yang diakhiri, hanya kembali ke halaman Masuk.
+    // Pratinjau statis: tidak ada sesi server; akun aktif di memori dihapus lalu kembali ke halaman Masuk.
     konfirmasiKeluar.value = false;
+    akhiriSesi();
     router.visit(rute('login'));
 }
 </script>

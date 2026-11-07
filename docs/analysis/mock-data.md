@@ -32,7 +32,7 @@ Nama file mengikuti SRS 6.1. Nama field mengikuti Class Diagram, ditambah field 
 
 | Entitas | Field mock | SRS 6.1 | Class Diagram | Label UI |
 | --- | --- | --- | --- | --- |
-| Pengguna | `idPengguna`, `username`, `nama`, `peran`, `statusAkun` | users.id, username, role, is_active | Pengguna.idPengguna, username, nama, statusAkun | — |
+| Pengguna | `idPengguna`, `username`, `nama`, `peran`, `statusAkun`, `passwordHash` | users.id, username, password_hash, role, is_active | Pengguna.idPengguna, username, passwordHash, nama, statusAkun | Username (Form Anggota). `statusAkun` akun anggota diturunkan dari Status Anggota (tidak diedit) |
 | Anggota | `kodeAnggota` | members.member_code | Anggota.idAnggota | Kode Anggota |
 | | `idPengguna` | members.user_id | — | — |
 | | `nama`, `kontak`, `status` | name, contact, status | Pengguna.nama, kontak, statusAnggota | Nama, Kontak, Status |
