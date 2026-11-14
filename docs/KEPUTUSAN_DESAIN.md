@@ -19,7 +19,7 @@ Catatan keputusan yang telah disetujui pemilik proyek. Dokumen ini **khusus peng
 | 4 | Tanggal Jatuh Tempo | Input manual oleh Admin saat mencatat peminjaman, **tanpa durasi pinjam default** (durasi masih TBD-05). |
 | 5 | Tolak Booking | Ada input **"Alasan Penolakan"** (FR-033), hanya muncul dalam konteks penolakan. |
 | 6 | Data Buku | Menampilkan **"Jumlah Eksemplar"** (SRS 3.1), dihitung dari data eksemplar, bukan nilai terpisah. |
-| 7 | Teknis | Repositori Git + commit baseline; font Inter dan Bootstrap Icons dipasang lokal (npm, tanpa CDN); timezone `Asia/Jakarta`; syarat PHP `^8.4.1` (sesuai `composer.lock`, Symfony 8.1); screenshot memakai Chrome headless tanpa Playwright. |
+| 7 | Teknis | Repositori Git + commit baseline; font Inter dan Bootstrap Icons dipasang lokal (npm, tanpa CDN); timezone `Asia/Jakarta` *(diamandemen Phase 7A D-02, 14 Nov 2026: penyimpanan UTC, tampilan `Asia/Jakarta` — lihat bagian Phase 7A)*; syarat PHP `^8.4.1` (sesuai `composer.lock`, Symfony 8.1); screenshot memakai Chrome headless tanpa Playwright. |
 
 ## Keputusan final peran prototipe (7 November 2026)
 
@@ -145,3 +145,70 @@ Menggantikan L.2, L.4, L.5, dan bagian status pada L.6. Catatan perubahan & regr
 - **Phase 3–5 (selesai):** seluruh rute memakai halaman final; komponen sementara `Sistem/HalamanDisiapkan` dihapus di Phase 5.
 - **Phase 4 — field petugas pemroses:** SRS 6.1 (`loans.staff_id`, `returns.staff_id`, `bookings.staff_id`) dan FR-024/FR-028/FR-033 mencatat identitas *petugas* yang memproses transaksi. Field ini **tetap ada** (tidak diubah); di prototipe nilainya diisi akun Admin yang sedang aktif. Label field final (mis. "Petugas Proses" sesuai file phase) dikonfirmasi saat Phase 4.
 - **Tanggal demo** tetap `2026-11-07` (`TANGGAL_DEMO`) agar tampilan dan screenshot deterministik.
+
+## Phase 7A — Fondasi database MySQL (14 November 2026)
+
+Rincian teknis: `docs/database/phase7/PHASE_7A_DATABASE_SETUP.md` §8. Dokumen SRS dan UML asli **tidak diubah**.
+
+- Dasar: MySQL 8.4 LTS/InnoDB/utf8mb4, dua peran, Anggota dibuat Admin, akun Anggota opsional, satu Status Anggota, `loans.due_date` DATE, F-01 opsi A, migrasi bertahap.
+- Stage B (14 Nov 2026): database `sim_perpustakaan_db` + `sim_perpustakaan_test`, user least-privilege `sim_perpus_app` + `sim_perpus_test`.
+
+### Keputusan skema disetujui pemilik proyek (14 November 2026)
+
+Persetujuan mencakup **revisi skema dan source saja**. Menjalankan migration, seeder, dan test database MySQL memerlukan persetujuan terpisah.
+
+| # | Keputusan |
+| --- | --- |
+| D-01 | `users.name` nullable: Admin wajib bernama, akun Anggota wajib `NULL`; nama Anggota bersumber dari `members.name`. Dijaga CHECK MySQL `chk_users_nama_sesuai_peran`. |
+| D-02 | Timestamp kejadian disimpan **UTC**, ditampilkan **Asia/Jakarta**. `app.timezone = UTC`, sesi MySQL `+00:00`, zona tampilan `Asia/Jakarta`. Batas filter laporan dikonversi WIB→UTC; "hari ini" dan validator tanggal memakai kalender WIB; kolom tanggal-saja (`due_date` DATE) tidak dikonversi. |
+| D-03 | CHECK `role = 'admin' OR is_active = 1` dipertahankan. Status Anggota satu-satunya sumber aktif/nonaktif; login Anggota wajib `members.status = Aktif`; tanpa dropdown Status Akses kedua. |
+| D-04 | `password_reset_tokens` dihapus; reset kata sandi Anggota oleh Admin lewat backend. |
+| D-05 | `remember_token` dipertahankan nullable; "Ingat saya" belum diaktifkan. |
+| D-06 | Database dan user pengujian terpisah dari development; test database tidak pernah dijalankan pada database development. |
+| D-07 | `idx_members_status` dihapus; indeks eksplisit FK `staff_id` dipertahankan. |
+| D-08 | Akun Anggota hasil seed memakai hash acak; tanpa kata sandi development bersama; tanpa plaintext di repository; provisioning kredensial Admin awal lewat `SEED_ADMIN_PASSWORD` di `.env` lokal (terdokumentasi). Reset kata sandi Anggota wajib tersedia pada fase berikutnya. |
+| Kedaluwarsa booking | **Arah disetujui:** booking kedaluwarsa wajib berpindah keluar dari status `Disetujui` (reservasi eksemplar dilepas). **Belum disetujui:** nama status final, durasi, frekuensi scheduler. |
+
+### Amandemen Phase 0 #7 (disetujui 14 November 2026)
+
+Keputusan awal "timezone `Asia/Jakarta`" diamandemen menjadi: **penyimpanan dan pemrosesan UTC, tampilan dan kalender bisnis `Asia/Jakarta` (WIB)**. Alasan: konsisten dengan serialisasi ISO-8601 UTC Laravel dan frontend yang sudah merender `Asia/Jakarta` (`resources/js/utils/format.js`). Tampilan UI tidak berubah. Konsekuensi: log Laravel bertimestamp UTC; Phase 8 wajib memakai `App\Support\WaktuPerpustakaan` untuk "hari ini" dan filter periode (lihat §8.3 dokumen setup 7A).
+
+## Phase 8A — Autentikasi nyata (14 November 2026)
+
+Rincian: `docs/auth/PHASE_8A_AUTENTIKASI.md`.
+
+- Autentikasi username + kata sandi terhadap `users` MySQL, guard `web`, sesi server di tabel `sessions` (`SESSION_DRIVER=database`), tanpa registrasi mandiri dan tanpa "Ingat saya".
+- Rute aplikasi dipindah dari `/demo/{peran}/*` ke `/admin/*` dan `/anggota/*`, dilindungi `auth`, `auth.session`, `akun.aktif`, `peran:{peran}`. URL `/demo/*` lama hanya redirect.
+- Kelayakan login diperiksa saat masuk **dan setiap request**: Admin `is_active`; Anggota wajib tertaut ke data Anggota berstatus Aktif (`members.status` tetap satu-satunya sumber, D-03).
+- Identitas di frontend hanya dari sesi server (`auth.akun`); akun pratinjau AG-001 tidak dipakai lagi. Kotak "Mode pratinjau" di halaman Masuk dihapus.
+- Akun Anggota hasil seed belum dapat masuk (hash acak, D-08) sampai Phase 8C menyediakan provisioning/reset oleh Admin.
+
+## Phase 8B — Integrasi baca MySQL & privasi data (14 November 2026)
+
+Rincian: `docs/phase8/PHASE_8B_INTEGRASI_BACA_DATA.md`.
+
+- Data mock (anggota, akun, buku, transaksi) dan store mock dikeluarkan dari bundel frontend ke `tests/js/fixtures/`; build publik diverifikasi bebas data seed.
+- Seluruh halaman Admin dan Anggota membaca MySQL lewat `HalamanController` → `App\Queries\DataPerpustakaan` (Eloquent, eager loading) → prop Inertia `data` berbentuk sama dengan prototipe; komponen Vue tidak didesain ulang.
+- Anggota hanya menerima katalog publik dan data miliknya (identitas dari sesi server); Admin menerima data operasional. Otorisasi berlapis: middleware peran, Gate `buka-halaman`, dan cakupan query.
+- "Hari ini" mengikuti kalender WIB server; filter periode Laporan dikonversi batas hari WIB → UTC di server.
+- Semua aksi tulis ditolak eksplisit ("Belum tersedia … Tidak ada data yang diubah") sampai endpoint server tersedia; tidak ada simulasi sukses.
+
+## Phase 8C — Manajemen kredensial nyata (14 November 2026)
+
+Rincian: `docs/phase8/PHASE_8C_MANAJEMEN_KREDENSIAL.md`.
+
+- Admin membuat akses login untuk Anggota yang sudah tersimpan dan mereset kata sandi Anggota lewat aksi eksplisit (bukan lewat Simpan Anggota); tersimpan ke MySQL dalam transaksi dengan penguncian baris Anggota.
+- Akun Anggota selalu `role=anggota`, `name=NULL`, `is_active=true`; Status Anggota tidak berubah dan tetap satu-satunya pengendali login (D-03). Field istimewa dari klien diabaikan.
+- Admin dapat mengganti kata sandinya sendiri (halaman Ubah Kata Sandi): sesi saat ini tetap masuk dengan ID baru, sesi lain berakhir.
+- Reset/ganti kata sandi mengakhiri sesi lama (baris sesi dihapus + `auth.session`). Audit log mencatat aksi dan aktor, tanpa kata sandi.
+- Tidak ada migration baru; aksi tulis non-kredensial tetap ditolak eksplisit.
+
+## Phase 8D — Pengerasan keamanan & wajib ganti kata sandi (14 November 2026)
+
+Rincian: `docs/phase8/PHASE_8D_PENGERASAN_KEAMANAN.md`.
+
+- SSR Inertia dinonaktifkan (`config/inertia.php` default false, `INERTIA_SSR_ENABLED=false`, `inertia({ ssr: false })`); aplikasi dirender di klien.
+- Penyajian URL sementara disk `local` dimatikan (`serve => false`); tidak ada pemakaian di aplikasi.
+- Kolom aditif `users.must_change_password` (default 0, CHECK hanya Anggota): diset saat Admin membuat akses login atau mereset kata sandi Anggota; dihapus hanya setelah Anggota mengganti kata sandinya sendiri.
+- Middleware `wajib.ganti.sandi` membatasi Anggota ber-flag pada halaman Ubah Kata Sandi dan Keluar; Admin tidak terdampak.
+- Anggota dapat mengganti kata sandi sendiri (`/anggota/kata-sandi`); sesi lain berakhir, sesi ini diregenerasi, lalu diarahkan ke Dashboard.

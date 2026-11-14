@@ -54,11 +54,45 @@ return [
             'password' => env('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
-            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            // Phase 7A: collation case-insensitive untuk username dan kode bisnis.
+            'collation' => env('DB_COLLATION', 'utf8mb4_0900_ai_ci'),
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => true,
-            'engine' => null,
+            'engine' => 'InnoDB',
+            // Phase 7A D-02: zona sesi MySQL = UTC, selaras dengan app.timezone.
+            // Sengaja tidak dibaca dari env agar CURRENT_TIMESTAMP dan Eloquent
+            // tidak pernah berbeda zona.
+            'timezone' => '+00:00',
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
+        /*
+         * Phase 7A — koneksi MySQL KHUSUS pengujian otomatis (tests/Feature/Database).
+         * Selalu menunjuk database terpisah berakhiran `_test`, tidak pernah
+         * database development. Kredensial default mengikuti DB_USERNAME/DB_PASSWORD.
+         */
+        'mysql_testing' => [
+            'driver' => 'mysql',
+            'url' => null,
+            'host' => env('DB_TEST_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('DB_TEST_PORT', env('DB_PORT', '3306')),
+            'database' => env('DB_TEST_DATABASE', 'sim_perpustakaan_test'),
+            'username' => env('DB_TEST_USERNAME', env('DB_USERNAME', 'root')),
+            'password' => env('DB_TEST_PASSWORD', env('DB_PASSWORD', '')),
+            'unix_socket' => env('DB_TEST_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => env('DB_COLLATION', 'utf8mb4_0900_ai_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => 'InnoDB',
+            // Phase 7A D-02: zona sesi MySQL = UTC, selaras dengan app.timezone.
+            // Sengaja tidak dibaca dari env agar CURRENT_TIMESTAMP dan Eloquent
+            // tidak pernah berbeda zona.
+            'timezone' => '+00:00',
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],

@@ -17,8 +17,8 @@ import {
     tolakBooking,
     ubahAnggota,
     useDataPerpustakaan,
-} from '../../resources/js/composables/useDataPerpustakaan.js';
-import { AKUN_DEMO, TANGGAL_DEMO } from '../../resources/js/config/demo.js';
+} from './fixtures/storeMock.js';
+import { AKUN_DEMO, TANGGAL_DEMO } from './fixtures/demo.js';
 import {
     DATA_MOCK,
     bookingAnggota,
@@ -28,7 +28,7 @@ import {
     periksaKonsistensi,
     ringkasanAdmin,
     ringkasanAnggota,
-} from '../../resources/js/data/mock/index.js';
+} from './fixtures/mock/index.js';
 import { filterKatalog } from '../../resources/js/utils/pencarian.js';
 
 const { data } = useDataPerpustakaan();

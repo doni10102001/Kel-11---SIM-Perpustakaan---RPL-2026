@@ -3,9 +3,19 @@
  * Ekspor screenshot PNG seluruh halaman final untuk Google Stitch (khusus pengembang).
  *
  * Prasyarat: aplikasi berjalan lokal (php artisan serve) dengan aset hasil `npm run build`.
+ *
+ * Phase 8B: halaman wajib MASUK. Skrip login lewat halaman Masuk dengan
+ * kredensial dari environment (TIDAK di source, tidak dicetak), satu browser
+ * per peran, tanpa jalan pintas autentikasi:
+ *   STITCH_ADMIN_USERNAME (default: admin), STITCH_ADMIN_PASSWORD   (wajib)
+ *   STITCH_ANGGOTA_USERNAME (default: AG-001), STITCH_ANGGOTA_PASSWORD (wajib)
+ * Data diambil dari database yang dipakai server; gunakan database berisi data
+ * demo fiktif (seed), jangan data pribadi nyata.
+ *
  * Pemakaian:
  *   npm run screenshots:stitch                      # basis http://127.0.0.1:8000
  *   npm run screenshots:stitch -- --base=http://127.0.0.1:8013
+ *   npm run screenshots:stitch -- --out=/tmp/stitch # tulis ke folder lain (default docs/stitch)
  *   CHROME_PATH=/path/to/chrome npm run screenshots:stitch
  *
  * Tanpa dependency tambahan: Chrome headless dikendalikan lewat DevTools Protocol.
@@ -23,48 +33,52 @@ import { fileURLToPath } from 'node:url';
 import { inflateSync } from 'node:zlib';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const OUT = join(ROOT, 'docs', 'stitch');
+const OUT = resolve(process.argv.find((a) => a.startsWith('--out='))?.split('=')[1] ?? join(ROOT, 'docs', 'stitch'));
 const SHOTS = join(OUT, 'screenshots');
 const BASE = (process.argv.find((a) => a.startsWith('--base='))?.split('=')[1] ?? process.env.STITCH_BASE ?? 'http://127.0.0.1:8000').replace(/\/$/, '');
 const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const LEBAR = 1440;
 const TINGGI = 900;
 const PORT_DEBUG = 9350;
+const KREDENSIAL = {
+    Admin: { username: process.env.STITCH_ADMIN_USERNAME ?? 'admin', password: process.env.STITCH_ADMIN_PASSWORD ?? '', awalan: '/admin/' },
+    Anggota: { username: process.env.STITCH_ANGGOTA_USERNAME ?? 'AG-001', password: process.env.STITCH_ANGGOTA_PASSWORD ?? '', awalan: '/anggota/' },
+};
 
 /** Halaman utama (full-page). `query` = state deterministik yang sudah didukung aplikasi. */
 const HALAMAN = [
-    { file: '01-login.png', peran: '—', judul: 'Masuk', path: '/login', h1: 'Masuk', presentasi: true, catatan: 'Mode presentasi: kotak "Mode pratinjau" disembunyikan saat capture.' },
-    { file: 'admin/01-dashboard.png', peran: 'Admin', judul: 'Dashboard', path: '/demo/admin/dashboard', h1: 'Dashboard' },
-    { file: 'admin/02-data-anggota.png', peran: 'Admin', judul: 'Data Anggota', path: '/demo/admin/anggota', h1: 'Data Anggota' },
-    { file: 'admin/03-tambah-anggota.png', peran: 'Admin', judul: 'Tambah Anggota', path: '/demo/admin/anggota/tambah', h1: 'Tambah Anggota' },
-    { file: 'admin/04-ubah-anggota.png', peran: 'Admin', judul: 'Ubah Anggota', path: '/demo/admin/anggota/AG-001/ubah', h1: 'Ubah Anggota', catatan: 'Contoh anggota AG-001.' },
-    { file: 'admin/05-data-buku.png', peran: 'Admin', judul: 'Data Buku & Eksemplar', path: '/demo/admin/buku', h1: 'Data Buku & Eksemplar' },
-    { file: 'admin/06-tambah-buku.png', peran: 'Admin', judul: 'Tambah Buku', path: '/demo/admin/buku/tambah', h1: 'Tambah Buku' },
-    { file: 'admin/07-ubah-buku.png', peran: 'Admin', judul: 'Ubah Buku', path: '/demo/admin/buku/BK-001/ubah', h1: 'Ubah Buku', catatan: 'Contoh buku BK-001 (3 eksemplar: Tersedia & Dipinjam).' },
-    { file: 'admin/08-peminjaman.png', peran: 'Admin', judul: 'Peminjaman Buku', path: '/demo/admin/peminjaman', h1: 'Peminjaman Buku' },
-    { file: 'admin/09-pengembalian.png', peran: 'Admin', judul: 'Pengembalian Buku', path: '/demo/admin/pengembalian', h1: 'Pengembalian Buku' },
-    { file: 'admin/10-verifikasi-booking.png', peran: 'Admin', judul: 'Verifikasi Booking', path: '/demo/admin/booking/verifikasi', h1: 'Verifikasi Booking', catatan: 'Tab bawaan: Diajukan.' },
-    { file: 'admin/11-realisasi-booking.png', peran: 'Admin', judul: 'Realisasi Booking', path: '/demo/admin/booking/realisasi?booking=BP-001', h1: 'Realisasi Booking', catatan: 'Booking BP-001 terpilih (query `?booking=`).' },
-    { file: 'admin/12-laporan.png', peran: 'Admin', judul: 'Laporan', path: '/demo/admin/laporan?jenis=peminjaman', h1: 'Laporan', catatan: 'Laporan Peminjaman seluruh periode (query `?jenis=`).' },
-    { file: 'anggota/01-dashboard.png', peran: 'Anggota', judul: 'Dashboard', path: '/demo/anggota/dashboard', h1: 'Dashboard', catatan: 'Akun AG-001 Nadia Rahmawati.' },
-    { file: 'anggota/02-cari-buku.png', peran: 'Anggota', judul: 'Cari Buku', path: '/demo/anggota/cari-buku', h1: 'Cari Buku' },
-    { file: 'anggota/03-ajukan-booking.png', peran: 'Anggota', judul: 'Ajukan Booking', path: '/demo/anggota/booking/ajukan?eksemplar=EK-004', h1: 'Ajukan Booking', catatan: 'Eksemplar EK-004 terpilih (query `?eksemplar=`).' },
-    { file: 'anggota/04-status-booking.png', peran: 'Anggota', judul: 'Status Booking', path: '/demo/anggota/booking/status', h1: 'Status Booking' },
-    { file: 'anggota/05-history-peminjaman.png', peran: 'Anggota', judul: 'History Peminjaman', path: '/demo/anggota/history', h1: 'History Peminjaman' },
+    { file: '01-login.png', peran: '—', judul: 'Masuk', path: '/login', h1: 'Masuk', presentasi: true, catatan: 'Halaman Masuk (tamu, sebelum login).' },
+    { file: 'admin/01-dashboard.png', peran: 'Admin', judul: 'Dashboard', path: '/admin/dashboard', h1: 'Dashboard' },
+    { file: 'admin/02-data-anggota.png', peran: 'Admin', judul: 'Data Anggota', path: '/admin/anggota', h1: 'Data Anggota' },
+    { file: 'admin/03-tambah-anggota.png', peran: 'Admin', judul: 'Tambah Anggota', path: '/admin/anggota/tambah', h1: 'Tambah Anggota' },
+    { file: 'admin/04-ubah-anggota.png', peran: 'Admin', judul: 'Ubah Anggota', path: '/admin/anggota/AG-001/ubah', h1: 'Ubah Anggota', catatan: 'Contoh anggota AG-001.' },
+    { file: 'admin/05-data-buku.png', peran: 'Admin', judul: 'Data Buku & Eksemplar', path: '/admin/buku', h1: 'Data Buku & Eksemplar' },
+    { file: 'admin/06-tambah-buku.png', peran: 'Admin', judul: 'Tambah Buku', path: '/admin/buku/tambah', h1: 'Tambah Buku' },
+    { file: 'admin/07-ubah-buku.png', peran: 'Admin', judul: 'Ubah Buku', path: '/admin/buku/BK-001/ubah', h1: 'Ubah Buku', catatan: 'Contoh buku BK-001 (3 eksemplar: Tersedia & Dipinjam).' },
+    { file: 'admin/08-peminjaman.png', peran: 'Admin', judul: 'Peminjaman Buku', path: '/admin/peminjaman', h1: 'Peminjaman Buku' },
+    { file: 'admin/09-pengembalian.png', peran: 'Admin', judul: 'Pengembalian Buku', path: '/admin/pengembalian', h1: 'Pengembalian Buku' },
+    { file: 'admin/10-verifikasi-booking.png', peran: 'Admin', judul: 'Verifikasi Booking', path: '/admin/booking/verifikasi', h1: 'Verifikasi Booking', catatan: 'Tab bawaan: Diajukan.' },
+    { file: 'admin/11-realisasi-booking.png', peran: 'Admin', judul: 'Realisasi Booking', path: '/admin/booking/realisasi?booking=BP-001', h1: 'Realisasi Booking', catatan: 'Booking BP-001 terpilih (query `?booking=`).' },
+    { file: 'admin/12-laporan.png', peran: 'Admin', judul: 'Laporan', path: '/admin/laporan?jenis=peminjaman', h1: 'Laporan', catatan: 'Laporan Peminjaman seluruh periode (query `?jenis=`).' },
+    { file: 'anggota/01-dashboard.png', peran: 'Anggota', judul: 'Dashboard', path: '/anggota/dashboard', h1: 'Dashboard', catatan: 'Akun AG-001 Nadia Rahmawati.' },
+    { file: 'anggota/02-cari-buku.png', peran: 'Anggota', judul: 'Cari Buku', path: '/anggota/cari-buku', h1: 'Cari Buku' },
+    { file: 'anggota/03-ajukan-booking.png', peran: 'Anggota', judul: 'Ajukan Booking', path: '/anggota/booking/ajukan?eksemplar=EK-004', h1: 'Ajukan Booking', catatan: 'Eksemplar EK-004 terpilih (query `?eksemplar=`).' },
+    { file: 'anggota/04-status-booking.png', peran: 'Anggota', judul: 'Status Booking', path: '/anggota/booking/status', h1: 'Status Booking' },
+    { file: 'anggota/05-history-peminjaman.png', peran: 'Anggota', judul: 'History Peminjaman', path: '/anggota/history', h1: 'History Peminjaman' },
 ];
 
 /** State tambahan (panel/dialog) — viewport 1440×900, tidak menggantikan screenshot utama. */
 const STATE = [
-    { file: 'admin/states/02a-data-anggota-panel-detail.png', peran: 'Admin', judul: 'Data Anggota — panel Detail Anggota', path: '/demo/admin/anggota', h1: 'Data Anggota', aksi: "document.querySelector('.sim-table tbody tr:nth-child(1) button[aria-label^=\"Lihat\"]').click()", tunggu: '.sim-drawer' },
-    { file: 'admin/states/03a-tambah-anggota-akses-login.png', peran: 'Admin', judul: 'Tambah Anggota — Akses Login Anggota diaktifkan', path: '/demo/admin/anggota/tambah', h1: 'Tambah Anggota', aksi: "document.getElementById('buat-akses-login').click()", tunggu: '#isian-akses-login', penuh: true },
-    { file: 'admin/states/04a-ubah-anggota-reset-kata-sandi.png', peran: 'Admin', judul: 'Ubah Anggota — Reset Kata Sandi akses login', path: '/demo/admin/anggota/AG-001/ubah', h1: 'Ubah Anggota', aksi: "[...document.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Reset Kata Sandi').click()", tunggu: 'input[autocomplete=new-password]', penuh: true },
-    { file: 'admin/states/05a-data-buku-panel-detail.png', peran: 'Admin', judul: 'Data Buku — panel Detail Buku & Daftar Eksemplar', path: '/demo/admin/buku', h1: 'Data Buku & Eksemplar', aksi: "document.querySelector('.sim-table tbody tr:nth-child(1) button[aria-label^=\"Lihat\"]').click()", tunggu: '.sim-drawer' },
-    { file: 'admin/states/10a-verifikasi-panel-detail.png', peran: 'Admin', judul: 'Verifikasi Booking — panel Detail Booking', path: '/demo/admin/booking/verifikasi', h1: 'Verifikasi Booking', aksi: "document.querySelector('.sim-table tbody tr:nth-child(1) button[aria-label^=\"Detail\"]').click()", tunggu: '.sim-drawer' },
-    { file: 'admin/states/10b-verifikasi-dialog-tolak.png', peran: 'Admin', judul: 'Verifikasi Booking — dialog Tolak (Alasan Penolakan)', path: '/demo/admin/booking/verifikasi', h1: 'Verifikasi Booking', aksi: "document.querySelector('.sim-table tbody tr:nth-child(1) .btn-outline-danger').click()", tunggu: '[role=dialog]' },
-    { file: 'admin/states/12a-laporan-filter-awal.png', peran: 'Admin', judul: 'Laporan — sebelum laporan ditampilkan', path: '/demo/admin/laporan', h1: 'Laporan', penuh: true },
-    { file: 'anggota/states/02a-cari-buku-panel-detail.png', peran: 'Anggota', judul: 'Cari Buku — panel Detail Buku', path: '/demo/anggota/cari-buku', h1: 'Cari Buku', aksi: "document.querySelector('.sim-table tbody tr:nth-child(1) button[aria-label^=\"Detail\"]').click()", tunggu: '.sim-drawer' },
-    { file: 'anggota/states/04a-status-booking-panel-detail.png', peran: 'Anggota', judul: 'Status Booking — panel Detail Booking (Direalisasikan)', path: '/demo/anggota/booking/status', h1: 'Status Booking', aksi: "[...document.querySelectorAll('.sim-table tbody tr')].find(r => r.cells[0].innerText === 'BP-004').querySelector('button[aria-label^=\"Detail\"]').click()", tunggu: '.sim-drawer' },
-    { file: 'anggota/states/05a-history-panel-detail.png', peran: 'Anggota', judul: 'History Peminjaman — panel Detail Riwayat', path: '/demo/anggota/history', h1: 'History Peminjaman', aksi: "document.querySelector('.sim-table tbody tr:nth-child(1) button[aria-label^=\"Detail\"]').click()", tunggu: '.sim-drawer' },
+    { file: 'admin/states/02a-data-anggota-panel-detail.png', peran: 'Admin', judul: 'Data Anggota — panel Detail Anggota', path: '/admin/anggota', h1: 'Data Anggota', aksi: "document.querySelector('.sim-table tbody tr:nth-child(1) button[aria-label^=\"Lihat\"]').click()", tunggu: '.sim-drawer' },
+    { file: 'admin/states/03a-tambah-anggota-akses-login.png', peran: 'Admin', judul: 'Tambah Anggota — Akses Login Anggota diaktifkan', path: '/admin/anggota/tambah', h1: 'Tambah Anggota', aksi: "document.getElementById('buat-akses-login').click()", tunggu: '#isian-akses-login', penuh: true },
+    { file: 'admin/states/04a-ubah-anggota-reset-kata-sandi.png', peran: 'Admin', judul: 'Ubah Anggota — Reset Kata Sandi akses login', path: '/admin/anggota/AG-001/ubah', h1: 'Ubah Anggota', aksi: "[...document.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Reset Kata Sandi').click()", tunggu: 'input[autocomplete=new-password]', penuh: true },
+    { file: 'admin/states/05a-data-buku-panel-detail.png', peran: 'Admin', judul: 'Data Buku — panel Detail Buku & Daftar Eksemplar', path: '/admin/buku', h1: 'Data Buku & Eksemplar', aksi: "document.querySelector('.sim-table tbody tr:nth-child(1) button[aria-label^=\"Lihat\"]').click()", tunggu: '.sim-drawer' },
+    { file: 'admin/states/10a-verifikasi-panel-detail.png', peran: 'Admin', judul: 'Verifikasi Booking — panel Detail Booking', path: '/admin/booking/verifikasi', h1: 'Verifikasi Booking', aksi: "document.querySelector('.sim-table tbody tr:nth-child(1) button[aria-label^=\"Detail\"]').click()", tunggu: '.sim-drawer' },
+    { file: 'admin/states/10b-verifikasi-dialog-tolak.png', peran: 'Admin', judul: 'Verifikasi Booking — dialog Tolak (Alasan Penolakan)', path: '/admin/booking/verifikasi', h1: 'Verifikasi Booking', aksi: "document.querySelector('.sim-table tbody tr:nth-child(1) .btn-outline-danger').click()", tunggu: '[role=dialog]' },
+    { file: 'admin/states/12a-laporan-filter-awal.png', peran: 'Admin', judul: 'Laporan — sebelum laporan ditampilkan', path: '/admin/laporan', h1: 'Laporan', penuh: true },
+    { file: 'anggota/states/02a-cari-buku-panel-detail.png', peran: 'Anggota', judul: 'Cari Buku — panel Detail Buku', path: '/anggota/cari-buku', h1: 'Cari Buku', aksi: "document.querySelector('.sim-table tbody tr:nth-child(1) button[aria-label^=\"Detail\"]').click()", tunggu: '.sim-drawer' },
+    { file: 'anggota/states/04a-status-booking-panel-detail.png', peran: 'Anggota', judul: 'Status Booking — panel Detail Booking (Direalisasikan)', path: '/anggota/booking/status', h1: 'Status Booking', aksi: "[...document.querySelectorAll('.sim-table tbody tr')].find(r => r.cells[0].innerText === 'BP-004').querySelector('button[aria-label^=\"Detail\"]').click()", tunggu: '.sim-drawer' },
+    { file: 'anggota/states/05a-history-panel-detail.png', peran: 'Anggota', judul: 'History Peminjaman — panel Detail Riwayat', path: '/anggota/history', h1: 'History Peminjaman', aksi: "document.querySelector('.sim-table tbody tr:nth-child(1) button[aria-label^=\"Detail\"]').click()", tunggu: '.sim-drawer' },
 ];
 
 const CSS_PRESENTASI = `
@@ -220,7 +234,7 @@ async function muat(b, h) {
     b.log.galat.length = 0;
     b.log.gagal.length = 0;
     await viewport(b, TINGGI);
-    // Muat penuh setiap halaman → store kembali ke dataset awal (deterministik).
+    // Muat penuh setiap halaman; data dibaca ulang dari server (sesi peran yang sedang masuk).
     await b.kirim('Page.navigate', { url: BASE + h.path });
     for (let i = 0; i < 80; i++) {
         await tunggu(100);
@@ -297,6 +311,23 @@ async function ambil(b, h, { penuh }) {
     return tujuan;
 }
 
+/** Masuk lewat halaman Masuk dengan kredensial dari environment (tidak dicetak). */
+async function masuk(b, peran) {
+    const k = KREDENSIAL[peran];
+    await b.kirim('Page.navigate', { url: `${BASE}/login` });
+    for (let i = 0; i < 80 && !(await b.nilai("document.readyState === 'complete' && !!document.querySelector('input[autocomplete=username]')")); i++) await tunggu(100);
+    for (const [selektor, teks] of [['input[autocomplete=username]', k.username], ['input[autocomplete=current-password]', k.password]]) {
+        await b.nilai(`(() => { const el = document.querySelector(${JSON.stringify(selektor)}); el.focus(); el.select(); return true; })()`);
+        await b.kirim('Input.insertText', { text: teks });
+    }
+    await b.nilai("document.querySelector('form button[type=submit]').click(), true");
+    for (let i = 0; i < 100; i++) {
+        await tunggu(100);
+        if (await b.nilai(`location.pathname.startsWith(${JSON.stringify(k.awalan)})`)) return;
+    }
+    throw new Error(`Gagal masuk sebagai ${peran} (periksa STITCH_${peran.toUpperCase()}_USERNAME/PASSWORD).`);
+}
+
 // ------------------------------------------------------------------ Utama
 async function main() {
     try {
@@ -306,23 +337,33 @@ async function main() {
         throw new Error(`Aplikasi tidak dapat dibuka di ${BASE} (${e.message}). Jalankan "php artisan serve" dan "npm run build" terlebih dahulu.`);
     }
 
+    for (const [peran, k] of Object.entries(KREDENSIAL)) {
+        if (!k.password) throw new Error(`STITCH_${peran.toUpperCase()}_PASSWORD belum di-set. Kredensial tidak disimpan di source code.`);
+    }
+
     rmSync(SHOTS, { recursive: true, force: true });
     mkdirSync(SHOTS, { recursive: true });
 
-    const b = await bukaChrome();
     const hasil = [];
-    try {
-        for (const [daftar, utama] of [[HALAMAN, true], [STATE, false]]) {
-            for (const h of daftar) {
-                await muat(b, h);
-                const { info, masalah } = await periksaHalaman(b, h, { utama });
-                const file = await ambil(b, h, { penuh: utama || h.penuh });
-                hasil.push({ ...h, utama, info, masalah, file });
-                process.stdout.write(`${masalah.length ? '✗' : '✓'} ${h.file}${masalah.length ? ` — ${masalah.join('; ')}` : ''}\n`);
-            }
+    const tangkap = async (b, h, utama) => {
+        await muat(b, h);
+        const { info, masalah } = await periksaHalaman(b, h, { utama });
+        const file = await ambil(b, h, { penuh: utama || h.penuh });
+        hasil.push({ ...h, utama, info, masalah, file });
+        process.stdout.write(`${masalah.length ? '✗' : '✓'} ${h.file}${masalah.length ? ` — ${masalah.join('; ')}` : ''}\n`);
+    };
+
+    // Satu browser (profil & sesi terpisah) per peran; halaman Masuk ditangkap sebagai tamu.
+    for (const [peran, tamuDulu] of [['Admin', true], ['Anggota', false]]) {
+        const b = await bukaChrome();
+        try {
+            if (tamuDulu) for (const h of HALAMAN.filter((x) => x.peran === '—')) await tangkap(b, h, true);
+            await masuk(b, peran);
+            for (const h of HALAMAN.filter((x) => x.peran === peran)) await tangkap(b, h, true);
+            for (const h of STATE.filter((x) => x.peran === peran)) await tangkap(b, h, false);
+        } finally {
+            await b.tutup();
         }
-    } finally {
-        await b.tutup();
     }
 
     // Validasi file PNG
@@ -371,7 +412,7 @@ Paket screenshot PNG halaman final untuk direplikasi di Google Stitch. Website L
 - Screenshot state tambahan (panel/dialog): **${state.length}**
 - Lolos validasi: **${lolos}/${hasil.length}**
 - Basis URL saat capture: \`${BASE}\` (lokal; tidak ada URL publik)
-- Tanggal data demo: 7 November 2026 (tetap). Setiap halaman dimuat ulang penuh sehingga memakai dataset awal.
+- Data dari database server saat capture (gunakan data demo fiktif); "hari ini" mengikuti kalender WIB server. Setiap peran masuk lewat halaman Masuk (sesi Laravel), tanpa jalan pintas.
 
 ## Standar capture
 
@@ -385,7 +426,7 @@ Paket screenshot PNG halaman final untuk direplikasi di Google Stitch. Website L
 | Font | Inter Variable & Bootstrap Icons (dibundel lokal oleh Vite) — diverifikasi termuat sebelum capture |
 | Animasi | Transisi, animasi, dan kursor teks dinonaktifkan selama capture |
 | Fokus/hover | Fokus dilepas dan kursor dipindah ke pojok sebelum capture |
-| Login | Mode presentasi: kotak "Mode pratinjau" disembunyikan hanya saat capture (kode demo tetap ada) |
+| Autentikasi | Login nyata per peran (kredensial dari environment STITCH_*), satu browser per peran |
 
 ## Halaman utama
 

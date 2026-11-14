@@ -10,6 +10,9 @@ const props = defineProps({
     caption: { type: String, default: null },
     /** Status laci navigasi pada layar kecil. */
     open: { type: Boolean, default: false },
+    /** Phase 8C: URL halaman Ubah Kata Sandi (hanya Admin); null = tidak ditampilkan. */
+    urlKataSandi: { type: String, default: null },
+    kataSandiAktif: { type: Boolean, default: false },
 });
 
 defineEmits(['close', 'logout']);
@@ -92,6 +95,15 @@ function alihkan(label) {
         </nav>
 
         <div class="sim-sidebar__footer">
+            <Link
+                v-if="urlKataSandi"
+                :href="urlKataSandi"
+                :class="['sim-nav-link', { 'is-active': kataSandiAktif }]"
+                :aria-current="kataSandiAktif ? 'page' : undefined"
+            >
+                <i class="bi bi-key" aria-hidden="true"></i>
+                <span>Ubah Kata Sandi</span>
+            </Link>
             <button type="button" class="sim-nav-link" @click="$emit('logout')">
                 <i class="bi bi-box-arrow-left" aria-hidden="true"></i>
                 <span>Keluar</span>

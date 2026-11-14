@@ -11,7 +11,7 @@ import StatCard from '@/Components/StatCard.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
-import { cariAnggota, bookingAnggota, detailBooking, detailPeminjaman, peminjamanAnggota, ringkasanAnggota } from '@/data/mock/index.js';
+import { cariAnggota, bookingAnggota, detailBooking, detailPeminjaman, peminjamanAnggota, ringkasanAnggota } from '@/utils/olahData.js';
 import AnggotaLayout from '@/Layouts/AnggotaLayout.vue';
 import { formatTanggal } from '@/utils/format.js';
 

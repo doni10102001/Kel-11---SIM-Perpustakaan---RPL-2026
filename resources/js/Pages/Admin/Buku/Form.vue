@@ -9,9 +9,9 @@ import EmptyState from '@/Components/EmptyState.vue';
 import FormFeedback from '@/Components/FormFeedback.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
-import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { GalatValidasi, useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
-import { eksemplarBuku } from '@/data/mock/index.js';
+import { eksemplarBuku } from '@/utils/olahData.js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { kodeBerikutnya } from '@/utils/pencarian.js';
 import { normalKode, validasiBuku, validasiKodeEksemplar } from '@/utils/validasiMaster.js';
@@ -111,7 +111,15 @@ async function simpan() {
     }
 
     const jumlahBaru = eksemplarBaru.value.length;
-    const hasil = mode === 'tambah' ? tambahBuku(form, eksemplarBaru.value) : ubahBuku(kodeAsal, form, eksemplarBaru.value);
+    let hasil;
+    try {
+        hasil = mode === 'tambah' ? tambahBuku(form, eksemplarBaru.value) : ubahBuku(kodeAsal, form, eksemplarBaru.value);
+    } catch (e) {
+        if (!(e instanceof GalatValidasi)) throw e;
+        galat.value = e.galat;
+
+        return;
+    }
 
     setPesan({
         tone: 'success',
@@ -159,8 +167,8 @@ const ringkasan = computed(() => ({
                 <FormFeedback
                     v-if="sudahDikirim && Object.keys(galat).length"
                     tone="danger"
-                    title="Data buku belum valid"
-                    message="Periksa kembali isian yang ditandai, lalu simpan ulang."
+                    :title="galat.umum ? 'Data buku tidak disimpan' : 'Data buku belum valid'"
+                    :message="galat.umum ?? 'Periksa kembali isian yang ditandai, lalu simpan ulang.'"
                 />
 
                 <section class="sim-card">

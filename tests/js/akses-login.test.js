@@ -23,9 +23,9 @@ import {
     tambahAnggota,
     ubahAnggota,
     useDataPerpustakaan,
-} from '../../resources/js/composables/useDataPerpustakaan.js';
-import { AKUN_DEMO, TANGGAL_DEMO } from '../../resources/js/config/demo.js';
-import { DATA_MOCK, bookingAnggota, peminjamanAnggota, periksaKonsistensi, ringkasanAnggota } from '../../resources/js/data/mock/index.js';
+} from './fixtures/storeMock.js';
+import { AKUN_DEMO, TANGGAL_DEMO } from './fixtures/demo.js';
+import { DATA_MOCK, bookingAnggota, peminjamanAnggota, periksaKonsistensi, ringkasanAnggota } from './fixtures/mock/index.js';
 import { POLA_HASH } from '../../resources/js/utils/kredensial.js';
 import { validasiAksesLogin } from '../../resources/js/utils/validasiMaster.js';
 

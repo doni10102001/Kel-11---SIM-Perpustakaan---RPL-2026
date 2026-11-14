@@ -1,4 +1,9 @@
 /**
+ * FIXTURE PENGUJIAN (Phase 8B): data mock prototipe, dipindah dari
+ * resources/js/data/mock/ agar TIDAK ikut dibundel ke aset publik. Hanya dipakai
+ * test Node (tests/js/). Halaman aplikasi membaca data dari MySQL lewat Laravel.
+ * Isinya identik dengan database/seeders/data/perpustakaan-demo.json.
+ *
  * Titik masuk tunggal data mock SIM Perpustakaan.
  *
  * Semua halaman mengambil data dari sini — jangan menyalin rekaman ke file Vue.
@@ -32,6 +37,6 @@ export const DATA_MOCK = bekukan({
     booking: BOOKING,
 });
 
-export * from './relasi.js';
-export * from './dashboard.js';
+export * from '../../../../resources/js/utils/relasi.js';
+export * from '../../../../resources/js/utils/ringkasan.js';
 export { periksaKonsistensi } from './validasi.js';

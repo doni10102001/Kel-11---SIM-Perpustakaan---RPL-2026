@@ -9,7 +9,8 @@ export default defineConfig({
             input: ['resources/js/app.js'],
             refresh: true,
         }),
-        inertia(),
+        // Phase 8D: tanpa SSR — tidak ada entry SSR maupun endpoint /__inertia_ssr di server dev.
+        inertia({ ssr: false }),
         vue({
             template: {
                 transformAssetUrls: {

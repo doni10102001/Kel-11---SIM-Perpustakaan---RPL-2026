@@ -8,13 +8,12 @@ import StatCard from '@/Components/StatCard.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
-import { TANGGAL_DEMO } from '@/config/demo.js';
-import { detailBooking, detailPeminjaman, rekapStatus, ringkasanAdmin } from '@/data/mock/index.js';
+import { detailBooking, detailPeminjaman, rekapStatus, ringkasanAdmin } from '@/utils/olahData.js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { formatTanggal } from '@/utils/format.js';
 import { daftarStatus } from '@/utils/status.js';
 
-const { data } = useDataPerpustakaan();
+const { data, tanggalHariIni } = useDataPerpustakaan();
 const { rute } = useDemo();
 
 // Semua angka dihitung dari dataset (tidak ada nilai tetap).
@@ -58,7 +57,7 @@ const kolomBooking = [
     { key: 'status', label: 'Status' },
 ];
 
-const deskripsi = `Ringkasan data dan layanan perpustakaan per ${formatTanggal(TANGGAL_DEMO, 'panjang')}.`;
+const deskripsi = `Ringkasan data dan layanan perpustakaan per ${formatTanggal(tanggalHariIni, 'panjang')}.`;
 </script>
 
 <template>

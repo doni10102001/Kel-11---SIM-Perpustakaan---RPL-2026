@@ -1091,6 +1091,15 @@ h6 {
     color: #fff;
 }
 
+/* Phase 8C: tautan Ubah Kata Sandi memakai hover netral seperti menu utama (merah khusus Keluar). */
+.sim-sidebar__footer a.sim-nav-link:not(.is-active):hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.sim-sidebar__footer a.sim-nav-link + .sim-nav-link {
+    margin-top: 0.25rem;
+}
+
 .sim-sidebar-backdrop {
     position: fixed;
     inset: 0;

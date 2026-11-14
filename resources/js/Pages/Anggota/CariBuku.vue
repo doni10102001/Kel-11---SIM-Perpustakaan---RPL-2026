@@ -12,7 +12,7 @@ import SearchInput from '@/Components/SearchInput.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
-import { eksemplarBuku, ketersediaanBuku } from '@/data/mock/index.js';
+import { eksemplarBuku, ketersediaanBuku } from '@/utils/olahData.js';
 import AnggotaLayout from '@/Layouts/AnggotaLayout.vue';
 import { filterKatalog } from '@/utils/pencarian.js';
 

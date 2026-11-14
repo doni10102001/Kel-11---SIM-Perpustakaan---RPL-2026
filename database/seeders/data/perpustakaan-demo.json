@@ -1,0 +1,531 @@
+{
+  "_keterangan": "Data seed development Phase 7A. Diekspor dari resources/js/data/mock/ (tanpa hash kredensial dan statusAkun). Dijaga sinkron oleh tests/js/seed-data.test.js. Tanggal tanpa jam disimpan pukul 00:00 WIB.",
+  "pengguna": [
+    {
+      "idPengguna": "USR-001",
+      "username": "admin",
+      "nama": "Rina Wulandari",
+      "peran": "admin"
+    },
+    {
+      "idPengguna": "USR-002",
+      "username": "AG-001",
+      "nama": "Nadia Rahmawati",
+      "peran": "anggota"
+    },
+    {
+      "idPengguna": "USR-003",
+      "username": "AG-002",
+      "nama": "Rizky Pratama",
+      "peran": "anggota"
+    },
+    {
+      "idPengguna": "USR-004",
+      "username": "AG-003",
+      "nama": "Siti Aisyah Putri",
+      "peran": "anggota"
+    },
+    {
+      "idPengguna": "USR-005",
+      "username": "AG-004",
+      "nama": "Bagas Saputra",
+      "peran": "anggota"
+    },
+    {
+      "idPengguna": "USR-006",
+      "username": "AG-005",
+      "nama": "Intan Permatasari",
+      "peran": "anggota"
+    },
+    {
+      "idPengguna": "USR-007",
+      "username": "AG-006",
+      "nama": "Fajar Nugroho",
+      "peran": "anggota"
+    },
+    {
+      "idPengguna": "USR-008",
+      "username": "AG-007",
+      "nama": "Melati Kusuma",
+      "peran": "anggota"
+    },
+    {
+      "idPengguna": "USR-009",
+      "username": "AG-008",
+      "nama": "Yoga Aditya",
+      "peran": "anggota"
+    },
+    {
+      "idPengguna": "USR-010",
+      "username": "AG-009",
+      "nama": "Larasati Wibowo",
+      "peran": "anggota"
+    },
+    {
+      "idPengguna": "USR-011",
+      "username": "AG-010",
+      "nama": "Rafi Ananda",
+      "peran": "anggota"
+    }
+  ],
+  "anggota": [
+    {
+      "kodeAnggota": "AG-001",
+      "idPengguna": "USR-002",
+      "nama": "Nadia Rahmawati",
+      "kontak": "0812-3456-7801",
+      "status": "Aktif"
+    },
+    {
+      "kodeAnggota": "AG-002",
+      "idPengguna": "USR-003",
+      "nama": "Rizky Pratama",
+      "kontak": "0813-2214-5502",
+      "status": "Aktif"
+    },
+    {
+      "kodeAnggota": "AG-003",
+      "idPengguna": "USR-004",
+      "nama": "Siti Aisyah Putri",
+      "kontak": "0857-1120-3303",
+      "status": "Aktif"
+    },
+    {
+      "kodeAnggota": "AG-004",
+      "idPengguna": "USR-005",
+      "nama": "Bagas Saputra",
+      "kontak": "0821-7765-4404",
+      "status": "Aktif"
+    },
+    {
+      "kodeAnggota": "AG-005",
+      "idPengguna": "USR-006",
+      "nama": "Intan Permatasari",
+      "kontak": "0838-5521-9805",
+      "status": "Aktif"
+    },
+    {
+      "kodeAnggota": "AG-006",
+      "idPengguna": "USR-007",
+      "nama": "Fajar Nugroho",
+      "kontak": "0812-9087-6606",
+      "status": "Aktif"
+    },
+    {
+      "kodeAnggota": "AG-007",
+      "idPengguna": "USR-008",
+      "nama": "Melati Kusuma",
+      "kontak": "0852-6634-1207",
+      "status": "Nonaktif"
+    },
+    {
+      "kodeAnggota": "AG-008",
+      "idPengguna": "USR-009",
+      "nama": "Yoga Aditya",
+      "kontak": "0819-4452-7708",
+      "status": "Aktif"
+    },
+    {
+      "kodeAnggota": "AG-009",
+      "idPengguna": "USR-010",
+      "nama": "Larasati Wibowo",
+      "kontak": "0877-3309-8809",
+      "status": "Nonaktif"
+    },
+    {
+      "kodeAnggota": "AG-010",
+      "idPengguna": "USR-011",
+      "nama": "Rafi Ananda",
+      "kontak": "0896-2201-4410",
+      "status": "Aktif"
+    }
+  ],
+  "buku": [
+    {
+      "kodeBuku": "BK-001",
+      "judul": "Algoritma Dasar",
+      "penulis": "Arief Hidayat",
+      "penerbit": "Cakrawala Ilmu",
+      "tahunTerbit": 2021,
+      "kategori": "Informatika"
+    },
+    {
+      "kodeBuku": "BK-002",
+      "judul": "Basis Data",
+      "penulis": "Lina Marlina",
+      "penerbit": "Media Informatika Press",
+      "tahunTerbit": 2022,
+      "kategori": "Informatika"
+    },
+    {
+      "kodeBuku": "BK-003",
+      "judul": "Pemrograman Web dengan Laravel",
+      "penulis": "Teguh Santoso",
+      "penerbit": "Media Informatika Press",
+      "tahunTerbit": 2024,
+      "kategori": "Informatika"
+    },
+    {
+      "kodeBuku": "BK-004",
+      "judul": "Rekayasa Perangkat Lunak",
+      "penulis": "Wahyu Hermawan",
+      "penerbit": "Cakrawala Ilmu",
+      "tahunTerbit": 2020,
+      "kategori": "Informatika"
+    },
+    {
+      "kodeBuku": "BK-005",
+      "judul": "Jaringan Komputer",
+      "penulis": "Sri Handayani",
+      "penerbit": "Nusantara Pustaka",
+      "tahunTerbit": 2019,
+      "kategori": "Informatika"
+    },
+    {
+      "kodeBuku": "BK-006",
+      "judul": "Kalkulus I",
+      "penulis": "Bambang Sutrisno",
+      "penerbit": "Nusantara Pustaka",
+      "tahunTerbit": 2018,
+      "kategori": "Matematika"
+    },
+    {
+      "kodeBuku": "BK-007",
+      "judul": "Statistika Terapan",
+      "penulis": "Ratna Kartikasari",
+      "penerbit": "Cakrawala Ilmu",
+      "tahunTerbit": 2023,
+      "kategori": "Matematika"
+    },
+    {
+      "kodeBuku": "BK-008",
+      "judul": "Pengantar Manajemen",
+      "penulis": "Agus Setiawan",
+      "penerbit": "Nusantara Pustaka",
+      "tahunTerbit": 2021,
+      "kategori": "Manajemen"
+    },
+    {
+      "kodeBuku": "BK-009",
+      "judul": "Bahasa Indonesia untuk Penulisan Ilmiah",
+      "penulis": "Yuliana Sari",
+      "penerbit": "Cakrawala Ilmu",
+      "tahunTerbit": 2022,
+      "kategori": "Bahasa"
+    },
+    {
+      "kodeBuku": "BK-010",
+      "judul": "Sistem Informasi Manajemen",
+      "penulis": "Joko Purnomo",
+      "penerbit": "Media Informatika Press",
+      "tahunTerbit": 2023,
+      "kategori": "Informatika"
+    }
+  ],
+  "eksemplar": [
+    {
+      "kodeEksemplar": "EK-001",
+      "kodeBuku": "BK-001",
+      "status": "Tersedia"
+    },
+    {
+      "kodeEksemplar": "EK-002",
+      "kodeBuku": "BK-002",
+      "status": "Dipesan"
+    },
+    {
+      "kodeEksemplar": "EK-003",
+      "kodeBuku": "BK-001",
+      "status": "Dipinjam"
+    },
+    {
+      "kodeEksemplar": "EK-004",
+      "kodeBuku": "BK-001",
+      "status": "Tersedia"
+    },
+    {
+      "kodeEksemplar": "EK-005",
+      "kodeBuku": "BK-002",
+      "status": "Tersedia"
+    },
+    {
+      "kodeEksemplar": "EK-006",
+      "kodeBuku": "BK-003",
+      "status": "Tersedia"
+    },
+    {
+      "kodeEksemplar": "EK-007",
+      "kodeBuku": "BK-003",
+      "status": "Tersedia"
+    },
+    {
+      "kodeEksemplar": "EK-008",
+      "kodeBuku": "BK-004",
+      "status": "Tersedia"
+    },
+    {
+      "kodeEksemplar": "EK-009",
+      "kodeBuku": "BK-004",
+      "status": "Tersedia"
+    },
+    {
+      "kodeEksemplar": "EK-010",
+      "kodeBuku": "BK-005",
+      "status": "Dipinjam"
+    },
+    {
+      "kodeEksemplar": "EK-011",
+      "kodeBuku": "BK-006",
+      "status": "Tersedia"
+    },
+    {
+      "kodeEksemplar": "EK-012",
+      "kodeBuku": "BK-006",
+      "status": "Dipinjam"
+    },
+    {
+      "kodeEksemplar": "EK-013",
+      "kodeBuku": "BK-007",
+      "status": "Dipesan"
+    },
+    {
+      "kodeEksemplar": "EK-014",
+      "kodeBuku": "BK-008",
+      "status": "Dipinjam"
+    },
+    {
+      "kodeEksemplar": "EK-015",
+      "kodeBuku": "BK-008",
+      "status": "Tersedia"
+    },
+    {
+      "kodeEksemplar": "EK-016",
+      "kodeBuku": "BK-009",
+      "status": "Tersedia"
+    },
+    {
+      "kodeEksemplar": "EK-017",
+      "kodeBuku": "BK-010",
+      "status": "Dipinjam"
+    },
+    {
+      "kodeEksemplar": "EK-018",
+      "kodeBuku": "BK-010",
+      "status": "Tersedia"
+    }
+  ],
+  "peminjaman": [
+    {
+      "idPeminjaman": "PJ-001",
+      "kodeAnggota": "AG-001",
+      "kodeEksemplar": "EK-001",
+      "tanggalPinjam": "2026-10-15",
+      "tanggalJatuhTempo": "2026-10-22",
+      "diprosesOleh": "USR-001",
+      "status": "Selesai"
+    },
+    {
+      "idPeminjaman": "PJ-002",
+      "kodeAnggota": "AG-007",
+      "kodeEksemplar": "EK-016",
+      "tanggalPinjam": "2026-10-16",
+      "tanggalJatuhTempo": "2026-10-30",
+      "diprosesOleh": "USR-001",
+      "status": "Selesai"
+    },
+    {
+      "idPeminjaman": "PJ-003",
+      "kodeAnggota": "AG-003",
+      "kodeEksemplar": "EK-006",
+      "tanggalPinjam": "2026-10-20",
+      "tanggalJatuhTempo": "2026-11-03",
+      "diprosesOleh": "USR-001",
+      "status": "Selesai"
+    },
+    {
+      "idPeminjaman": "PJ-004",
+      "kodeAnggota": "AG-004",
+      "kodeEksemplar": "EK-008",
+      "tanggalPinjam": "2026-10-21",
+      "tanggalJatuhTempo": "2026-10-28",
+      "diprosesOleh": "USR-001",
+      "status": "Selesai"
+    },
+    {
+      "idPeminjaman": "PJ-005",
+      "kodeAnggota": "AG-001",
+      "kodeEksemplar": "EK-011",
+      "tanggalPinjam": "2026-10-24",
+      "tanggalJatuhTempo": "2026-11-07",
+      "diprosesOleh": "USR-001",
+      "status": "Selesai"
+    },
+    {
+      "idPeminjaman": "PJ-006",
+      "kodeAnggota": "AG-002",
+      "kodeEksemplar": "EK-003",
+      "tanggalPinjam": "2026-11-02",
+      "tanggalJatuhTempo": "2026-11-16",
+      "diprosesOleh": "USR-001",
+      "status": "Aktif"
+    },
+    {
+      "idPeminjaman": "PJ-007",
+      "kodeAnggota": "AG-001",
+      "kodeEksemplar": "EK-017",
+      "tanggalPinjam": "2026-11-03",
+      "tanggalJatuhTempo": "2026-11-17",
+      "diprosesOleh": "USR-001",
+      "status": "Aktif"
+    },
+    {
+      "idPeminjaman": "PJ-008",
+      "kodeAnggota": "AG-005",
+      "kodeEksemplar": "EK-010",
+      "tanggalPinjam": "2026-11-04",
+      "tanggalJatuhTempo": "2026-11-11",
+      "diprosesOleh": "USR-001",
+      "status": "Aktif"
+    },
+    {
+      "idPeminjaman": "PJ-009",
+      "kodeAnggota": "AG-006",
+      "kodeEksemplar": "EK-014",
+      "tanggalPinjam": "2026-11-05",
+      "tanggalJatuhTempo": "2026-11-19",
+      "diprosesOleh": "USR-001",
+      "status": "Aktif"
+    },
+    {
+      "idPeminjaman": "PJ-010",
+      "kodeAnggota": "AG-008",
+      "kodeEksemplar": "EK-012",
+      "tanggalPinjam": "2026-11-06",
+      "tanggalJatuhTempo": "2026-11-13",
+      "diprosesOleh": "USR-001",
+      "status": "Aktif"
+    }
+  ],
+  "pengembalian": [
+    {
+      "idPengembalian": "KB-001",
+      "idPeminjaman": "PJ-001",
+      "tanggalKembali": "2026-10-18",
+      "diprosesOleh": "USR-001"
+    },
+    {
+      "idPengembalian": "KB-002",
+      "idPeminjaman": "PJ-002",
+      "tanggalKembali": "2026-10-27",
+      "diprosesOleh": "USR-001"
+    },
+    {
+      "idPengembalian": "KB-003",
+      "idPeminjaman": "PJ-004",
+      "tanggalKembali": "2026-10-28",
+      "diprosesOleh": "USR-001"
+    },
+    {
+      "idPengembalian": "KB-004",
+      "idPeminjaman": "PJ-005",
+      "tanggalKembali": "2026-11-01",
+      "diprosesOleh": "USR-001"
+    },
+    {
+      "idPengembalian": "KB-005",
+      "idPeminjaman": "PJ-003",
+      "tanggalKembali": "2026-11-02",
+      "diprosesOleh": "USR-001"
+    }
+  ],
+  "booking": [
+    {
+      "idBooking": "BP-001",
+      "kodeAnggota": "AG-002",
+      "kodeEksemplar": "EK-002",
+      "tanggalBooking": "2026-10-16",
+      "status": "Disetujui",
+      "tanggalKeputusan": "2026-10-17",
+      "diputuskanOleh": "USR-001",
+      "alasanPenolakan": null,
+      "idPeminjaman": null
+    },
+    {
+      "idBooking": "BP-002",
+      "kodeAnggota": "AG-004",
+      "kodeEksemplar": "EK-006",
+      "tanggalBooking": "2026-10-19",
+      "status": "Ditolak",
+      "tanggalKeputusan": "2026-10-20",
+      "diputuskanOleh": "USR-001",
+      "alasanPenolakan": "Eksemplar sudah dipinjam anggota lain sebelum pengajuan diproses.",
+      "idPeminjaman": null
+    },
+    {
+      "idBooking": "BP-003",
+      "kodeAnggota": "AG-001",
+      "kodeEksemplar": "EK-004",
+      "tanggalBooking": "2026-10-28",
+      "status": "Dibatalkan",
+      "tanggalKeputusan": null,
+      "diputuskanOleh": null,
+      "alasanPenolakan": null,
+      "idPeminjaman": null
+    },
+    {
+      "idBooking": "BP-004",
+      "kodeAnggota": "AG-001",
+      "kodeEksemplar": "EK-017",
+      "tanggalBooking": "2026-10-30",
+      "status": "Direalisasikan",
+      "tanggalKeputusan": "2026-10-31",
+      "diputuskanOleh": "USR-001",
+      "alasanPenolakan": null,
+      "idPeminjaman": "PJ-007"
+    },
+    {
+      "idBooking": "BP-005",
+      "kodeAnggota": "AG-008",
+      "kodeEksemplar": "EK-009",
+      "tanggalBooking": "2026-11-01",
+      "status": "Dibatalkan",
+      "tanggalKeputusan": "2026-11-02",
+      "diputuskanOleh": "USR-001",
+      "alasanPenolakan": null,
+      "idPeminjaman": null
+    },
+    {
+      "idBooking": "BP-006",
+      "kodeAnggota": "AG-003",
+      "kodeEksemplar": "EK-013",
+      "tanggalBooking": "2026-11-05",
+      "status": "Disetujui",
+      "tanggalKeputusan": "2026-11-06",
+      "diputuskanOleh": "USR-001",
+      "alasanPenolakan": null,
+      "idPeminjaman": null
+    },
+    {
+      "idBooking": "BP-007",
+      "kodeAnggota": "AG-001",
+      "kodeEksemplar": "EK-005",
+      "tanggalBooking": "2026-11-06",
+      "status": "Diajukan",
+      "tanggalKeputusan": null,
+      "diputuskanOleh": null,
+      "alasanPenolakan": null,
+      "idPeminjaman": null
+    },
+    {
+      "idBooking": "BP-008",
+      "kodeAnggota": "AG-010",
+      "kodeEksemplar": "EK-018",
+      "tanggalBooking": "2026-11-07",
+      "status": "Diajukan",
+      "tanggalKeputusan": null,
+      "diputuskanOleh": null,
+      "alasanPenolakan": null,
+      "idPeminjaman": null
+    }
+  ]
+}

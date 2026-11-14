@@ -1,11 +1,11 @@
 <script setup>
+import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-import { TANGGAL_DEMO } from '@/config/demo.js';
 import { formatTanggal, inisial } from '@/utils/format.js';
 
 const props = defineProps({
-    /** Akun pratinjau aktif: { nama, labelPeran, keterangan, peran } */
+    /** Akun yang masuk (sesi server, auth.akun): { nama, labelPeran, keterangan, peran } */
     akun: { type: Object, default: null },
     sidebarOpen: { type: Boolean, default: false },
 });
@@ -17,7 +17,10 @@ const IKON_PERAN = {
     anggota: 'bi-person-vcard',
 };
 
-const tanggal = formatTanggal(TANGGAL_DEMO, 'lengkap');
+// Phase 8B: "hari ini" kalender WIB dari server (prop bersama hariIni).
+const page = usePage();
+const hariIni = computed(() => page.props.hariIni);
+const tanggal = computed(() => formatTanggal(hariIni.value, 'lengkap'));
 const ikonPeran = computed(() => IKON_PERAN[props.akun?.peran] ?? 'bi-person');
 </script>
 
@@ -36,7 +39,7 @@ const ikonPeran = computed(() => IKON_PERAN[props.akun?.peran] ?? 'bi-person');
 
         <span class="sim-header__date d-none d-md-inline-flex">
             <i class="bi bi-calendar3" aria-hidden="true"></i>
-            <time :datetime="TANGGAL_DEMO">{{ tanggal }}</time>
+            <time :datetime="hariIni">{{ tanggal }}</time>
         </span>
 
         <div v-if="akun" class="sim-header__end">

@@ -1,11 +1,10 @@
 <script setup>
 import { router } from '@inertiajs/vue3';
-import { onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
 import AppHeader from '@/Components/AppHeader.vue';
 import AppSidebar from '@/Components/AppSidebar.vue';
 import ConfirmationModal from '@/Components/ConfirmationModal.vue';
-import { keluar as akhiriSesi } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
 
 /** Kerangka aplikasi bersama: sidebar, header, area konten, dan dialog Keluar. */
@@ -13,7 +12,11 @@ defineProps({
     caption: { type: String, default: null },
 });
 
-const { akun, menu, rute } = useDemo();
+const { akun, menu, rute, demo } = useDemo();
+
+// Phase 8C/8D: tautan Ubah Kata Sandi untuk Admin dan Anggota (halaman /{peran}/kata-sandi).
+const urlKataSandi = computed(() => demo.value.rute?.['kata-sandi'] ?? null);
+const kataSandiAktif = computed(() => demo.value.halaman?.judul === 'Ubah Kata Sandi');
 
 const sidebarTerbuka = ref(false);
 const konfirmasiKeluar = ref(false);
@@ -50,10 +53,9 @@ function mintaKeluar() {
 }
 
 function keluar() {
-    // Pratinjau statis: tidak ada sesi server; akun aktif di memori dihapus lalu kembali ke halaman Masuk.
+    // Phase 8A: sesi server diakhiri (logout, invalidate sesi, token CSRF baru), lalu server mengalihkan ke halaman Masuk.
     konfirmasiKeluar.value = false;
-    akhiriSesi();
-    router.visit(rute('login'));
+    router.post(rute('logout'));
 }
 </script>
 
@@ -61,7 +63,15 @@ function keluar() {
     <div class="sim-shell">
         <a href="#konten-utama" class="sim-skip-link">Lewati ke konten utama</a>
 
-        <AppSidebar :menu="menu" :caption="caption" :open="sidebarTerbuka" @close="tutupSidebar" @logout="mintaKeluar" />
+        <AppSidebar
+            :menu="menu"
+            :caption="caption"
+            :open="sidebarTerbuka"
+            :url-kata-sandi="urlKataSandi"
+            :kata-sandi-aktif="kataSandiAktif"
+            @close="tutupSidebar"
+            @logout="mintaKeluar"
+        />
         <div v-if="sidebarTerbuka" class="sim-sidebar-backdrop d-lg-none" aria-hidden="true" @click="tutupSidebar"></div>
 
         <div class="sim-main">

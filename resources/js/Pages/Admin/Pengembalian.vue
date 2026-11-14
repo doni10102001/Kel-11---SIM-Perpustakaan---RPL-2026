@@ -13,7 +13,7 @@ import SegmentedTabs from '@/Components/SegmentedTabs.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import { GalatValidasi, useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
-import { detailPeminjaman } from '@/data/mock/index.js';
+import { detailPeminjaman } from '@/utils/olahData.js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { formatTanggal } from '@/utils/format.js';
 import { cocokKataKunci } from '@/utils/pencarian.js';

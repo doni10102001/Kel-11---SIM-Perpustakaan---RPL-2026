@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
-import { AKUN_DEMO, TANGGAL_DEMO, cariAkunDemo } from '../../resources/js/config/demo.js';
+import { AKUN_DEMO, TANGGAL_DEMO, cariAkunDemo } from './fixtures/demo.js';
 import {
     DATA_MOCK,
     bookingAnggota,
@@ -18,7 +18,7 @@ import {
     ringkasanAnggota,
     salin,
     statusEksemplarDariTransaksi,
-} from '../../resources/js/data/mock/index.js';
+} from './fixtures/mock/index.js';
 import { STATUS } from '../../resources/js/utils/status.js';
 
 const D = DATA_MOCK;

@@ -1,5 +1,5 @@
 <script setup>
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 import BaseButton from '@/Components/BaseButton.vue';
@@ -18,10 +18,12 @@ import { inisial } from '@/utils/format.js';
 import { filterAnggota } from '@/utils/pencarian.js';
 import { daftarStatus } from '@/utils/status.js';
 
-const { data, ambilPesan } = useDataPerpustakaan();
+const { data } = useDataPerpustakaan();
 const { rute } = useDemo();
+const page = usePage();
 
-const pesan = ref(ambilPesan());
+// Phase 9A: pesan sukses dari server (flash) — hanya setelah data tersimpan di MySQL.
+const pesan = ref(page.props.flash?.status ? { tone: 'success', title: 'Data anggota tersimpan', message: page.props.flash.status } : null);
 const kataKunci = ref('');
 const status = ref('');
 
