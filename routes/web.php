@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\Auth\SesiController;
 use App\Http\Controllers\HalamanController;
 use App\Http\Controllers\Kredensial\AksesLoginAnggotaController;
@@ -59,7 +60,12 @@ Route::middleware(['auth', 'auth.session', 'akun.aktif', 'wajib.ganti.sandi'])->
     }
 
     // Phase 8C — mutasi kredensial (Admin saja; CSRF dari grup web; Form Request + Gate kelola-kredensial).
+    // Phase 9A — tulis data Anggota (Form Request + Gate kelola-anggota + LayananAnggota).
     Route::prefix('admin')->name('admin.')->middleware('peran:admin')->group(function () {
+        Route::post('anggota', [AnggotaController::class, 'store'])->middleware('throttle:30,1')->name('anggota.store');
+        Route::put('anggota/{kodeAnggota}', [AnggotaController::class, 'update'])
+            ->where('kodeAnggota', NavigasiDemo::POLA_KODE)->middleware('throttle:30,1')->name('anggota.update');
+
         Route::post('anggota/{kodeAnggota}/akses-login', [AksesLoginAnggotaController::class, 'store'])
             ->where('kodeAnggota', NavigasiDemo::POLA_KODE)->middleware('throttle:20,1')->name('anggota.akses-login.store');
         Route::put('anggota/{kodeAnggota}/kata-sandi', [AksesLoginAnggotaController::class, 'resetKataSandi'])

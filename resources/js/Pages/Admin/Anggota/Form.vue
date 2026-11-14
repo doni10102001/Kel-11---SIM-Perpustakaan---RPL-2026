@@ -11,7 +11,7 @@ import FormFeedback from '@/Components/FormFeedback.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import ReadonlyField from '@/Components/ReadonlyField.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
-import { GalatValidasi, useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { kodeBerikutnya } from '@/utils/pencarian.js';
@@ -24,7 +24,7 @@ import {
     validasiAnggota,
 } from '@/utils/validasiMaster.js';
 
-const { data, tambahAnggota, ubahAnggota, setPesan } = useDataPerpustakaan();
+const { data } = useDataPerpustakaan();
 const { rute, parameter, halaman } = useDemo();
 
 const kodeAsal = parameter.value.kodeAnggota ?? null;
@@ -131,12 +131,19 @@ const contohKode = kodeBerikutnya(data.anggota, 'kodeAnggota', 'AG');
 const transaksi = computed(() => (anggota ? transaksiBerjalanAnggota(data, anggota.kodeAnggota) : null));
 const totalRiwayat = computed(() => (anggota ? data.peminjaman.filter((p) => p.kodeAnggota === anggota.kodeAnggota).length : 0));
 
-function validasi() {
-    galat.value = {
-        ...validasiAnggota(form, data, { mode }),
-    };
+// Phase 9A: akses login opsional ikut dikirim saat TAMBAH; pada Ubah tetap lewat aksi eksplisit (Phase 8C).
+const isianAksesTambah = computed(() =>
+    mode === 'tambah' && akses.buatAkses
+        ? { buatAkses: true, username: akses.username, kataSandi: akses.kataSandi, konfirmasiKataSandi: akses.konfirmasiKataSandi }
+        : null,
+);
 
-    return Object.keys(galat.value).length === 0;
+function validasi() {
+    galat.value = validasiAnggota(form, data, { mode });
+    // Validasi awal di browser (umpan balik cepat); server memvalidasi ulang semuanya.
+    galatAkses.value = isianAksesTambah.value ? validasiAksesLogin(isianAksesTambah.value, data) : {};
+
+    return Object.keys(galat.value).length === 0 && Object.keys(galatAkses.value).length === 0;
 }
 
 // Setelah percobaan simpan pertama, pesan galat diperbarui saat pengguna mengetik.
@@ -163,28 +170,45 @@ async function simpan() {
     terapkan();
 }
 
+const memprosesSimpan = ref(false);
+
+/**
+ * Phase 9A — simpan ke MySQL (POST /admin/anggota atau PUT /admin/anggota/{kode}).
+ * Pesan sukses ditampilkan Data Anggota SETELAH server commit (redirect + flash).
+ * Gagal → galat per field; isian non-sensitif dipertahankan, kata sandi dikosongkan.
+ */
 function terapkan() {
     konfirmasiNonaktif.value = false;
+    if (memprosesSimpan.value) return; // cegah kirim ganda
 
-    // Phase 8C: kredensial dikirim lewat aksi eksplisit (kirimAkses), bukan lewat Simpan Anggota.
-    let hasil;
-    try {
-        hasil = mode === 'tambah' ? tambahAnggota(form, null) : ubahAnggota(kodeAsal, form, null);
-    } catch (e) {
-        if (!(e instanceof GalatValidasi)) throw e;
-        galat.value = e.galat;
-
-        return;
+    const payload = { nama: form.nama, kontak: form.kontak, status: form.status };
+    if (mode === 'tambah') {
+        payload.kodeAnggota = form.kodeAnggota;
+        payload.buatAkses = Boolean(isianAksesTambah.value);
+        if (isianAksesTambah.value) {
+            payload.username = akses.username.trim();
+            payload.password = akses.kataSandi;
+            payload.password_confirmation = akses.konfirmasiKataSandi;
+        }
     }
 
-    kosongkanKataSandi();
-
-    setPesan({
-        tone: 'success',
-        title: mode === 'tambah' ? 'Anggota berhasil ditambahkan' : 'Perubahan data anggota diterapkan',
-        message: `${hasil.kodeAnggota} · ${hasil.nama}.`,
+    memprosesSimpan.value = true;
+    const kirim = mode === 'tambah' ? router.post : router.put;
+    kirim(mode === 'tambah' ? rute('anggota.store') : rute('anggota.update', { kodeAnggota: kodeAsal }), payload, {
+        preserveScroll: true,
+        preserveState: 'errors',
+        onError: (e) => {
+            const { username, password, password_confirmation: konfirmasi, akses: galatAksesUmum, ...profil } = e;
+            galat.value = profil;
+            galatAkses.value = Object.fromEntries(
+                Object.entries({ username, kataSandi: password, konfirmasiKataSandi: konfirmasi, akses: galatAksesUmum }).filter(([, v]) => v),
+            );
+        },
+        onFinish: () => {
+            memprosesSimpan.value = false;
+            kosongkanKataSandi();
+        },
     });
-    router.visit(rute('anggota.index'));
 }
 
 const judulKartu = mode === 'tambah' ? 'Data Anggota Baru' : 'Data Anggota';
@@ -283,7 +307,8 @@ const pesanNonaktif = computed(() => {
                                 server lewat tombol masing-masing; kata sandi tidak pernah ditampilkan kembali.
                             </template>
                             <template v-else>
-                                Akses login dibuat dari formulir Ubah Anggota setelah data anggota tersimpan.
+                                Opsional. Akses login dibuat bersama data anggota saat Simpan Anggota; anggota wajib mengganti
+                                kata sandi ini saat pertama masuk. Status login mengikuti Status Anggota.
                             </template>
                         </p>
 
@@ -382,7 +407,6 @@ const pesanNonaktif = computed(() => {
                                     type="checkbox"
                                     role="switch"
                                     :checked="akses.buatAkses"
-                                    :disabled="mode === 'tambah'"
                                     aria-controls="isian-akses-login"
                                     :aria-expanded="akses.buatAkses ? 'true' : 'false'"
                                     @change="aturBuatAkses($event.target.checked)"
@@ -436,7 +460,7 @@ const pesanNonaktif = computed(() => {
                                     autocomplete="new-password"
                                     :error="galatAkses.konfirmasiKataSandi"
                                 />
-                                <div class="is-full d-flex justify-content-end">
+                                <div v-if="mode === 'ubah'" class="is-full d-flex justify-content-end">
                                     <BaseButton icon="bi-person-check" :loading="memprosesAkses" @click="kirimAkses('buat')">Buat Akses Login</BaseButton>
                                 </div>
                             </div>
@@ -447,7 +471,7 @@ const pesanNonaktif = computed(() => {
                 <div class="sim-card-footer">
                     <div class="sim-form-actions w-100">
                         <BaseButton variant="secondary" :href="rute('anggota.index')">Batal</BaseButton>
-                        <BaseButton type="submit" icon="bi-check2">Simpan Anggota</BaseButton>
+                        <BaseButton type="submit" icon="bi-check2" :loading="memprosesSimpan">Simpan Anggota</BaseButton>
                     </div>
                 </div>
             </form>

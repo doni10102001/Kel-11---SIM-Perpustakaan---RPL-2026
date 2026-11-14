@@ -26,9 +26,11 @@ describe('Kredensial di frontend (Phase 8C)', () => {
         assert.match(kataSandi, /onFinish: \(\) => \{\s*form\.reset\(\);/);
     });
 
-    test('Simpan Anggota tidak membawa kredensial dan tidak menampilkan kata sandi', () => {
-        assert.match(form, /tambahAnggota\(form, null\)/);
-        assert.match(form, /ubahAnggota\(kodeAsal, form, null\)/);
+    test('Simpan Anggota ke server: kredensial hanya saat Tambah, tidak pernah saat Ubah (Phase 9A)', () => {
+        assert.match(form, /kirim\(mode === 'tambah' \? rute\('anggota\.store'\) : rute\('anggota\.update', \{ kodeAnggota: kodeAsal \}\), payload/);
+        assert.match(form, /const payload = \{ nama: form\.nama, kontak: form\.kontak, status: form\.status \};\s*if \(mode === 'tambah'\) \{/);
+        assert.match(form, /memprosesSimpan\.value = false;\s*kosongkanKataSandi\(\);/);
+        assert.doesNotMatch(form, /tambahAnggota\(|ubahAnggota\(|setPesan\(/, 'tidak ada simulasi simpan di browser');
         assert.doesNotMatch(form, /kataSandiTerset|passwordHash/);
         assert.doesNotMatch(form, /mode pratinjau/i);
     });

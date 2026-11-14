@@ -383,6 +383,9 @@ class NavigasiDemo
         if ($peran === self::PERAN_ADMIN) {
             $rute['anggota.akses-login'] = url('/admin/anggota/{kodeAnggota}/akses-login');
             $rute['anggota.kata-sandi.reset'] = url('/admin/anggota/{kodeAnggota}/kata-sandi');
+            // Phase 9A — tulis data Anggota.
+            $rute['anggota.store'] = route('admin.anggota.store');
+            $rute['anggota.update'] = url('/admin/anggota/{kodeAnggota}');
         }
 
         // Phase 8C/8D — ganti kata sandi sendiri, sesuai peran halaman.
