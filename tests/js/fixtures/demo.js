@@ -9,8 +9,8 @@
  *  - akun lain hanya dapat masuk dengan kata sandi yang ditetapkan Admin
  *    (Akses Login Anggota) dan hanya selama sesi browser yang sama.
  */
-import { ANGGOTA, KODE_ANGGOTA_DEMO } from '../data/mock/members.js';
-import { ID_ADMIN_DEMO, PENGGUNA } from '../data/mock/users.js';
+import { ANGGOTA, KODE_ANGGOTA_DEMO } from './mock/members.js';
+import { ID_ADMIN_DEMO, PENGGUNA } from './mock/users.js';
 
 /**
  * "Hari ini" yang tetap untuk pratinjau, agar tampilan, status, dan screenshot

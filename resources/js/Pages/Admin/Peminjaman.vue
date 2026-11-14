@@ -13,7 +13,7 @@ import ReadonlyField from '@/Components/ReadonlyField.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import { GalatValidasi, useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
-import { cariAnggota, cariBuku, detailPeminjaman, eksemplarBuku, ketersediaanBuku } from '@/data/mock/index.js';
+import { cariAnggota, cariBuku, detailPeminjaman, eksemplarBuku, ketersediaanBuku } from '@/utils/olahData.js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { formatTanggal } from '@/utils/format.js';
 import { validasiPeminjaman } from '@/utils/validasiTransaksi.js';

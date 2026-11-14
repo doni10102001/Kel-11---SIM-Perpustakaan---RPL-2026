@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 
-import { DATA_MOCK } from '../../resources/js/data/mock/index.js';
+import { DATA_MOCK } from './fixtures/mock/index.js';
 
 const seed = JSON.parse(readFileSync(new URL('../../database/seeders/data/perpustakaan-demo.json', import.meta.url), 'utf8'));
 const mock = JSON.parse(JSON.stringify(DATA_MOCK));

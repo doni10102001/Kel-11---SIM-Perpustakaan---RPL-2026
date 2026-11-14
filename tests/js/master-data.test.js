@@ -14,9 +14,9 @@ import {
     ubahAnggota,
     ubahBuku,
     useDataPerpustakaan,
-} from '../../resources/js/composables/useDataPerpustakaan.js';
-import { TANGGAL_DEMO } from '../../resources/js/config/demo.js';
-import { DATA_MOCK, ketersediaanBuku, periksaKonsistensi, rekapStatus } from '../../resources/js/data/mock/index.js';
+} from './fixtures/storeMock.js';
+import { TANGGAL_DEMO } from './fixtures/demo.js';
+import { DATA_MOCK, ketersediaanBuku, periksaKonsistensi, rekapStatus } from './fixtures/mock/index.js';
 import { filterAnggota, filterBuku, kodeBerikutnya } from '../../resources/js/utils/pencarian.js';
 import { daftarStatus } from '../../resources/js/utils/status.js';
 import { transaksiBerjalanAnggota, validasiAnggota, validasiBuku, validasiKodeEksemplar } from '../../resources/js/utils/validasiMaster.js';

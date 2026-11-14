@@ -1,5 +1,5 @@
 <script setup>
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { computed, reactive, ref, watch } from 'vue';
 
 import BaseButton from '@/Components/BaseButton.vue';
@@ -17,7 +17,7 @@ import { formatTanggal } from '@/utils/format.js';
 import { JENIS_LAPORAN, buatLaporan, jenisLaporan, mendukungPeriode, validasiFilterLaporan } from '@/utils/laporan.js';
 
 const { data, tanggalHariIni } = useDataPerpustakaan();
-const { akun } = useDemo();
+const { akun, rute } = useDemo();
 const page = usePage();
 
 const filter = reactive({ jenis: '', awal: '', akhir: '' });
@@ -39,13 +39,34 @@ watch(
     },
 );
 
+/**
+ * Phase 8B: data laporan dimuat SERVER sesuai filter (periode = batas hari WIB
+ * yang dikonversi ke UTC di Laravel). "Tampilkan Laporan" meminta ulang halaman
+ * dengan query string; data yang tiba sudah tersaring dan diotorisasi.
+ */
 function tampilkan() {
     galat.value = validasiFilterLaporan(filter);
     if (Object.keys(galat.value).length > 0) return;
-    diterapkan.value = { ...filter };
+
+    const query = { jenis: filter.jenis };
+    if (periodeAktif.value && filter.awal) query.awal = filter.awal;
+    if (periodeAktif.value && filter.akhir) query.akhir = filter.akhir;
+
+    router.get(rute('laporan'), query, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+        onSuccess: () => terapkanDariServer(),
+    });
 }
 
-// Filter awal dapat dibaca dari URL, mis. ?jenis=peminjaman&awal=2026-11-01&akhir=2026-11-07
+/** Filter yang diterapkan = filter yang divalidasi dan dipakai server (prop filterLaporan). */
+function terapkanDariServer() {
+    const f = page.props.filterLaporan;
+    diterapkan.value = f ? { jenis: f.jenis, awal: f.awal ?? '', akhir: f.akhir ?? '' } : null;
+}
+
+// Filter awal dari URL, mis. ?jenis=peminjaman&awal=2026-11-01&akhir=2026-11-07 (sudah dimuat server).
 const query = new URLSearchParams(page.url.split('?')[1] ?? '');
 if (jenisLaporan(query.get('jenis'))) {
     filter.jenis = query.get('jenis');
@@ -53,7 +74,8 @@ if (jenisLaporan(query.get('jenis'))) {
         filter.awal = query.get('awal') ?? '';
         filter.akhir = query.get('akhir') ?? '';
     }
-    tampilkan();
+    galat.value = validasiFilterLaporan(filter);
+    terapkanDariServer();
 }
 
 const laporan = computed(() => (diterapkan.value ? buatLaporan(data, diterapkan.value) : null));

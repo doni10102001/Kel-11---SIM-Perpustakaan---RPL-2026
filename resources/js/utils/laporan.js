@@ -4,7 +4,7 @@
  * tersedia (FR-015), dan cetak (FR-029). Laporan adalah hasil olahan dataset,
  * bukan data terpisah (SRS 6.1 "reports [virtual]").
  */
-import { detailPeminjaman, ketersediaanBuku } from '../data/mock/relasi.js';
+import { detailPeminjaman, ketersediaanBuku } from './relasi.js';
 
 export const JENIS_LAPORAN = [
     { value: 'buku', label: 'Daftar Buku', kolomTanggal: null },

@@ -182,3 +182,13 @@ Rincian: `docs/auth/PHASE_8A_AUTENTIKASI.md`.
 - Kelayakan login diperiksa saat masuk **dan setiap request**: Admin `is_active`; Anggota wajib tertaut ke data Anggota berstatus Aktif (`members.status` tetap satu-satunya sumber, D-03).
 - Identitas di frontend hanya dari sesi server (`auth.akun`); akun pratinjau AG-001 tidak dipakai lagi. Kotak "Mode pratinjau" di halaman Masuk dihapus.
 - Akun Anggota hasil seed belum dapat masuk (hash acak, D-08) sampai Phase 8C menyediakan provisioning/reset oleh Admin.
+
+## Phase 8B — Integrasi baca MySQL & privasi data (14 November 2026)
+
+Rincian: `docs/phase8/PHASE_8B_INTEGRASI_BACA_DATA.md`.
+
+- Data mock (anggota, akun, buku, transaksi) dan store mock dikeluarkan dari bundel frontend ke `tests/js/fixtures/`; build publik diverifikasi bebas data seed.
+- Seluruh halaman Admin dan Anggota membaca MySQL lewat `HalamanController` → `App\Queries\DataPerpustakaan` (Eloquent, eager loading) → prop Inertia `data` berbentuk sama dengan prototipe; komponen Vue tidak didesain ulang.
+- Anggota hanya menerima katalog publik dan data miliknya (identitas dari sesi server); Admin menerima data operasional. Otorisasi berlapis: middleware peran, Gate `buka-halaman`, dan cakupan query.
+- "Hari ini" mengikuti kalender WIB server; filter periode Laporan dikonversi batas hari WIB → UTC di server.
+- Semua aksi tulis ditolak eksplisit ("Belum tersedia … Tidak ada data yang diubah") sampai endpoint server tersedia; tidak ada simulasi sukses.

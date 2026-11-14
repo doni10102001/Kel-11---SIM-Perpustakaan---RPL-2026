@@ -16,9 +16,9 @@ import {
     tolakBooking,
     ubahAnggota,
     useDataPerpustakaan,
-} from '../../resources/js/composables/useDataPerpustakaan.js';
-import { TANGGAL_DEMO } from '../../resources/js/config/demo.js';
-import { DATA_MOCK, periksaKonsistensi, ringkasanAdmin, ringkasanAnggota } from '../../resources/js/data/mock/index.js';
+} from './fixtures/storeMock.js';
+import { TANGGAL_DEMO } from './fixtures/demo.js';
+import { DATA_MOCK, periksaKonsistensi, ringkasanAdmin, ringkasanAnggota } from './fixtures/mock/index.js';
 import { buatLaporan, validasiFilterLaporan } from '../../resources/js/utils/laporan.js';
 import { validasiPeminjaman } from '../../resources/js/utils/validasiTransaksi.js';
 

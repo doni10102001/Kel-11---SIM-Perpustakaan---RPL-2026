@@ -12,7 +12,7 @@ import ReadonlyField from '@/Components/ReadonlyField.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import { GalatValidasi, useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
-import { cariAnggota, cariBuku, detailBooking, eksemplarBuku, ketersediaanBuku } from '@/data/mock/index.js';
+import { cariAnggota, cariBuku, detailBooking, eksemplarBuku, ketersediaanBuku } from '@/utils/olahData.js';
 import AnggotaLayout from '@/Layouts/AnggotaLayout.vue';
 import { formatTanggal } from '@/utils/format.js';
 import { validasiAjukanBooking } from '@/utils/validasiTransaksi.js';

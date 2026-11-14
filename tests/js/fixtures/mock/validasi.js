@@ -6,9 +6,9 @@
  * simulasi transaksi di Phase 4–5. Aturan mengacu ke SRS v1.1:
  * §6.1–6.3, BR-01..BR-08, FR-020..FR-035.
  */
-import { statusEksemplarDariTransaksi } from './relasi.js';
-import { STATUS } from '../../utils/status.js';
-import { POLA_HASH } from '../../utils/kredensial.js';
+import { statusEksemplarDariTransaksi } from '../../../../resources/js/utils/relasi.js';
+import { STATUS } from '../../../../resources/js/utils/status.js';
+import { POLA_HASH } from '../../../../resources/js/utils/kredensial.js';
 
 const ISO_TANGGAL = /^\d{4}-\d{2}-\d{2}$/;
 const POLA_KODE = {

@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Support\AkunSesi;
 use App\Support\NavigasiDemo;
+use App\Support\WaktuPerpustakaan;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -43,6 +44,8 @@ class HandleInertiaRequests extends Middleware
             'demo' => fn () => NavigasiDemo::konteks($request),
             // Phase 8A: identitas dari sesi server (bukan akun pratinjau di browser).
             'auth' => fn () => ['akun' => AkunSesi::untuk($request->user())],
+            // Phase 8B: "hari ini" menurut kalender WIB (WaktuPerpustakaan), bukan tanggal demo tetap.
+            'hariIni' => fn () => WaktuPerpustakaan::hariIni(),
             // Pesan satu kali, mis. setelah keluar atau sesi diakhiri karena status akun.
             'flash' => fn () => ['status' => $request->hasSession() ? $request->session()->get('status') : null],
         ];

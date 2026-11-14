@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\SesiController;
+use App\Http\Controllers\HalamanController;
 use App\Support\NavigasiDemo;
 use Illuminate\Support\Facades\Route;
 
@@ -43,7 +44,10 @@ Route::middleware(['auth', 'auth.session', 'akun.aktif'])->group(function () {
             ->middleware("peran:{$peran}")
             ->group(function () use ($peran) {
                 foreach (NavigasiDemo::halaman($peran) as $kunci => $halaman) {
-                    Route::inertia($halaman['uri'], $halaman['komponen'])
+                    // Phase 8B: data halaman dibaca dari MySQL oleh HalamanController.
+                    Route::get($halaman['uri'], HalamanController::class)
+                        ->defaults('peran', $peran)
+                        ->defaults('halaman', $kunci)
                         ->name($kunci)
                         ->where(['kodeAnggota' => NavigasiDemo::POLA_KODE, 'kodeBuku' => NavigasiDemo::POLA_KODE]);
                 }
