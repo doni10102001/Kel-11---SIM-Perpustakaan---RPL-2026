@@ -2,44 +2,41 @@
 
 namespace Database\Factories;
 
+use App\Enums\Peran;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
+ * Factory pengujian. Kata sandi acak per proses (tidak ada kata sandi tetap
+ * di source code).
+ *
+ * Default = akun Anggota dengan name NULL (D-01: nama Anggota hanya di
+ * members.name). State admin() mengisi name karena wajib bagi Admin.
+ *
  * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
     protected static ?string $password;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'username' => 'user_'.Str::lower(Str::random(12)),
+            'name' => null,
+            'password' => static::$password ??= Hash::make(Str::random(32)),
+            'role' => Peran::Anggota,
+            'is_active' => true,
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
+    public function admin(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+        return $this->state(fn () => [
+            'role' => Peran::Admin,
+            'name' => fake()->name(),
         ]);
     }
 }

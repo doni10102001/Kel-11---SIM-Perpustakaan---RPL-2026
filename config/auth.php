@@ -17,7 +17,6 @@ return [
 
     'defaults' => [
         'guard' => env('AUTH_GUARD', 'web'),
-        'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
     ],
 
     /*
@@ -75,31 +74,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Resetting Passwords
+    | Resetting Passwords — sengaja tidak dikonfigurasi (Phase 7A D-04)
     |--------------------------------------------------------------------------
     |
-    | These configuration options specify the behavior of Laravel's password
-    | reset functionality, including the table utilized for token storage
-    | and the user provider that is invoked to actually retrieve users.
+    | Broker reset kata sandi bawaan Laravel (token lewat email, tabel
+    | `password_reset_tokens`) tidak dipakai: tabel `users` tidak memiliki
+    | email dan migration tabel token sudah dihapus. Reset kata sandi Anggota
+    | dilakukan Admin melalui backend (fase berikutnya). Jangan memanggil
+    | Password::broker() / Password::sendResetLink().
     |
-    | The expiry time is the number of minutes that each reset token will be
-    | considered valid. This security feature keeps tokens short-lived so
-    | they have less time to be guessed. You may change this as needed.
-    |
-    | The throttle setting is the number of seconds a user must wait before
-    | generating more password reset tokens. This prevents the user from
-    | quickly generating a very large amount of password reset tokens.
+    | Catatan: Laravel 11+ tetap menggabungkan default framework
+    | `auth.passwords.users`, jadi blok itu tidak dapat dihapus dari sini. Karena
+    | `defaults.passwords` sengaja tidak diisi, Password::broker() tanpa nama
+    | gagal cepat ("Password resetter [] is not defined").
     |
     */
-
-    'passwords' => [
-        'users' => [
-            'provider' => 'users',
-            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
-            'throttle' => 60,
-        ],
-    ],
 
     /*
     |--------------------------------------------------------------------------

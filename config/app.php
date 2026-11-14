@@ -65,7 +65,11 @@ return [
     |
     */
 
-    'timezone' => 'Asia/Jakarta',
+    // Phase 7A D-02 (amandemen Phase 0 #7): timestamp kejadian disimpan dan
+    // diproses dalam UTC. Zona TAMPILAN (Asia/Jakarta) ada di
+    // config/perpustakaan.php `zona_waktu_tampilan`; frontend merender WIB
+    // (resources/js/utils/format.js). Sengaja tidak dibaca dari env.
+    'timezone' => 'UTC',
 
     /*
     |--------------------------------------------------------------------------
