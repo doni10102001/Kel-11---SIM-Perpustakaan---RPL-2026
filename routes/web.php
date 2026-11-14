@@ -1,30 +1,46 @@
 <?php
 
+use App\Http\Controllers\Auth\SesiController;
 use App\Support\NavigasiDemo;
 use Illuminate\Support\Facades\Route;
 
 // Uji integrasi teknis Laravel → Inertia → Vue → Vite (Task 00). Jangan dihapus.
-Route::inertia('/hello/echo', 'HelloEcho')->name('hello.echo');
+// Phase 8A: hanya di luar production (tidak memuat data aplikasi).
+if (! app()->isProduction()) {
+    Route::inertia('/hello/echo', 'HelloEcho')->name('hello.echo');
+}
 
 Route::redirect('/', '/login');
 
-// Halaman Masuk bersama — pratinjau statis, BUKAN autentikasi.
-Route::inertia('/login', 'Auth/Login')->name('login');
+/*
+|--------------------------------------------------------------------------
+| Autentikasi (Phase 8A)
+|--------------------------------------------------------------------------
+| Username + kata sandi terhadap tabel `users` MySQL, guard `web`, sesi server.
+| Tanpa registrasi mandiri dan tanpa "Ingat saya".
+*/
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [SesiController::class, 'create'])->name('login');
+    Route::post('/login', [SesiController::class, 'store'])->name('login.store');
+});
+
+Route::post('/logout', [SesiController::class, 'destroy'])->middleware('auth')->name('logout');
 
 /*
 |--------------------------------------------------------------------------
-| Rute pratinjau (demo)
+| Rute aplikasi terlindungi
 |--------------------------------------------------------------------------
-| Dipisahkan di bawah /demo dari rute produksi. Dua peran prototipe:
-|   /demo/admin/*    — halaman pengelolaan perpustakaan
-|   /demo/anggota/*  — halaman layanan anggota
-| Tidak ada autentikasi, sesi login, maupun otorisasi server pada tahap ini.
-| Daftar halaman dikelola terpusat di App\Support\NavigasiDemo.
+|   /admin/*    — hanya akun berperan admin   (nama rute admin.*)
+|   /anggota/*  — hanya akun berperan anggota (nama rute anggota.*)
+| Setiap request: wajib masuk (auth), sesi terikat hash kata sandi
+| (auth.session), kelayakan akun diperiksa ulang dari DB (akun.aktif), lalu
+| peran dicek di server (peran:*). Daftar halaman: App\Support\NavigasiDemo.
 */
-Route::prefix('demo')->name('demo.')->group(function () {
+Route::middleware(['auth', 'auth.session', 'akun.aktif'])->group(function () {
     foreach (NavigasiDemo::PERAN as $peran) {
         Route::prefix($peran)
             ->name("{$peran}.")
+            ->middleware("peran:{$peran}")
             ->group(function () use ($peran) {
                 foreach (NavigasiDemo::halaman($peran) as $kunci => $halaman) {
                     Route::inertia($halaman['uri'], $halaman['komponen'])
@@ -34,6 +50,19 @@ Route::prefix('demo')->name('demo.')->group(function () {
             });
     }
 
-    // Halaman pengembang: katalog komponen UI. Tidak ditautkan dari navigasi.
-    Route::inertia('komponen', 'Sistem/PratinjauKomponen')->name('komponen');
+    // Halaman pengembang: katalog komponen UI. Tidak ditautkan dari navigasi; khusus Admin, di luar production.
+    if (! app()->isProduction()) {
+        Route::inertia('admin/komponen', 'Sistem/PratinjauKomponen')->middleware('peran:admin')->name('admin.komponen');
+    }
 });
+
+/*
+|--------------------------------------------------------------------------
+| Kompatibilitas tautan lama /demo/* (prototipe pra-Phase 8A)
+|--------------------------------------------------------------------------
+| Hanya mengalihkan ke rute baru; TIDAK menyajikan halaman. Rute tujuan tetap
+| wajib masuk dan peran yang sesuai, sehingga tidak ada jalan pintas demo.
+*/
+Route::get('/demo/komponen', fn () => redirect('/admin/komponen'));
+Route::get('/demo/{peran}/{jalur?}', fn (string $peran, string $jalur = '') => redirect(url("/{$peran}/{$jalur}")))
+    ->where(['peran' => implode('|', NavigasiDemo::PERAN), 'jalur' => '.*']);

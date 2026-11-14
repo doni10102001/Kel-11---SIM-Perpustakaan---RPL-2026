@@ -172,3 +172,13 @@ Persetujuan mencakup **revisi skema dan source saja**. Menjalankan migration, se
 ### Amandemen Phase 0 #7 (disetujui 14 November 2026)
 
 Keputusan awal "timezone `Asia/Jakarta`" diamandemen menjadi: **penyimpanan dan pemrosesan UTC, tampilan dan kalender bisnis `Asia/Jakarta` (WIB)**. Alasan: konsisten dengan serialisasi ISO-8601 UTC Laravel dan frontend yang sudah merender `Asia/Jakarta` (`resources/js/utils/format.js`). Tampilan UI tidak berubah. Konsekuensi: log Laravel bertimestamp UTC; Phase 8 wajib memakai `App\Support\WaktuPerpustakaan` untuk "hari ini" dan filter periode (lihat §8.3 dokumen setup 7A).
+
+## Phase 8A — Autentikasi nyata (14 November 2026)
+
+Rincian: `docs/auth/PHASE_8A_AUTENTIKASI.md`.
+
+- Autentikasi username + kata sandi terhadap `users` MySQL, guard `web`, sesi server di tabel `sessions` (`SESSION_DRIVER=database`), tanpa registrasi mandiri dan tanpa "Ingat saya".
+- Rute aplikasi dipindah dari `/demo/{peran}/*` ke `/admin/*` dan `/anggota/*`, dilindungi `auth`, `auth.session`, `akun.aktif`, `peran:{peran}`. URL `/demo/*` lama hanya redirect.
+- Kelayakan login diperiksa saat masuk **dan setiap request**: Admin `is_active`; Anggota wajib tertaut ke data Anggota berstatus Aktif (`members.status` tetap satu-satunya sumber, D-03).
+- Identitas di frontend hanya dari sesi server (`auth.akun`); akun pratinjau AG-001 tidak dipakai lagi. Kotak "Mode pratinjau" di halaman Masuk dihapus.
+- Akun Anggota hasil seed belum dapat masuk (hash acak, D-08) sampai Phase 8C menyediakan provisioning/reset oleh Admin.

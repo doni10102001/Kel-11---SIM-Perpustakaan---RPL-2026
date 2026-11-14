@@ -1,19 +1,19 @@
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-import { akunAktif } from '@/composables/useDataPerpustakaan.js';
-
 /**
- * Akses konteks pratinjau yang dibagikan Laravel (HandleInertiaRequests):
- * peran dari URL, menu sidebar, peta rute, dan meta halaman aktif.
+ * Akses konteks yang dibagikan Laravel (HandleInertiaRequests): peran dari
+ * rute aktif, menu sidebar, peta rute, meta halaman aktif, dan — sejak
+ * Phase 8A — akun yang masuk dari SESI SERVER (`auth.akun`). Tidak ada lagi
+ * akun pratinjau bawaan (AG-001) di browser.
  */
 export function useDemo() {
     const page = usePage();
 
     const demo = computed(() => page.props.demo ?? {});
     const peran = computed(() => demo.value.peran ?? null);
-    // Akun yang masuk pada sesi SPA ini; tanpa sesi → akun pratinjau bawaan.
-    const akun = computed(() => (peran.value ? akunAktif(peran.value) : null));
+    // Akun yang masuk menurut sesi server: { peran, identitas, nama, labelPeran, keterangan, kodeAnggota? }.
+    const akun = computed(() => page.props.auth?.akun ?? null);
     const halaman = computed(() => demo.value.halaman ?? null);
     const menu = computed(() => demo.value.menu ?? []);
     const adalahAdmin = computed(() => peran.value === 'admin');

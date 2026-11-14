@@ -2,20 +2,23 @@
 
 namespace App\Support;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /**
- * Konfigurasi pusat halaman, rute, dan navigasi untuk pratinjau statis.
+ * Konfigurasi pusat halaman, rute, dan navigasi aplikasi.
  *
- * Prototipe memakai DUA peran: Admin dan Anggota (lihat docs/KEPUTUSAN_DESAIN.md).
+ * Aplikasi memakai DUA peran: Admin dan Anggota (lihat docs/KEPUTUSAN_DESAIN.md).
  * SRS v1.1 membedakan Admin dan Petugas; seluruh fungsi operasional Petugas
- * dijalankan oleh Admin pada prototipe ini — perlu diselaraskan di dokumentasi final.
+ * dijalankan oleh Admin — perlu diselaraskan di dokumentasi final.
  *
  * - Semua URL dibangkitkan dengan route() sehingga tautan tidak bisa patah.
- * - Setiap item navigasi menyimpan daftar `peran` yang berhak, sebagai dasar
- *   otorisasi berbasis peran di tahap berikutnya. Pada tahap statis ini
- *   TIDAK ada autentikasi maupun otorisasi server; peran hanya dibaca dari rute.
+ * - Phase 8A: rute /{peran}/* (nama {peran}.*) dilindungi middleware auth,
+ *   auth.session, akun.aktif, dan peran:{peran} (routes/web.php). Peran pada
+ *   konteks ini dibaca dari rute aktif, yang hanya dapat dibuka oleh akun
+ *   berperan sama. Nama kelas dan prop `demo` dipertahankan agar halaman Vue
+ *   tidak perlu diubah; datanya kini konteks aplikasi, bukan pratinjau.
  */
 class NavigasiDemo
 {
@@ -23,7 +26,7 @@ class NavigasiDemo
 
     public const PERAN_ANGGOTA = 'anggota';
 
-    /** Peran yang tersedia di prototipe; juga menjadi prefiks URL /demo/{peran}/... */
+    /** Peran yang tersedia; juga menjadi prefiks URL /{peran}/... dan nama rute {peran}.* */
     public const PERAN = [self::PERAN_ADMIN, self::PERAN_ANGGOTA];
 
     public const LABEL_PERAN = [
@@ -32,7 +35,7 @@ class NavigasiDemo
     ];
 
     /**
-     * Daftar halaman per peran. Kunci = akhiran nama rute `demo.{peran}.{kunci}`.
+     * Daftar halaman per peran. Kunci = akhiran nama rute `{peran}.{kunci}`.
      *
      * @return array<string, array{uri: string, judul: string, deskripsi: string, induk: ?string, komponen: string}>
      */
@@ -223,6 +226,18 @@ class NavigasiDemo
         ];
     }
 
+    /**
+     * Tujuan setelah masuk: URL yang diminta sebelumnya bila milik peran akun
+     * ini, selain itu dashboard peran. URL peran lain diabaikan (tidak 403).
+     */
+    public static function tujuanSetelahMasuk(User $akun, ?string $diminta = null): string
+    {
+        $peran = $akun->role->value;
+        $prefiks = url("/{$peran}").'/';
+
+        return $diminta !== null && str_starts_with($diminta, $prefiks) ? $diminta : self::url($peran, 'dashboard');
+    }
+
     /** Pola nilai parameter kode (mis. AG-001, BK-010) pada rute berparameter. */
     public const POLA_KODE = '[A-Za-z0-9._-]+';
 
@@ -233,7 +248,7 @@ class NavigasiDemo
 
     public static function namaRute(string $peran, string $halaman): string
     {
-        return "demo.{$peran}.{$halaman}";
+        return "{$peran}.{$halaman}";
     }
 
     public static function url(string $peran, string $halaman): string
@@ -241,13 +256,13 @@ class NavigasiDemo
         return route(self::namaRute($peran, $halaman));
     }
 
-    /** Peran yang sedang dipratinjau, dibaca dari nama rute aktif (demo.{peran}.*). */
+    /** Peran halaman aktif, dibaca dari nama rute aktif ({peran}.*). */
     public static function peranAktif(Request $request): ?string
     {
         $nama = $request->route()?->getName() ?? '';
 
         foreach (self::PERAN as $peran) {
-            if (str_starts_with($nama, "demo.{$peran}.")) {
+            if (str_starts_with($nama, "{$peran}.")) {
                 return $peran;
             }
         }
@@ -259,7 +274,7 @@ class NavigasiDemo
     private static function kunciHalaman(Request $request, string $peran): ?string
     {
         $nama = $request->route()?->getName() ?? '';
-        $prefiks = "demo.{$peran}.";
+        $prefiks = "{$peran}.";
 
         return str_starts_with($nama, $prefiks) ? substr($nama, strlen($prefiks)) : null;
     }
@@ -327,7 +342,7 @@ class NavigasiDemo
      */
     public static function rute(?string $peran): array
     {
-        $rute = ['login' => route('login')];
+        $rute = ['login' => route('login'), 'logout' => route('logout')];
 
         foreach (self::PERAN as $p) {
             $rute["beranda.{$p}"] = self::url($p, 'dashboard');
@@ -339,7 +354,7 @@ class NavigasiDemo
 
         foreach (self::halaman($peran) as $kunci => $halaman) {
             $rute[$kunci] = self::punyaParameter($halaman['uri'])
-                ? url("/demo/{$peran}/{$halaman['uri']}")
+                ? url("/{$peran}/{$halaman['uri']}")
                 : self::url($peran, $kunci);
         }
 

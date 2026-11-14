@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AlasanTolakMasuk;
 use App\Enums\Peran;
 use App\Enums\StatusAnggota;
 use App\Models\Concerns\SimpanWaktuUtc;
@@ -104,16 +105,27 @@ class User extends Authenticatable
     }
 
     /**
-     * Kelayakan login berdasarkan data (dipakai autentikasi Phase 8).
-     * Admin: is_active. Anggota: harus terhubung ke tepat satu Anggota berstatus Aktif.
-     * Verifikasi kata sandi TIDAK dilakukan di sini.
+     * Alasan akun ini TIDAK boleh masuk / mempertahankan sesi; null = boleh.
+     * Admin: users.is_active. Anggota: wajib terhubung ke data Anggota berstatus
+     * Aktif (members.status satu-satunya sumber, D-03). Verifikasi kata sandi
+     * TIDAK dilakukan di sini. Dipakai saat login dan pada setiap request
+     * terautentikasi (middleware PastikanAkunAktif).
      */
-    public function bolehMasuk(): bool
+    public function alasanTidakBolehMasuk(): ?AlasanTolakMasuk
     {
         return match ($this->role) {
-            Peran::Admin => $this->is_active,
-            Peran::Anggota => $this->member?->status === StatusAnggota::Aktif,
-            default => false,
+            Peran::Admin => $this->is_active ? null : AlasanTolakMasuk::AkunNonaktif,
+            Peran::Anggota => match (true) {
+                $this->member === null => AlasanTolakMasuk::RelasiTidakValid,
+                $this->member->status !== StatusAnggota::Aktif => AlasanTolakMasuk::AnggotaNonaktif,
+                default => null,
+            },
+            default => AlasanTolakMasuk::RelasiTidakValid,
         };
+    }
+
+    public function bolehMasuk(): bool
+    {
+        return $this->alasanTidakBolehMasuk() === null;
     }
 }

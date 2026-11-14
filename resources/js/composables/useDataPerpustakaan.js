@@ -337,6 +337,14 @@ export function batalkanBooking(idBooking, { kodeAnggota }) {
 }
 
 // ---------------------------------------------------------------- Masuk SIMULASI (pasca-Final Audit)
+//
+// PHASE 8A: fungsi di bagian ini TIDAK lagi dipakai untuk autentikasi. Halaman
+// Masuk, kerangka aplikasi, dan useDemo() memakai sesi server Laravel
+// (POST /login, POST /logout, prop `auth.akun`); setiap rute /admin/* dan
+// /anggota/* ditolak server tanpa sesi yang sah. Fungsi ini dipertahankan hanya
+// sebagai aturan data mock untuk fitur "Akses Login Anggota" (diganti Phase 8C)
+// dan diuji oleh tests/js/akses-login.test.js. tests/js/autentikasi-server.test.js
+// memastikan tidak ada halaman/layout yang memanggilnya lagi.
 
 /**
  * Akun yang sedang "masuk" pada sesi SPA ini. Hanya `idPengguna` yang disimpan,

@@ -5,7 +5,7 @@ import { TANGGAL_DEMO } from '@/config/demo.js';
 import { formatTanggal, inisial } from '@/utils/format.js';
 
 const props = defineProps({
-    /** Akun pratinjau aktif: { nama, labelPeran, keterangan, peran } */
+    /** Akun yang masuk (sesi server, auth.akun): { nama, labelPeran, keterangan, peran } */
     akun: { type: Object, default: null },
     sidebarOpen: { type: Boolean, default: false },
 });
