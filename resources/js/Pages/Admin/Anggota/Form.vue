@@ -1,5 +1,5 @@
 <script setup>
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { computed, nextTick, reactive, ref } from 'vue';
 
 import BaseButton from '@/Components/BaseButton.vue';
@@ -42,7 +42,7 @@ const form = reactive({
 // ------------------------------------------------ Akses login (opsional)
 const akunLama = anggota ? akunAnggota(data, anggota) : null;
 const relasiRusak = anggota ? !relasiAkunValid(data, anggota) : false;
-const kataSandiTerset = Boolean(akunLama?.passwordHash);
+const page = usePage();
 
 const akses = reactive({
     buatAkses: false,
@@ -53,13 +53,44 @@ const akses = reactive({
 });
 const tampilkanSandi = ref(false);
 
-/** Isian akses yang dikirim ke store (null = akses login tidak disentuh). */
-const isianAkses = computed(() => {
-    if (relasiRusak) return null;
-    if (akunLama || akses.buatAkses) return { ...akses };
 
-    return null;
-});
+// ------------------------------------------------ Phase 8C: kredensial ke server
+// Buat akses login & reset kata sandi adalah aksi EKSPLISIT yang disimpan ke
+// MySQL (Laravel: Form Request + transaksi). Simpan data Anggota (nama, kontak,
+// status) belum tersedia dan tidak membawa isian kata sandi.
+const galatAkses = ref({});
+const memprosesAkses = ref(false);
+const pesanAkses = computed(() => page.props.flash?.status ?? null);
+
+function kirimAkses(jenis) {
+    const buat = jenis === 'buat';
+    const isian = buat
+        ? { buatAkses: true, username: akses.username, kataSandi: akses.kataSandi, konfirmasiKataSandi: akses.konfirmasiKataSandi }
+        : { resetKataSandi: true, kataSandi: akses.kataSandi, konfirmasiKataSandi: akses.konfirmasiKataSandi };
+
+    // Validasi awal di browser (umpan balik cepat); server tetap memvalidasi ulang.
+    galatAkses.value = validasiAksesLogin(isian, data, { anggota });
+    if (Object.keys(galatAkses.value).length > 0) return;
+
+    const payload = { password: akses.kataSandi, password_confirmation: akses.konfirmasiKataSandi };
+    if (buat) payload.username = akses.username.trim();
+
+    memprosesAkses.value = true;
+    router[buat ? 'post' : 'put'](rute(buat ? 'anggota.akses-login' : 'anggota.kata-sandi.reset', { kodeAnggota: anggota.kodeAnggota }), payload, {
+        preserveScroll: true,
+        // Berhasil → halaman dimuat ulang dari server (akun terbaru, isian kosong); gagal → isian lain dipertahankan.
+        preserveState: 'errors',
+        onError: (e) => {
+            galatAkses.value = Object.fromEntries(
+                Object.entries({ username: e.username, kataSandi: e.password, konfirmasiKataSandi: e.password_confirmation, akses: e.akses }).filter(([, v]) => v),
+            );
+        },
+        onFinish: () => {
+            memprosesAkses.value = false;
+            kosongkanKataSandi();
+        },
+    });
+}
 
 // Kata sandi tidak disimpan lebih lama dari yang dibutuhkan.
 function kosongkanKataSandi() {
@@ -69,6 +100,7 @@ function kosongkanKataSandi() {
 }
 
 function aturBuatAkses(aktif) {
+    galatAkses.value = {};
     akses.buatAkses = aktif;
     if (!aktif) {
         akses.username = '';
@@ -78,6 +110,7 @@ function aturBuatAkses(aktif) {
 }
 
 function aturResetKataSandi(aktif) {
+    galatAkses.value = {};
     akses.resetKataSandi = aktif;
     if (!aktif) kosongkanKataSandi();
     perbaruiGalat();
@@ -101,7 +134,6 @@ const totalRiwayat = computed(() => (anggota ? data.peminjaman.filter((p) => p.k
 function validasi() {
     galat.value = {
         ...validasiAnggota(form, data, { mode }),
-        ...validasiAksesLogin(isianAkses.value, data, { anggota }),
     };
 
     return Object.keys(galat.value).length === 0;
@@ -134,10 +166,10 @@ async function simpan() {
 function terapkan() {
     konfirmasiNonaktif.value = false;
 
-    const kirimAkses = isianAkses.value;
+    // Phase 8C: kredensial dikirim lewat aksi eksplisit (kirimAkses), bukan lewat Simpan Anggota.
     let hasil;
     try {
-        hasil = mode === 'tambah' ? tambahAnggota(form, kirimAkses) : ubahAnggota(kodeAsal, form, kirimAkses);
+        hasil = mode === 'tambah' ? tambahAnggota(form, null) : ubahAnggota(kodeAsal, form, null);
     } catch (e) {
         if (!(e instanceof GalatValidasi)) throw e;
         galat.value = e.galat;
@@ -145,15 +177,12 @@ function terapkan() {
         return;
     }
 
-    let infoAkses = '';
-    if (kirimAkses?.buatAkses) infoAkses = ` Akses login dibuat dengan username ${kirimAkses.username.trim()}.`;
-    else if (kirimAkses?.resetKataSandi) infoAkses = ' Kata sandi akses login telah direset.';
     kosongkanKataSandi();
 
     setPesan({
         tone: 'success',
         title: mode === 'tambah' ? 'Anggota berhasil ditambahkan' : 'Perubahan data anggota diterapkan',
-        message: `${hasil.kodeAnggota} · ${hasil.nama}.${infoAkses} Perubahan pada mode pratinjau tidak disimpan setelah halaman dimuat ulang.`,
+        message: `${hasil.kodeAnggota} · ${hasil.nama}.`,
     });
     router.visit(rute('anggota.index'));
 }
@@ -249,9 +278,17 @@ const pesanNonaktif = computed(() => {
                     <section class="sim-form-section" aria-labelledby="judul-akses-login">
                         <h3 id="judul-akses-login" class="sim-subheading">Akses Login Anggota</h3>
                         <p class="sim-field-hint mb-3">
-                            Opsional. Status login mengikuti Status Anggota. Pada mode pratinjau, akun dan kata sandi hanya
-                            berlaku sampai halaman dimuat ulang.
+                            <template v-if="mode === 'ubah'">
+                                Opsional. Status login mengikuti Status Anggota. Akses login dan reset kata sandi disimpan ke
+                                server lewat tombol masing-masing; kata sandi tidak pernah ditampilkan kembali.
+                            </template>
+                            <template v-else>
+                                Akses login dibuat dari formulir Ubah Anggota setelah data anggota tersimpan.
+                            </template>
                         </p>
+
+                        <FormFeedback v-if="pesanAkses && !Object.keys(galatAkses).length" class="mb-3" tone="success" title="Akses login diperbarui" :message="pesanAkses" />
+                        <FormFeedback v-if="galatAkses.akses" class="mb-3" tone="danger" title="Akses login tidak diubah" :message="galatAkses.akses" />
 
                         <FormFeedback v-if="relasiRusak" tone="danger" title="Relasi akun tidak valid" message="Akun login yang terhubung dengan anggota ini tidak ditemukan atau tidak sesuai. Akses login tidak dapat diubah dari formulir ini." />
 
@@ -274,7 +311,7 @@ const pesanNonaktif = computed(() => {
                                     <span class="form-label d-block mb-1">Kata Sandi</span>
                                     <span class="sim-field-hint">
                                         <i class="bi bi-shield-lock me-1" aria-hidden="true"></i>
-                                        {{ kataSandiTerset ? 'Kata sandi telah diatur dan tidak dapat ditampilkan.' : 'Kata sandi belum diatur oleh Admin.' }}
+                                        Kata sandi tersimpan di server dan tidak dapat ditampilkan.
                                     </span>
                                 </div>
                                 <BaseButton variant="outline-primary" size="sm" icon="bi-key" @click="aturResetKataSandi(true)">
@@ -286,7 +323,7 @@ const pesanNonaktif = computed(() => {
                                 <div class="sim-reset-panel__head">
                                     <div>
                                         <h4 id="judul-reset-kata-sandi" class="sim-reset-panel__title">Reset Kata Sandi</h4>
-                                        <p class="sim-field-hint mb-0">Kata sandi lama tidak ditampilkan. Kata sandi baru berlaku setelah Simpan Anggota.</p>
+                                        <p class="sim-field-hint mb-0">Kata sandi lama tidak ditampilkan. Kata sandi baru berlaku setelah Simpan Kata Sandi Baru; sesi login anggota sebelumnya diakhiri.</p>
                                     </div>
                                     <BaseButton
                                         variant="secondary"
@@ -306,7 +343,7 @@ const pesanNonaktif = computed(() => {
                                         placeholder="Minimal 6 karakter"
                                         required
                                         autocomplete="new-password"
-                                        :error="galat.kataSandi"
+                                        :error="galatAkses.kataSandi"
                                     >
                                     <template #action>
                                         <button
@@ -327,8 +364,11 @@ const pesanNonaktif = computed(() => {
                                         placeholder="Ulangi kata sandi baru"
                                         required
                                         autocomplete="new-password"
-                                        :error="galat.konfirmasiKataSandi"
+                                        :error="galatAkses.konfirmasiKataSandi"
                                     />
+                                    <div class="is-full d-flex justify-content-end">
+                                        <BaseButton icon="bi-key" :loading="memprosesAkses" @click="kirimAkses('reset')">Simpan Kata Sandi Baru</BaseButton>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -342,6 +382,7 @@ const pesanNonaktif = computed(() => {
                                     type="checkbox"
                                     role="switch"
                                     :checked="akses.buatAkses"
+                                    :disabled="mode === 'tambah'"
                                     aria-controls="isian-akses-login"
                                     :aria-expanded="akses.buatAkses ? 'true' : 'false'"
                                     @change="aturBuatAkses($event.target.checked)"
@@ -359,7 +400,7 @@ const pesanNonaktif = computed(() => {
                                     autocomplete="off"
                                     autocapitalize="off"
                                     spellcheck="false"
-                                    :error="galat.username"
+                                    :error="galatAkses.username"
                                 />
                                 <ReadonlyField label="Status Login" :hint="infoStatusLogin">
                                     <StatusBadge type="anggota" :status="form.status" />
@@ -372,7 +413,7 @@ const pesanNonaktif = computed(() => {
                                     placeholder="Minimal 6 karakter"
                                     required
                                     autocomplete="new-password"
-                                    :error="galat.kataSandi"
+                                    :error="galatAkses.kataSandi"
                                 >
                                     <template #action>
                                         <button
@@ -393,8 +434,11 @@ const pesanNonaktif = computed(() => {
                                     placeholder="Ulangi kata sandi"
                                     required
                                     autocomplete="new-password"
-                                    :error="galat.konfirmasiKataSandi"
+                                    :error="galatAkses.konfirmasiKataSandi"
                                 />
+                                <div class="is-full d-flex justify-content-end">
+                                    <BaseButton icon="bi-person-check" :loading="memprosesAkses" @click="kirimAkses('buat')">Buat Akses Login</BaseButton>
+                                </div>
                             </div>
                         </template>
                     </section>

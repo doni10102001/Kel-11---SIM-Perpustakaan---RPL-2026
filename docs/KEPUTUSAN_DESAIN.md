@@ -192,3 +192,13 @@ Rincian: `docs/phase8/PHASE_8B_INTEGRASI_BACA_DATA.md`.
 - Anggota hanya menerima katalog publik dan data miliknya (identitas dari sesi server); Admin menerima data operasional. Otorisasi berlapis: middleware peran, Gate `buka-halaman`, dan cakupan query.
 - "Hari ini" mengikuti kalender WIB server; filter periode Laporan dikonversi batas hari WIB → UTC di server.
 - Semua aksi tulis ditolak eksplisit ("Belum tersedia … Tidak ada data yang diubah") sampai endpoint server tersedia; tidak ada simulasi sukses.
+
+## Phase 8C — Manajemen kredensial nyata (14 November 2026)
+
+Rincian: `docs/phase8/PHASE_8C_MANAJEMEN_KREDENSIAL.md`.
+
+- Admin membuat akses login untuk Anggota yang sudah tersimpan dan mereset kata sandi Anggota lewat aksi eksplisit (bukan lewat Simpan Anggota); tersimpan ke MySQL dalam transaksi dengan penguncian baris Anggota.
+- Akun Anggota selalu `role=anggota`, `name=NULL`, `is_active=true`; Status Anggota tidak berubah dan tetap satu-satunya pengendali login (D-03). Field istimewa dari klien diabaikan.
+- Admin dapat mengganti kata sandinya sendiri (halaman Ubah Kata Sandi): sesi saat ini tetap masuk dengan ID baru, sesi lain berakhir.
+- Reset/ganti kata sandi mengakhiri sesi lama (baris sesi dihapus + `auth.session`). Audit log mencatat aksi dan aktor, tanpa kata sandi.
+- Tidak ada migration baru; aksi tulis non-kredensial tetap ditolak eksplisit.

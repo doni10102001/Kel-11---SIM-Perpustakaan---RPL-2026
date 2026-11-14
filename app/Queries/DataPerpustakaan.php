@@ -74,6 +74,11 @@ class DataPerpustakaan
 
     private function admin(string $halaman, ?array $laporan): array
     {
+        // Halaman Ubah Kata Sandi tidak memerlukan data perpustakaan.
+        if ($halaman === 'kata-sandi') {
+            return [];
+        }
+
         if ($halaman !== 'laporan') {
             return $this->muat(self::KOLEKSI, cakupan: null);
         }

@@ -135,6 +135,14 @@ class NavigasiDemo
                 'induk' => 'dashboard',
                 'komponen' => 'Admin/Laporan',
             ],
+            // Phase 8C: dibuka dari tautan "Ubah Kata Sandi" di sidebar, bukan menu utama.
+            'kata-sandi' => [
+                'uri' => 'kata-sandi',
+                'judul' => 'Ubah Kata Sandi',
+                'deskripsi' => 'Ganti kata sandi akun Admin Anda.',
+                'induk' => 'dashboard',
+                'komponen' => 'Admin/KataSandi',
+            ],
         ];
     }
 
@@ -356,6 +364,13 @@ class NavigasiDemo
             $rute[$kunci] = self::punyaParameter($halaman['uri'])
                 ? url("/{$peran}/{$halaman['uri']}")
                 : self::url($peran, $kunci);
+        }
+
+        // Phase 8C — endpoint mutasi kredensial (Admin saja).
+        if ($peran === self::PERAN_ADMIN) {
+            $rute['anggota.akses-login'] = url('/admin/anggota/{kodeAnggota}/akses-login');
+            $rute['anggota.kata-sandi.reset'] = url('/admin/anggota/{kodeAnggota}/kata-sandi');
+            $rute['kata-sandi.update'] = route('admin.kata-sandi.update');
         }
 
         return $rute;

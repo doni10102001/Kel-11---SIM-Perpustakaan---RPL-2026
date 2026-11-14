@@ -1,6 +1,6 @@
 <script setup>
 import { router } from '@inertiajs/vue3';
-import { onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
 import AppHeader from '@/Components/AppHeader.vue';
 import AppSidebar from '@/Components/AppSidebar.vue';
@@ -12,7 +12,11 @@ defineProps({
     caption: { type: String, default: null },
 });
 
-const { akun, menu, rute } = useDemo();
+const { akun, menu, rute, demo, adalahAdmin } = useDemo();
+
+// Phase 8C: tautan Ubah Kata Sandi hanya untuk Admin (halaman /admin/kata-sandi).
+const urlKataSandi = computed(() => (adalahAdmin.value ? (demo.value.rute?.['kata-sandi'] ?? null) : null));
+const kataSandiAktif = computed(() => demo.value.halaman?.judul === 'Ubah Kata Sandi');
 
 const sidebarTerbuka = ref(false);
 const konfirmasiKeluar = ref(false);
@@ -59,7 +63,15 @@ function keluar() {
     <div class="sim-shell">
         <a href="#konten-utama" class="sim-skip-link">Lewati ke konten utama</a>
 
-        <AppSidebar :menu="menu" :caption="caption" :open="sidebarTerbuka" @close="tutupSidebar" @logout="mintaKeluar" />
+        <AppSidebar
+            :menu="menu"
+            :caption="caption"
+            :open="sidebarTerbuka"
+            :url-kata-sandi="urlKataSandi"
+            :kata-sandi-aktif="kataSandiAktif"
+            @close="tutupSidebar"
+            @logout="mintaKeluar"
+        />
         <div v-if="sidebarTerbuka" class="sim-sidebar-backdrop d-lg-none" aria-hidden="true" @click="tutupSidebar"></div>
 
         <div class="sim-main">

@@ -55,6 +55,8 @@ function masuk() {
     }
 
     form.post(rute('login'), {
+        // Inertia v3 menjadikan isian sukses sebagai default; jangan simpan kata sandi sebagai default.
+        onSuccess: () => form.defaults({ username: '', password: '' }),
         onFinish: () => form.reset('password'),
     });
 }

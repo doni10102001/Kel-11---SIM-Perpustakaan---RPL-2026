@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Auth\SesiController;
 use App\Http\Controllers\HalamanController;
+use App\Http\Controllers\Kredensial\AksesLoginAnggotaController;
+use App\Http\Controllers\Kredensial\KataSandiController;
 use App\Support\NavigasiDemo;
 use Illuminate\Support\Facades\Route;
 
@@ -53,6 +55,16 @@ Route::middleware(['auth', 'auth.session', 'akun.aktif'])->group(function () {
                 }
             });
     }
+
+    // Phase 8C — mutasi kredensial (Admin saja; CSRF dari grup web; Form Request + Gate kelola-kredensial).
+    Route::prefix('admin')->name('admin.')->middleware('peran:admin')->group(function () {
+        Route::post('anggota/{kodeAnggota}/akses-login', [AksesLoginAnggotaController::class, 'store'])
+            ->where('kodeAnggota', NavigasiDemo::POLA_KODE)->middleware('throttle:20,1')->name('anggota.akses-login.store');
+        Route::put('anggota/{kodeAnggota}/kata-sandi', [AksesLoginAnggotaController::class, 'resetKataSandi'])
+            ->where('kodeAnggota', NavigasiDemo::POLA_KODE)->middleware('throttle:20,1')->name('anggota.kata-sandi.reset');
+        // Verifikasi kata sandi saat ini dibatasi 6 percobaan/menit per akun.
+        Route::put('kata-sandi', [KataSandiController::class, 'update'])->middleware('throttle:6,1')->name('kata-sandi.update');
+    });
 
     // Halaman pengembang: katalog komponen UI. Tidak ditautkan dari navigasi; khusus Admin, di luar production.
     if (! app()->isProduction()) {
