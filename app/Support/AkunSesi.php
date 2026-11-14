@@ -15,7 +15,7 @@ use App\Models\User;
  */
 final class AkunSesi
 {
-    /** @return array{peran: string, identitas: string, nama: ?string, labelPeran: string, keterangan: ?string, kodeAnggota?: string}|null */
+    /** @return array{peran: string, identitas: string, nama: ?string, labelPeran: string, keterangan: ?string, kodeAnggota?: string, wajibGantiKataSandi?: bool}|null */
     public static function untuk(?User $akun): ?array
     {
         if ($akun === null) {
@@ -37,6 +37,8 @@ final class AkunSesi
                 'labelPeran' => 'Anggota',
                 'keterangan' => $akun->member?->member_code,
                 'kodeAnggota' => $akun->member?->member_code,
+                // Phase 8D: penanda boolean (bukan rahasia) untuk pemberitahuan di halaman Ubah Kata Sandi.
+                'wajibGantiKataSandi' => $akun->wajibGantiKataSandi(),
             ],
             default => null,
         };

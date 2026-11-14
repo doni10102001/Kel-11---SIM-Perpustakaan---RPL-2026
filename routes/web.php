@@ -36,10 +36,12 @@ Route::post('/logout', [SesiController::class, 'destroy'])->middleware('auth')->
 |   /admin/*    — hanya akun berperan admin   (nama rute admin.*)
 |   /anggota/*  — hanya akun berperan anggota (nama rute anggota.*)
 | Setiap request: wajib masuk (auth), sesi terikat hash kata sandi
-| (auth.session), kelayakan akun diperiksa ulang dari DB (akun.aktif), lalu
-| peran dicek di server (peran:*). Daftar halaman: App\Support\NavigasiDemo.
+| (auth.session), kelayakan akun diperiksa ulang dari DB (akun.aktif), kewajiban
+| ganti kata sandi Anggota (wajib.ganti.sandi, Phase 8D), lalu peran dicek di
+| server (peran:*). Daftar halaman: App\Support\NavigasiDemo.
 */
-Route::middleware(['auth', 'auth.session', 'akun.aktif'])->group(function () {
+// Phase 8D: wajib.ganti.sandi — Anggota yang wajib ganti kata sandi hanya dapat membuka /anggota/kata-sandi.
+Route::middleware(['auth', 'auth.session', 'akun.aktif', 'wajib.ganti.sandi'])->group(function () {
     foreach (NavigasiDemo::PERAN as $peran) {
         Route::prefix($peran)
             ->name("{$peran}.")
@@ -63,6 +65,11 @@ Route::middleware(['auth', 'auth.session', 'akun.aktif'])->group(function () {
         Route::put('anggota/{kodeAnggota}/kata-sandi', [AksesLoginAnggotaController::class, 'resetKataSandi'])
             ->where('kodeAnggota', NavigasiDemo::POLA_KODE)->middleware('throttle:20,1')->name('anggota.kata-sandi.reset');
         // Verifikasi kata sandi saat ini dibatasi 6 percobaan/menit per akun.
+        Route::put('kata-sandi', [KataSandiController::class, 'update'])->middleware('throttle:6,1')->name('kata-sandi.update');
+    });
+
+    // Phase 8D — Anggota mengganti kata sandinya sendiri (termasuk kewajiban pada login pertama).
+    Route::prefix('anggota')->name('anggota.')->middleware('peran:anggota')->group(function () {
         Route::put('kata-sandi', [KataSandiController::class, 'update'])->middleware('throttle:6,1')->name('kata-sandi.update');
     });
 

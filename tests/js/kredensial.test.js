@@ -11,7 +11,8 @@ const baca = (relatif) => readFileSync(new URL(`../../resources/js/${relatif}`, 
 
 describe('Kredensial di frontend (Phase 8C)', () => {
     const form = baca('Pages/Admin/Anggota/Form.vue');
-    const kataSandi = baca('Pages/Admin/KataSandi.vue');
+    // Phase 8D: formulir ganti kata sandi dipakai bersama Admin & Anggota.
+    const kataSandi = baca('Components/FormUbahKataSandi.vue');
 
     test('buat akses login & reset kata sandi dikirim ke endpoint server', () => {
         assert.match(form, /rute\(buat \? 'anggota\.akses-login' : 'anggota\.kata-sandi\.reset', \{ kodeAnggota: anggota\.kodeAnggota \}\)/);
@@ -37,7 +38,14 @@ describe('Kredensial di frontend (Phase 8C)', () => {
         assert.match(baca('Pages/Auth/Login.vue'), /onSuccess: \(\) => form\.defaults\(\{ username: '', password: '' \}\)/);
     });
 
-    test('ganti kata sandi Admin memakai PUT ke rute server dengan kata sandi saat ini', () => {
+    test('halaman Admin & Anggota memakai formulir bersama; Anggota wajib tanpa tombol Batal', () => {
+        assert.match(baca('Pages/Admin/KataSandi.vue'), /<FormUbahKataSandi :batal-href="rute\('dashboard'\)" \/>/);
+        const anggota = baca('Pages/Anggota/KataSandi.vue');
+        assert.match(anggota, /<FormUbahKataSandi :wajib="wajib" :batal-href="wajib \? null : rute\('dashboard'\)" \/>/);
+        assert.match(anggota, /akun\.value\?\.wajibGantiKataSandi/);
+    });
+
+    test('ganti kata sandi sendiri memakai PUT ke rute server dengan kata sandi saat ini', () => {
         assert.match(kataSandi, /const KOSONG = Object\.freeze\(\{ current_password: '', password: '', password_confirmation: '' \}\)/);
         assert.match(kataSandi, /form\.put\(rute\('kata-sandi\.update'\)/);
         assert.match(kataSandi, /autocomplete="current-password"/);

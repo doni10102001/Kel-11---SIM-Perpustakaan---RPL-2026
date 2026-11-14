@@ -33,7 +33,10 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Phase 8D: rute bawaan GET|PUT /storage/{path} (URL sementara bertanda
+            // tangan) dimatikan — aplikasi tidak memakai temporaryUrl/upload sementara.
+            // Akses file privat lewat Storage::disk('local') di server tetap berfungsi.
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],

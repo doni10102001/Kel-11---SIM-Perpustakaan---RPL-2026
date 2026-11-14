@@ -94,10 +94,11 @@ class KredensialTest extends MySqlTestCase
         $this->assertStringNotContainsString(self::SANDI_ANGGOTA, json_encode($log->getAttributes()));
         $this->assertStringNotContainsString($akun->password, json_encode($log->getAttributes()));
 
-        // Login nyata dengan kredensial baru.
+        // Login nyata dengan kredensial baru → Phase 8D: wajib ganti kata sandi dulu.
+        $this->assertTrue($akun->must_change_password);
         $this->post('/logout');
         $this->requestBaru();
-        $this->masuk('nadia.r', self::SANDI_ANGGOTA)->assertRedirect(route('anggota.dashboard'));
+        $this->masuk('nadia.r', self::SANDI_ANGGOTA)->assertRedirect(route('anggota.kata-sandi'));
         $this->assertAuthenticatedAs($akun, 'web');
     }
 
@@ -220,8 +221,9 @@ class KredensialTest extends MySqlTestCase
         $this->post('/logout');
         $this->requestBaru();
         $this->masuk($akun->username, self::SANDI_ANGGOTA)->assertSessionHasErrors(['username' => MasukRequest::PESAN_GAGAL]);
-        $this->masuk($akun->username, self::SANDI_BARU)->assertRedirect(route('anggota.dashboard'));
+        $this->masuk($akun->username, self::SANDI_BARU)->assertRedirect(route('anggota.kata-sandi'));
         $this->assertAuthenticatedAs($akun, 'web');
+        $this->assertTrue($akun->fresh()->must_change_password, 'Phase 8D: reset → wajib ganti kata sandi.');
         $this->get('/admin/dashboard')->assertForbidden();
     }
 
@@ -456,6 +458,7 @@ class KredensialTest extends MySqlTestCase
             'POST logout',
             'PUT admin/anggota/{kodeAnggota}/kata-sandi',
             'PUT admin/kata-sandi',
+            'PUT anggota/kata-sandi',
         ], $tulis, 'Aksi tulis lain (anggota, buku, transaksi, booking) belum boleh punya endpoint.');
     }
 }

@@ -202,3 +202,13 @@ Rincian: `docs/phase8/PHASE_8C_MANAJEMEN_KREDENSIAL.md`.
 - Admin dapat mengganti kata sandinya sendiri (halaman Ubah Kata Sandi): sesi saat ini tetap masuk dengan ID baru, sesi lain berakhir.
 - Reset/ganti kata sandi mengakhiri sesi lama (baris sesi dihapus + `auth.session`). Audit log mencatat aksi dan aktor, tanpa kata sandi.
 - Tidak ada migration baru; aksi tulis non-kredensial tetap ditolak eksplisit.
+
+## Phase 8D — Pengerasan keamanan & wajib ganti kata sandi (14 November 2026)
+
+Rincian: `docs/phase8/PHASE_8D_PENGERASAN_KEAMANAN.md`.
+
+- SSR Inertia dinonaktifkan (`config/inertia.php` default false, `INERTIA_SSR_ENABLED=false`, `inertia({ ssr: false })`); aplikasi dirender di klien.
+- Penyajian URL sementara disk `local` dimatikan (`serve => false`); tidak ada pemakaian di aplikasi.
+- Kolom aditif `users.must_change_password` (default 0, CHECK hanya Anggota): diset saat Admin membuat akses login atau mereset kata sandi Anggota; dihapus hanya setelah Anggota mengganti kata sandinya sendiri.
+- Middleware `wajib.ganti.sandi` membatasi Anggota ber-flag pada halaman Ubah Kata Sandi dan Keluar; Admin tidak terdampak.
+- Anggota dapat mengganti kata sandi sendiri (`/anggota/kata-sandi`); sesi lain berakhir, sesi ini diregenerasi, lalu diarahkan ke Dashboard.

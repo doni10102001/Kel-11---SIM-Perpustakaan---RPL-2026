@@ -6,8 +6,9 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
 /**
- * Phase 8C — Admin mengganti kata sandinya sendiri. Kata sandi saat ini
- * diverifikasi terhadap hash di MySQL (aturan `current_password:web`).
+ * Phase 8C/8D — akun yang sedang masuk (Admin atau Anggota) mengganti kata
+ * sandinya sendiri. Kata sandi saat ini diverifikasi terhadap hash di MySQL
+ * (aturan `current_password:web`). Peran dibatasi middleware rute.
  */
 class UbahKataSandiRequest extends FormRequest
 {
@@ -15,7 +16,7 @@ class UbahKataSandiRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return Gate::allows('kelola-kredensial');
+        return Gate::allows('ubah-kata-sandi-sendiri');
     }
 
     /** @return array<string, list<string>> */

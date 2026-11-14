@@ -381,7 +381,8 @@ class AutentikasiTest extends MySqlTestCase
 
         $json = json_encode($props);
         $this->assertStringNotContainsString($akun->password, $json);
-        $this->assertSame(['peran', 'identitas', 'nama', 'labelPeran', 'keterangan', 'kodeAnggota'], array_keys($props['auth']['akun']));
+        $this->assertSame(['peran', 'identitas', 'nama', 'labelPeran', 'keterangan', 'kodeAnggota', 'wajibGantiKataSandi'], array_keys($props['auth']['akun']));
+        $this->assertFalse($props['auth']['akun']['wajibGantiKataSandi']);
         foreach (['password', 'remember_token', 'user_id', 'contact'] as $kunci) {
             $this->assertStringNotContainsString("\"{$kunci}\"", $json);
         }

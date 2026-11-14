@@ -98,7 +98,7 @@ Akun Anggota seed tetap berhash acak (D-08); tidak ada kata sandi bersama. Untuk
 
 ## 11. Catatan lingkungan & risiko
 
-1. **Server dev Vite aktif (`public/hot`)** saat QA. Laravel lalu memuat JS dari server dev dan Inertia mencoba SSR lewat server dev (konfigurasi default `INERTIA_SSR_ENABLED=true`), menghasilkan peringatan *hydration mismatch* pada `ConfirmationModal` (komponen lama, tidak diubah). QA final dijalankan dengan `INERTIA_SSR_ENABLED=false` → 0 error. Karena aplikasi tidak memakai SSR, disarankan menetapkan `INERTIA_SSR_ENABLED=false` di `.env`/`.env.example` (perlu persetujuan).
-2. Rute bawaan framework `GET|PUT storage/{path}` aktif karena `filesystems.disks.local.serve = true` (baseline). Rute ini mewajibkan URL bertanda tangan dan aplikasi tidak membuatnya; disarankan `serve => false` bila tidak dipakai (perlu persetujuan).
+1. *(Diselesaikan Phase 8D: SSR dinonaktifkan.)* **Server dev Vite aktif (`public/hot`)** saat QA. Laravel lalu memuat JS dari server dev dan Inertia mencoba SSR lewat server dev (konfigurasi default `INERTIA_SSR_ENABLED=true`), menghasilkan peringatan *hydration mismatch* pada `ConfirmationModal` (komponen lama, tidak diubah). QA final dijalankan dengan `INERTIA_SSR_ENABLED=false` → 0 error. Karena aplikasi tidak memakai SSR, disarankan menetapkan `INERTIA_SSR_ENABLED=false` di `.env`/`.env.example` (perlu persetujuan).
+2. *(Diselesaikan Phase 8D: `serve => false`.)* Rute bawaan framework `GET|PUT storage/{path}` aktif karena `filesystems.disks.local.serve = true` (baseline). Rute ini mewajibkan URL bertanda tangan dan aplikasi tidak membuatnya; disarankan `serve => false` bila tidak dipakai (perlu persetujuan).
 3. Aksi tulis lain tetap ditolak eksplisit (lihat dokumen 8B §5): simpan Anggota (tambah/ubah data & status), Buku, Peminjaman, Pengembalian, Setujui/Tolak/Realisasi/Ajukan/Batalkan Booking.
-4. Belum ada kewajiban ganti kata sandi pada login pertama setelah reset (perlu keputusan bila diinginkan).
+4. *(Diselesaikan Phase 8D.)* Kewajiban ganti kata sandi pada login pertama/setelah reset kini diterapkan (`users.must_change_password`).

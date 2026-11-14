@@ -12,10 +12,10 @@ defineProps({
     caption: { type: String, default: null },
 });
 
-const { akun, menu, rute, demo, adalahAdmin } = useDemo();
+const { akun, menu, rute, demo } = useDemo();
 
-// Phase 8C: tautan Ubah Kata Sandi hanya untuk Admin (halaman /admin/kata-sandi).
-const urlKataSandi = computed(() => (adalahAdmin.value ? (demo.value.rute?.['kata-sandi'] ?? null) : null));
+// Phase 8C/8D: tautan Ubah Kata Sandi untuk Admin dan Anggota (halaman /{peran}/kata-sandi).
+const urlKataSandi = computed(() => demo.value.rute?.['kata-sandi'] ?? null);
 const kataSandiAktif = computed(() => demo.value.halaman?.judul === 'Ubah Kata Sandi');
 
 const sidebarTerbuka = ref(false);

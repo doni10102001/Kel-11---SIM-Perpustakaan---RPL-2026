@@ -19,7 +19,7 @@ use Illuminate\Notifications\Notifiable;
 /**
  * Akun login (tabel `users`). Peran: Admin atau Anggota.
  *
- * - `role` dan `is_active` sengaja TIDAK fillable: hanya diisi eksplisit oleh
+ * - `role`, `is_active`, dan `must_change_password` sengaja TIDAK fillable: hanya diisi eksplisit oleh
  *   proses yang berwenang (seeder/service Admin), bukan dari input form.
  * - `is_active` hanya bermakna untuk Admin; Anggota mengikuti `members.status`
  *   (D-03, dijaga CHECK chk_users_anggota_tanpa_status_akses).
@@ -38,6 +38,7 @@ class User extends Authenticatable
 
     protected $attributes = [
         'is_active' => true,
+        'must_change_password' => false,
     ];
 
     /**
@@ -49,6 +50,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => Peran::class,
             'is_active' => 'boolean',
+            'must_change_password' => 'boolean',
         ];
     }
 
@@ -127,5 +129,15 @@ class User extends Authenticatable
     public function bolehMasuk(): bool
     {
         return $this->alasanTidakBolehMasuk() === null;
+    }
+
+    /**
+     * Phase 8D — Anggota wajib mengganti kata sandi (setelah Admin membuat akses
+     * login atau mereset kata sandinya). Tidak pernah berlaku untuk Admin
+     * (dijaga juga oleh CHECK chk_users_wajib_ganti_hanya_anggota).
+     */
+    public function wajibGantiKataSandi(): bool
+    {
+        return $this->isAnggota() && $this->must_change_password;
     }
 }

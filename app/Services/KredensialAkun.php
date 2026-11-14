@@ -12,8 +12,10 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Phase 8C — mutasi kredensial: buat akses login Anggota, reset kata sandi
- * Anggota oleh Admin, dan ganti kata sandi Admin sendiri.
+ * Phase 8C/8D — mutasi kredensial: buat akses login Anggota, reset kata sandi
+ * Anggota oleh Admin, dan ganti kata sandi sendiri (Admin & Anggota).
+ * Phase 8D: buat akses & reset → Anggota wajib ganti kata sandi
+ * (users.must_change_password = true) sampai ia menggantinya sendiri.
  *
  * Aturan:
  * - Semua perubahan dalam transaksi; baris Anggota dikunci (lockForUpdate)
@@ -50,6 +52,8 @@ class KredensialAkun
                 'password' => $sandi,
                 'role' => Peran::Anggota,
                 'is_active' => true,
+                // Phase 8D: kata sandi ditentukan Admin → Anggota wajib menggantinya saat masuk.
+                'must_change_password' => true,
             ]);
 
             try {
@@ -80,7 +84,7 @@ class KredensialAkun
                 throw ValidationException::withMessages(['akses' => self::PESAN_BELUM_PUNYA_AKUN]);
             }
 
-            $this->gantiSandi($akun, $sandi);
+            $this->gantiSandi($akun, $sandi, wajibGanti: true);
             $this->akhiriSesi($akun);
 
             $this->catat($aktor, 'anggota.kata_sandi.direset', 'member', $anggota->id, ['kode_anggota' => $anggota->member_code]);
@@ -90,17 +94,23 @@ class KredensialAkun
     }
 
     /**
-     * Ganti kata sandi akun yang sedang masuk. Sesi saat ini TETAP berlaku
-     * (controller meregenerasi ID sesi; auth.session menyimpan hash baru),
-     * semua sesi lain akun ini diakhiri.
+     * Ganti kata sandi akun yang sedang masuk (Admin atau Anggota). Sesi saat ini
+     * TETAP berlaku (controller meregenerasi ID sesi; auth.session menyimpan hash
+     * baru), semua sesi lain akun ini diakhiri. Phase 8D: kewajiban ganti kata
+     * sandi Anggota dinyatakan selesai (must_change_password = false).
      */
     public function gantiKataSandiSendiri(User $akun, string $sandiBaru, ?string $idSesiSaatIni): void
     {
         DB::transaction(function () use ($akun, $sandiBaru, $idSesiSaatIni) {
-            $this->gantiSandi($akun, $sandiBaru);
+            $wajibSebelumnya = $akun->wajibGantiKataSandi();
+
+            $this->gantiSandi($akun, $sandiBaru, wajibGanti: false);
             $this->akhiriSesi($akun, kecuali: $idSesiSaatIni);
 
-            $this->catat($akun, 'akun.kata_sandi.diubah', 'user', $akun->id, []);
+            $this->catat($akun, 'akun.kata_sandi.diubah', 'user', $akun->id, ['peran' => $akun->role->value]);
+            if ($wajibSebelumnya) {
+                $this->catat($akun, 'anggota.wajib_ganti_kata_sandi.selesai', 'user', $akun->id, []);
+            }
         });
     }
 
@@ -109,9 +119,13 @@ class KredensialAkun
         return Member::query()->where('member_code', $kodeAnggota)->lockForUpdate()->firstOrFail();
     }
 
-    private function gantiSandi(User $akun, string $sandi): void
+    private function gantiSandi(User $akun, string $sandi, bool $wajibGanti): void
     {
-        $akun->forceFill(['password' => $sandi]);
+        $akun->forceFill([
+            'password' => $sandi,
+            // Hanya Anggota yang dapat diwajibkan (CHECK di DB); Admin selalu false.
+            'must_change_password' => $wajibGanti && $akun->isAnggota(),
+        ]);
         // Token "ingat saya" (tidak dipakai, D-05) tetap diputar agar tidak ada sisa kredensial lama.
         $akun->setRememberToken(Str::random(60));
         $akun->save();

@@ -185,6 +185,14 @@ class NavigasiDemo
                 'induk' => 'dashboard',
                 'komponen' => 'Anggota/History',
             ],
+            // Phase 8D: dibuka dari tautan "Ubah Kata Sandi" di sidebar dan wajib pada login pertama.
+            'kata-sandi' => [
+                'uri' => 'kata-sandi',
+                'judul' => 'Ubah Kata Sandi',
+                'deskripsi' => 'Ganti kata sandi akun Anggota Anda.',
+                'induk' => 'dashboard',
+                'komponen' => 'Anggota/KataSandi',
+            ],
         ];
     }
 
@@ -240,6 +248,11 @@ class NavigasiDemo
      */
     public static function tujuanSetelahMasuk(User $akun, ?string $diminta = null): string
     {
+        // Phase 8D: Anggota yang wajib ganti kata sandi langsung ke halaman Ubah Kata Sandi.
+        if ($akun->wajibGantiKataSandi()) {
+            return self::url(self::PERAN_ANGGOTA, 'kata-sandi');
+        }
+
         $peran = $akun->role->value;
         $prefiks = url("/{$peran}").'/';
 
@@ -370,8 +383,10 @@ class NavigasiDemo
         if ($peran === self::PERAN_ADMIN) {
             $rute['anggota.akses-login'] = url('/admin/anggota/{kodeAnggota}/akses-login');
             $rute['anggota.kata-sandi.reset'] = url('/admin/anggota/{kodeAnggota}/kata-sandi');
-            $rute['kata-sandi.update'] = route('admin.kata-sandi.update');
         }
+
+        // Phase 8C/8D — ganti kata sandi sendiri, sesuai peran halaman.
+        $rute['kata-sandi.update'] = route("{$peran}.kata-sandi.update");
 
         return $rute;
     }

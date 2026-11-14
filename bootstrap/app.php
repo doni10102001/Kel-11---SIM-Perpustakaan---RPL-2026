@@ -3,6 +3,7 @@
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\PastikanAkunAktif;
 use App\Http\Middleware\PastikanPeran;
+use App\Http\Middleware\WajibGantiKataSandi;
 use App\Models\User;
 use App\Support\NavigasiDemo;
 use Illuminate\Foundation\Application;
@@ -25,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'akun.aktif' => PastikanAkunAktif::class,
             'peran' => PastikanPeran::class,
+            'wajib.ganti.sandi' => WajibGantiKataSandi::class,
         ]);
 
         // Tamu yang membuka halaman terlindungi → halaman Masuk.
