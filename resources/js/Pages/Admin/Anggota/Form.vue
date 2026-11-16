@@ -193,8 +193,8 @@ function terapkan() {
     }
 
     memprosesSimpan.value = true;
-    const kirim = mode === 'tambah' ? router.post : router.put;
-    kirim(mode === 'tambah' ? rute('anggota.store') : rute('anggota.update', { kodeAnggota: kodeAsal }), payload, {
+    // Panggil sebagai method `router` (jangan dipisahkan dari objeknya: `this` Inertia akan hilang).
+    router[mode === 'tambah' ? 'post' : 'put'](mode === 'tambah' ? rute('anggota.store') : rute('anggota.update', { kodeAnggota: kodeAsal }), payload, {
         preserveScroll: true,
         preserveState: 'errors',
         onError: (e) => {
