@@ -442,7 +442,7 @@ class KredensialTest extends MySqlTestCase
         $this->assertSame('privasi.uji', collect($props['data']['pengguna'])->firstWhere('username', 'privasi.uji')['idPengguna']);
     }
 
-    public function test_hanya_mutasi_kredensial_dan_anggota_yang_menjadi_rute_tulis(): void
+    public function test_hanya_mutasi_kredensial_anggota_dan_buku_yang_menjadi_rute_tulis(): void
     {
         // Rute aplikasi saja: redirect `/` (semua metode) dan rute disk lokal bawaan framework
         // (storage/{path}, wajib URL bertanda tangan) dikecualikan.
@@ -455,12 +455,14 @@ class KredensialTest extends MySqlTestCase
         $this->assertSame([
             'POST admin/anggota',
             'POST admin/anggota/{kodeAnggota}/akses-login',
+            'POST admin/buku',
             'POST login',
             'POST logout',
             'PUT admin/anggota/{kodeAnggota}',
             'PUT admin/anggota/{kodeAnggota}/kata-sandi',
+            'PUT admin/buku/{kodeBuku}',
             'PUT admin/kata-sandi',
             'PUT anggota/kata-sandi',
-        ], $tulis, 'Aksi tulis lain (buku, transaksi, booking) belum boleh punya endpoint.');
+        ], $tulis, 'Aksi tulis lain (transaksi, booking) dan aksi hapus belum boleh punya endpoint.');
     }
 }

@@ -186,10 +186,15 @@ export function validasiBuku(isian, data, { mode, kodeAsal = null, eksemplarBaru
         }
     }
 
-    if (kosong(isian.judul)) galat.judul = 'Judul wajib diisi.';
-    if (kosong(isian.penulis)) galat.penulis = 'Penulis wajib diisi.';
-    if (kosong(isian.penerbit)) galat.penerbit = 'Penerbit wajib diisi.';
-    if (kosong(isian.kategori)) galat.kategori = 'Kategori wajib diisi.';
+    // Panjang maksimum = kolom MySQL (sama dengan validasi server Phase 9B).
+    const teks = (kunci, label, maks) => {
+        if (kosong(isian[kunci])) galat[kunci] = `${label} wajib diisi.`;
+        else if (String(isian[kunci]).trim().length > maks) galat[kunci] = `${label} maksimal ${maks} karakter.`;
+    };
+    teks('judul', 'Judul', 200);
+    teks('penulis', 'Penulis', 100);
+    teks('penerbit', 'Penerbit', 100);
+    teks('kategori', 'Kategori', 50);
 
     const teksTahun = String(isian.tahunTerbit ?? '').trim();
     if (teksTahun === '') {

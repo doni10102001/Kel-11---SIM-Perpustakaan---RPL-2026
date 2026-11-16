@@ -29,12 +29,41 @@ class HalamanController extends Controller
 
         Gate::authorize('buka-halaman', $peran);
 
+        // Phase 9B — Data Buku & Cari Buku: pencarian + pagination dijalankan MySQL.
+        if (DataPerpustakaan::halamanPencarianBuku($peran, $kunci)) {
+            $hasil = $data->cariBuku($peran, $request->user(), $this->filterBuku($request));
+
+            return Inertia::render($halaman['komponen'], [
+                'data' => $hasil['data'],
+                'pencarianBuku' => $hasil['meta'],
+                'filterLaporan' => null,
+            ]);
+        }
+
         $laporan = $kunci === 'laporan' ? $this->filterLaporan($request) : null;
 
         return Inertia::render($halaman['komponen'], [
             'data' => $data->untukHalaman($peran, $kunci, $request->user(), $laporan),
             'filterLaporan' => $laporan,
         ]);
+    }
+
+    /**
+     * Filter pencarian buku dari query string (?q=…&kategori=…&page=…).
+     * Nilai bukan teks diabaikan, panjang dibatasi; halaman tidak valid → 1.
+     *
+     * @return array{q: string, kategori: string, halaman: int}
+     */
+    private function filterBuku(Request $request): array
+    {
+        $teks = function (string $kunci, int $maks) use ($request): string {
+            $nilai = $request->query($kunci);
+
+            return is_string($nilai) ? mb_substr(trim($nilai), 0, $maks) : '';
+        };
+        $halaman = filter_var($request->query('page'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 100000]]);
+
+        return ['q' => $teks('q', 100), 'kategori' => $teks('kategori', 50), 'halaman' => $halaman ?: 1];
     }
 
     /**

@@ -221,3 +221,12 @@ Rincian: `docs/phase9/PHASE_9A_CRUD_ANGGOTA.md`.
 - Akses login opsional saat Tambah dibuat atomik bersama Anggota (wajib ganti kata sandi saat pertama masuk); pada Ubah tetap aksi eksplisit Phase 8C.
 - F-01 opsi A diterapkan: penonaktifan ditolak bila ada booking `Disetujui`; member dikunci lebih dulu. Persetujuan booking (Phase 11) wajib mengikuti urutan kunci member → copy → booking.
 - Penonaktifan menghapus baris sesi database akun Anggota (selain penolakan oleh `akun.aktif`); akun, kata sandi, dan riwayat tidak dihapus.
+
+## Phase 9B (Batch 1) — Buku & eksemplar nyata (16 November 2026)
+
+Rincian: `docs/phase9/PHASE_9B_BUKU_EKSEMPLAR.md`.
+
+- Tambah Buku beserta eksemplar awal (minimal satu) dibuat atomik lewat `LayananBuku`; ubah data bibliografi dan tambah eksemplar dalam satu transaksi. Tanpa migration baru, tanpa rute hapus.
+- Kode Buku tetap tidak dapat diubah (keputusan 3.3). Eksemplar baru selalu `Tersedia` dan ditetapkan server; status eksemplar lama tidak pernah diubah dari formulir buku (3.6).
+- Pencarian Data Buku dan Cari Buku dijalankan MySQL (kode buku, judul, kategori; filter kategori persis), lewat Inertia GET `?q=&kategori=&page=`, dengan 20 buku per halaman. Kolom pencarian tetap sesuai 3.10/5.2.
+- Nama aksi audit seragam berbahasa Indonesia: `buku.dibuat`, `buku.diubah`, `eksemplar.dibuat`.

@@ -1,5 +1,5 @@
 <script setup>
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 import BaseButton from '@/Components/BaseButton.vue';
@@ -7,28 +7,29 @@ import BaseTable from '@/Components/BaseTable.vue';
 import DetailPanel from '@/Components/DetailPanel.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import FormFeedback from '@/Components/FormFeedback.vue';
+import PaginasiTabel from '@/Components/PaginasiTabel.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
+import { usePencarianBuku } from '@/composables/usePencarianBuku.js';
 import { eksemplarBuku, ketersediaanBuku } from '@/utils/olahData.js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { filterBuku } from '@/utils/pencarian.js';
 
-const { data, ambilPesan } = useDataPerpustakaan();
+const { data } = useDataPerpustakaan();
 const { rute } = useDemo();
+const page = usePage();
 
-const pesan = ref(ambilPesan());
-const kataKunci = ref('');
+// Phase 9B: pesan sukses dari server (flash) — hanya setelah data tersimpan di MySQL.
+const pesan = ref(page.props.flash?.status ? { tone: 'success', title: 'Data buku tersimpan', message: page.props.flash.status } : null);
+// Phase 9B: pencarian & pagination dijalankan server (MySQL); `data.buku` = hasil halaman ini.
+const { meta, kataKunci, urlHalaman, aturUlang } = usePencarianBuku(rute('buku.index'));
 
 // Jumlah Eksemplar dihitung dari relasi eksemplar (bookCopies), bukan disimpan di buku.
-const semua = computed(() =>
-    [...data.buku]
-        .sort((a, b) => a.kodeBuku.localeCompare(b.kodeBuku))
-        .map((b) => ({ ...b, ketersediaan: ketersediaanBuku(data, b.kodeBuku) })),
-);
-const hasil = computed(() => filterBuku(semua.value, { kataKunci: kataKunci.value }));
+// Server mengirim SEMUA eksemplar milik buku di halaman ini, sehingga hitungan akurat.
+const semua = computed(() => data.buku.map((b) => ({ ...b, ketersediaan: ketersediaanBuku(data, b.kodeBuku) })));
+const hasil = semua;
 
 const kolom = [
     { key: 'kodeBuku', label: 'Kode Buku', width: '7.5rem' },
@@ -81,11 +82,11 @@ const urlTambahEksemplar = (kodeBuku) => `${rute('buku.ubah', { kodeBuku })}?eks
                 <div class="sim-toolbar__search">
                     <SearchInput v-model="kataKunci" label="Cari buku" placeholder="Cari kode buku, judul, atau kategori" />
                 </div>
-                <BaseButton v-if="kataKunci.trim()" variant="ghost" size="sm" icon="bi-arrow-counterclockwise" @click="kataKunci = ''">
+                <BaseButton v-if="kataKunci.trim()" variant="ghost" size="sm" icon="bi-arrow-counterclockwise" @click="aturUlang">
                     Atur ulang
                 </BaseButton>
                 <p class="sim-toolbar__meta mb-0" aria-live="polite">
-                    Menampilkan {{ hasil.length }} dari {{ semua.length }} buku
+                    Menampilkan {{ meta.total }} dari {{ meta.totalSemua }} buku
                 </p>
             </div>
 
@@ -120,13 +121,22 @@ const urlTambahEksemplar = (kodeBuku) => `${rute('buku.ubah', { kodeBuku })}?eks
                         description="Tidak ada buku dengan kode, judul, atau kategori yang cocok. Ubah kata kunci, lalu coba lagi."
                     >
                         <template #actions>
-                            <BaseButton variant="secondary" size="sm" icon="bi-arrow-counterclockwise" @click="kataKunci = ''">
+                            <BaseButton variant="secondary" size="sm" icon="bi-arrow-counterclockwise" @click="aturUlang">
                                 Atur ulang pencarian
                             </BaseButton>
                         </template>
                     </EmptyState>
                 </template>
             </BaseTable>
+
+            <PaginasiTabel
+                :halaman="meta.halaman"
+                :halaman-terakhir="meta.halamanTerakhir"
+                :total="meta.total"
+                :per-halaman="meta.perHalaman"
+                :url="urlHalaman"
+                label="Halaman daftar buku"
+            />
         </section>
 
         <DetailPanel v-model:show="panelTerbuka" title="Detail Buku" :subtitle="dipilih?.kodeBuku">

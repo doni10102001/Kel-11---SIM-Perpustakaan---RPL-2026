@@ -178,7 +178,7 @@ class DataHalamanTest extends MySqlTestCase
 
         // Katalog publik: semua buku & status eksemplar boleh dilihat.
         $katalog = $this->props('/anggota/cari-buku')['data'];
-        $this->assertSame(['buku', 'eksemplar'], array_keys($katalog));
+        $this->assertSame(['buku', 'eksemplar', 'kategori'], array_keys($katalog));
         $this->assertCount(18, $katalog['eksemplar']);
     }
 
