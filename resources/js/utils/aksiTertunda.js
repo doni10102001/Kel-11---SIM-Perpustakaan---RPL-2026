@@ -1,7 +1,7 @@
 /**
  * Phase 8B — aksi TULIS yang belum terhubung ke database.
  *
- * Halaman kini membaca data dari MySQL. Aksi simpan/ubah (buku, peminjaman,
+ * Halaman kini membaca data dari MySQL. Aksi simpan/ubah (peminjaman,
  * pengembalian, booking) BELUM disimpan ke database, jadi setiap
  * aksi DITOLAK secara eksplisit: tidak ada perubahan data di browser, tidak
  * ada pesan "berhasil", dan tidak ada data MySQL yang berubah. Halaman
@@ -15,9 +15,8 @@ export const PESAN_AKSI_BELUM_TERSEDIA =
 /** Daftar aksi tulis yang menunggu implementasi server (nama fungsi lama → label). */
 // Phase 9A: tambah/ubah Anggota (termasuk status & akses login saat tambah) kini tersimpan ke
 // MySQL lewat Laravel; kredensial Anggota sejak Phase 8C. Tidak lagi ada di daftar ini.
+// Phase 9B: tambah/ubah Buku beserta eksemplar baru kini tersimpan ke MySQL. Tidak lagi ada di daftar ini.
 export const AKSI_TERTUNDA = Object.freeze({
-    tambahBuku: 'Tambah Buku dan eksemplar',
-    ubahBuku: 'Ubah Buku dan tambah eksemplar',
     catatPeminjaman: 'Catat Peminjaman',
     prosesPengembalian: 'Proses Pengembalian',
     setujuiBooking: 'Setujui Booking',

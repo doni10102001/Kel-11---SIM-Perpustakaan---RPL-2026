@@ -66,7 +66,7 @@ Semua aksi di bawah **ditolak eksplisit** (`utils/aksiTertunda.js`): pesan "Belu
 | Halaman | Aksi tertunda |
 | --- | --- |
 | ~~Admin · Tambah/Ubah Anggota~~ | *Tersimpan ke MySQL sejak Phase 9A (simpan, status, akses login saat tambah) — lihat `docs/phase9/PHASE_9A_CRUD_ANGGOTA.md`; kredensial sejak Phase 8C.* |
-| Admin · Tambah/Ubah Buku | Simpan buku, tambah eksemplar |
+| ~~Admin · Tambah/Ubah Buku~~ | *Tersimpan ke MySQL sejak Phase 9B (simpan buku, tambah eksemplar) — lihat `docs/phase9/PHASE_9B_BUKU_EKSEMPLAR.md`.* |
 | Admin · Peminjaman | Catat peminjaman |
 | Admin · Pengembalian | Proses pengembalian |
 | Admin · Verifikasi Booking | Setujui, Tolak |

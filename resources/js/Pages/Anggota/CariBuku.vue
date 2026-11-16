@@ -7,35 +7,26 @@ import BaseSelect from '@/Components/BaseSelect.vue';
 import BaseTable from '@/Components/BaseTable.vue';
 import DetailPanel from '@/Components/DetailPanel.vue';
 import EmptyState from '@/Components/EmptyState.vue';
+import PaginasiTabel from '@/Components/PaginasiTabel.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
+import { usePencarianBuku } from '@/composables/usePencarianBuku.js';
 import { eksemplarBuku, ketersediaanBuku } from '@/utils/olahData.js';
 import AnggotaLayout from '@/Layouts/AnggotaLayout.vue';
-import { filterKatalog } from '@/utils/pencarian.js';
 
 const { data } = useDataPerpustakaan();
 const { rute } = useDemo();
 
-const kataKunci = ref('');
-const kategori = ref('');
+// Phase 9B: pencarian, filter kategori, dan pagination dijalankan server (MySQL).
+const { meta, kataKunci, kategori, adaFilter, urlHalaman, aturUlang } = usePencarianBuku(rute('cari-buku'));
 
-// Ketersediaan dihitung dari status eksemplar saat ini.
-const katalog = computed(() =>
-    [...data.buku]
-        .sort((a, b) => a.kodeBuku.localeCompare(b.kodeBuku))
-        .map((b) => ({ ...b, ketersediaan: ketersediaanBuku(data, b.kodeBuku) })),
-);
-const daftarKategori = computed(() => [...new Set(data.buku.map((b) => b.kategori))].sort());
-const hasil = computed(() => filterKatalog(katalog.value, { kataKunci: kataKunci.value, kategori: kategori.value }));
-const adaFilter = computed(() => kataKunci.value.trim() !== '' || kategori.value !== '');
-
-function aturUlang() {
-    kataKunci.value = '';
-    kategori.value = '';
-}
+// Ketersediaan dihitung dari status eksemplar saat ini (server mengirim semua eksemplar buku di halaman ini).
+const katalog = computed(() => data.buku.map((b) => ({ ...b, ketersediaan: ketersediaanBuku(data, b.kodeBuku) })));
+const daftarKategori = computed(() => data.kategori);
+const hasil = katalog;
 
 const kolom = [
     { key: 'kodeBuku', label: 'Kode Buku', width: '7.5rem' },
@@ -77,7 +68,7 @@ const urlAjukanEksemplar = (kodeEksemplar) => `${rute('booking.ajukan')}?eksempl
                     <BaseSelect v-model="kategori" aria-label="Filter kategori" placeholder="Semua kategori" placeholder-selectable :options="daftarKategori" />
                 </div>
                 <BaseButton v-if="adaFilter" variant="ghost" size="sm" icon="bi-arrow-counterclockwise" @click="aturUlang">Atur ulang</BaseButton>
-                <p class="sim-toolbar__meta mb-0" aria-live="polite">Menampilkan {{ hasil.length }} dari {{ katalog.length }} buku</p>
+                <p class="sim-toolbar__meta mb-0" aria-live="polite">Menampilkan {{ meta.total }} dari {{ meta.totalSemua }} buku</p>
             </div>
 
             <BaseTable :columns="kolom" :rows="hasil" row-key="kodeBuku" caption="Katalog buku">
@@ -114,6 +105,15 @@ const urlAjukanEksemplar = (kodeEksemplar) => `${rute('booking.ajukan')}?eksempl
                     </EmptyState>
                 </template>
             </BaseTable>
+
+            <PaginasiTabel
+                :halaman="meta.halaman"
+                :halaman-terakhir="meta.halamanTerakhir"
+                :total="meta.total"
+                :per-halaman="meta.perHalaman"
+                :url="urlHalaman"
+                label="Halaman katalog buku"
+            />
         </section>
 
         <DetailPanel v-model:show="panel" title="Detail Buku" :subtitle="dipilih?.kodeBuku">

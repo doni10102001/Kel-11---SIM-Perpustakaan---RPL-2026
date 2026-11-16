@@ -38,6 +38,11 @@ class DataPerpustakaan
 {
     public const KOLEKSI = ['pengguna', 'anggota', 'buku', 'eksemplar', 'peminjaman', 'pengembalian', 'booking'];
 
+    /** Phase 9B — halaman dengan pencarian buku di MySQL + pagination (peran → kunci halaman). */
+    public const HALAMAN_PENCARIAN_BUKU = ['admin' => 'buku.index', 'anggota' => 'cari-buku'];
+
+    public const BUKU_PER_HALAMAN = 20;
+
     /** Koleksi per halaman Anggota (tanpa `pengguna`). */
     private const KOLEKSI_ANGGOTA = [
         'dashboard' => ['anggota', 'buku', 'eksemplar', 'peminjaman', 'pengembalian', 'booking'],
@@ -143,14 +148,7 @@ class DataPerpustakaan
             $hasil[$nama] = match ($nama) {
                 'pengguna' => $admin ? $this->pengguna() : [],
                 'anggota' => $this->anggotaData($cakupan),
-                'buku' => Book::query()->orderBy('book_code')->get()->map(fn (Book $b) => [
-                    'kodeBuku' => $b->book_code,
-                    'judul' => $b->title,
-                    'penulis' => $b->author,
-                    'penerbit' => $b->publisher,
-                    'tahunTerbit' => (int) $b->publication_year,
-                    'kategori' => $b->category,
-                ])->all(),
+                'buku' => Book::query()->orderBy('book_code')->get()->map(fn (Book $b) => $this->barisBuku($b))->all(),
                 'eksemplar' => BookCopy::query()->with('book:id,book_code')->orderBy('copy_code')->get()->map(fn (BookCopy $e) => [
                     'kodeEksemplar' => $e->copy_code,
                     'kodeBuku' => $e->book->book_code,
@@ -176,6 +174,100 @@ class DataPerpustakaan
         }
 
         return $hasil;
+    }
+
+    /** @return array<string, mixed> */
+    private function barisBuku(Book $b): array
+    {
+        return [
+            'kodeBuku' => $b->book_code,
+            'judul' => $b->title,
+            'penulis' => $b->author,
+            'penerbit' => $b->publisher,
+            'tahunTerbit' => (int) $b->publication_year,
+            'kategori' => $b->category,
+        ];
+    }
+
+    // ------------------------------------------------------------------ Pencarian buku (Phase 9B)
+
+    public static function halamanPencarianBuku(string $peran, string $halaman): bool
+    {
+        return (self::HALAMAN_PENCARIAN_BUKU[$peran] ?? null) === $halaman;
+    }
+
+    /**
+     * Data Buku (Admin) dan Cari Buku (Anggota): pencarian dijalankan MySQL.
+     *
+     * - Kata kunci `q` dicocokkan pada Kode Buku, Judul, atau Kategori (LIKE
+     *   berparameter; wildcard % _ \ di-escape). Tidak peka huruf besar/kecil
+     *   mengikuti collation utf8mb4_0900_ai_ci.
+     * - `kategori` (opsional) = filter persis.
+     * - 20 buku per halaman, urut Kode Buku; halaman di luar rentang → halaman terakhir.
+     * - `eksemplar` hanya milik buku di halaman ini, LENGKAP per buku, sehingga
+     *   jumlah ketersediaan tetap akurat. Satu query (whereIn), tanpa N+1.
+     * - Tidak ada data peminjam/pemesan, kontak, atau username.
+     *
+     * @param  array{q?: string, kategori?: string, halaman?: int}  $filter  sudah dirapikan controller
+     * @return array{data: array<string, list<mixed>>, meta: array<string, mixed>}
+     */
+    public function cariBuku(string $peran, User $akun, array $filter): array
+    {
+        if ($akun->role?->value !== $peran || ! isset(self::HALAMAN_PENCARIAN_BUKU[$peran])) {
+            throw new AuthorizationException('Data halaman ini bukan untuk peran akun.');
+        }
+        if ($peran === Peran::Anggota->value && $akun->member === null) {
+            throw new AuthorizationException('Akun Anggota tidak tertaut ke data Anggota.');
+        }
+
+        $q = (string) ($filter['q'] ?? '');
+        $kategori = (string) ($filter['kategori'] ?? '');
+
+        $query = Book::query()
+            ->when($q !== '', function (Builder $b) use ($q) {
+                $pola = '%'.addcslashes($q, '\\%_').'%';
+                $b->where(fn (Builder $w) => $w->where('book_code', 'like', $pola)
+                    ->orWhere('title', 'like', $pola)
+                    ->orWhere('category', 'like', $pola));
+            })
+            ->when($kategori !== '', fn (Builder $b) => $b->where('category', $kategori))
+            ->orderBy('book_code');
+
+        $hal = (clone $query)->paginate(self::BUKU_PER_HALAMAN, ['*'], 'page', max(1, (int) ($filter['halaman'] ?? 1)));
+        if ($hal->isEmpty() && $hal->total() > 0) {
+            $hal = (clone $query)->paginate(self::BUKU_PER_HALAMAN, ['*'], 'page', $hal->lastPage());
+        }
+
+        $kodeBuku = $hal->getCollection()->pluck('book_code', 'id');
+        $eksemplar = BookCopy::query()
+            ->whereIn('book_id', $kodeBuku->keys())
+            ->orderBy('copy_code')
+            ->get(['book_id', 'copy_code', 'status'])
+            ->map(fn (BookCopy $e) => [
+                'kodeEksemplar' => $e->copy_code,
+                'kodeBuku' => $kodeBuku[$e->book_id],
+                'status' => $e->status->value,
+            ])->all();
+
+        $terfilter = $q !== '' || $kategori !== '';
+
+        return [
+            'data' => [
+                'buku' => $hal->getCollection()->map(fn (Book $b) => $this->barisBuku($b))->values()->all(),
+                'eksemplar' => $eksemplar,
+                // Pilihan filter kategori (Cari Buku) — semua kategori, bukan hanya halaman ini.
+                'kategori' => Book::query()->distinct()->orderBy('category')->pluck('category')->all(),
+            ],
+            'meta' => [
+                'q' => $q,
+                'kategori' => $kategori,
+                'halaman' => $hal->currentPage(),
+                'perHalaman' => self::BUKU_PER_HALAMAN,
+                'halamanTerakhir' => $hal->lastPage(),
+                'total' => $hal->total(),
+                'totalSemua' => $terfilter ? Book::query()->count() : $hal->total(),
+            ],
+        ];
     }
 
     private function queryPeminjaman(?Member $cakupan): Builder

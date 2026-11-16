@@ -386,6 +386,9 @@ class NavigasiDemo
             // Phase 9A — tulis data Anggota.
             $rute['anggota.store'] = route('admin.anggota.store');
             $rute['anggota.update'] = url('/admin/anggota/{kodeAnggota}');
+            // Phase 9B — tulis data Buku & eksemplar.
+            $rute['buku.store'] = route('admin.buku.store');
+            $rute['buku.update'] = url('/admin/buku/{kodeBuku}');
         }
 
         // Phase 8C/8D — ganti kata sandi sendiri, sesuai peran halaman.

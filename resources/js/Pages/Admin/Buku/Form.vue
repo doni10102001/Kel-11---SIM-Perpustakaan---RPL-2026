@@ -9,14 +9,14 @@ import EmptyState from '@/Components/EmptyState.vue';
 import FormFeedback from '@/Components/FormFeedback.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
-import { GalatValidasi, useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
 import { eksemplarBuku } from '@/utils/olahData.js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { kodeBerikutnya } from '@/utils/pencarian.js';
 import { normalKode, validasiBuku, validasiKodeEksemplar } from '@/utils/validasiMaster.js';
 
-const { data, tahunMaks, tambahBuku, ubahBuku, setPesan } = useDataPerpustakaan();
+const { data, tahunMaks } = useDataPerpustakaan();
 const { rute, parameter, halaman } = useDemo();
 const page = usePage();
 
@@ -110,23 +110,51 @@ async function simpan() {
         return;
     }
 
-    const jumlahBaru = eksemplarBaru.value.length;
-    let hasil;
-    try {
-        hasil = mode === 'tambah' ? tambahBuku(form, eksemplarBaru.value) : ubahBuku(kodeAsal, form, eksemplarBaru.value);
-    } catch (e) {
-        if (!(e instanceof GalatValidasi)) throw e;
-        galat.value = e.galat;
+    terapkan();
+}
 
-        return;
-    }
+const memprosesSimpan = ref(false);
 
-    setPesan({
-        tone: 'success',
-        title: mode === 'tambah' ? 'Buku berhasil ditambahkan' : 'Perubahan data buku diterapkan',
-        message: `${hasil.kodeBuku} · ${hasil.judul}${jumlahBaru ? ` · ${jumlahBaru} eksemplar baru` : ''}. Perubahan pada mode pratinjau tidak disimpan setelah halaman dimuat ulang.`,
+/**
+ * Phase 9B — simpan ke MySQL (POST /admin/buku atau PUT /admin/buku/{kode}).
+ * Buku + eksemplar baru disimpan dalam SATU transaksi server. Pesan sukses
+ * ditampilkan Data Buku SETELAH commit (redirect + flash). Status eksemplar
+ * ditetapkan server (selalu Tersedia untuk eksemplar baru); status eksemplar
+ * lama tidak pernah dikirim.
+ */
+function terapkan() {
+    if (memprosesSimpan.value) return; // cegah kirim ganda
+
+    const payload = {
+        judul: form.judul,
+        penulis: form.penulis,
+        penerbit: form.penerbit,
+        tahunTerbit: form.tahunTerbit,
+        kategori: form.kategori,
+        eksemplar: eksemplarBaru.value.map((e) => ({ kodeEksemplar: e.kodeEksemplar, status: e.status })),
+    };
+    if (mode === 'tambah') payload.kodeBuku = form.kodeBuku;
+
+    memprosesSimpan.value = true;
+    // Panggil sebagai method `router` (jangan dipisahkan dari objeknya: `this` Inertia akan hilang).
+    router[mode === 'tambah' ? 'post' : 'put'](mode === 'tambah' ? rute('buku.store') : rute('buku.update', { kodeBuku: kodeAsal }), payload, {
+        preserveScroll: true,
+        preserveState: 'errors',
+        onError: async (e) => {
+            // Galat eksemplar server (eksemplar, eksemplar.0.kodeEksemplar, ...) → satu pesan di bagian Eksemplar.
+            const galatEksemplarServer = Object.entries(e).find(([k]) => k === 'eksemplar' || k.startsWith('eksemplar.'))?.[1];
+            const lain = Object.fromEntries(Object.entries(e).filter(([k]) => k !== 'eksemplar' && !k.startsWith('eksemplar.')));
+            galat.value = galatEksemplarServer ? { ...lain, eksemplar: galatEksemplarServer } : lain;
+
+            await nextTick();
+            if (!document.querySelector('form [aria-invalid="true"]') && galat.value.eksemplar) {
+                bagianEksemplar.value?.scrollIntoView({ block: 'center' });
+            }
+        },
+        onFinish: () => {
+            memprosesSimpan.value = false;
+        },
     });
-    router.visit(rute('buku.index'));
 }
 
 // Dibuka dari aksi "Tambah Eksemplar": langsung arahkan ke isian eksemplar.
@@ -300,7 +328,7 @@ const ringkasan = computed(() => ({
                     <div class="sim-card-footer">
                         <div class="sim-form-actions w-100">
                             <BaseButton variant="secondary" :href="rute('buku.index')">Batal</BaseButton>
-                            <BaseButton type="submit" icon="bi-check2">Simpan Buku</BaseButton>
+                            <BaseButton type="submit" icon="bi-check2" :loading="memprosesSimpan">Simpan Buku</BaseButton>
                         </div>
                     </div>
                 </section>
