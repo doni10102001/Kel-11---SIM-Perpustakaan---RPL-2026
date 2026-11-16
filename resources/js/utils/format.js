@@ -40,6 +40,27 @@ export function formatTanggal(nilai, gaya = 'panjang') {
     return new Intl.DateTimeFormat('id-ID', { ...FORMAT[gaya], timeZone: ZONA_WAKTU }).format(tanggal);
 }
 
+/**
+ * Batch 2 — tanggal & jam WIB dari instant ISO UTC, mis. Batas Pengambilan:
+ * "18 November 2026, 14.00 WIB".
+ * @param {string|Date|null|undefined} nilai
+ */
+export function formatWaktu(nilai) {
+    if (nilai === null || nilai === undefined || nilai === '') {
+        return '—';
+    }
+
+    const waktu = keDate(nilai);
+    if (Number.isNaN(waktu.getTime())) {
+        return '—';
+    }
+
+    const tanggal = new Intl.DateTimeFormat('id-ID', { ...FORMAT.panjang, timeZone: ZONA_WAKTU }).format(waktu);
+    const jam = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: ZONA_WAKTU }).format(waktu);
+
+    return `${tanggal}, ${jam} WIB`;
+}
+
 /** Inisial nama untuk avatar, mis. "Rina Wulandari" → "RW". */
 export function inisial(nama) {
     return String(nama ?? '')

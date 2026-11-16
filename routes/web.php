@@ -6,6 +6,9 @@ use App\Http\Controllers\BukuController;
 use App\Http\Controllers\HalamanController;
 use App\Http\Controllers\Kredensial\AksesLoginAnggotaController;
 use App\Http\Controllers\Kredensial\KataSandiController;
+use App\Http\Controllers\Transaksi\BookingAdminController;
+use App\Http\Controllers\Transaksi\BookingAnggotaController;
+use App\Http\Controllers\Transaksi\PeminjamanController;
 use App\Support\NavigasiDemo;
 use Illuminate\Support\Facades\Route;
 
@@ -73,6 +76,16 @@ Route::middleware(['auth', 'auth.session', 'akun.aktif', 'wajib.ganti.sandi'])->
         Route::put('buku/{kodeBuku}', [BukuController::class, 'update'])
             ->where('kodeBuku', NavigasiDemo::POLA_KODE)->middleware('throttle:30,1')->name('buku.update');
 
+        // Batch 2 — transaksi (Form Request/Gate kelola-transaksi + service transaksi terkunci).
+        Route::post('peminjaman', [PeminjamanController::class, 'store'])->middleware('throttle:30,1')->name('peminjaman.store');
+        Route::post('pengembalian', [PeminjamanController::class, 'kembalikan'])->middleware('throttle:30,1')->name('pengembalian.store');
+        Route::post('booking/{kodeBooking}/setujui', [BookingAdminController::class, 'setujui'])
+            ->where('kodeBooking', NavigasiDemo::POLA_KODE)->middleware('throttle:30,1')->name('booking.setujui');
+        Route::post('booking/{kodeBooking}/tolak', [BookingAdminController::class, 'tolak'])
+            ->where('kodeBooking', NavigasiDemo::POLA_KODE)->middleware('throttle:30,1')->name('booking.tolak');
+        Route::post('booking/{kodeBooking}/realisasi', [BookingAdminController::class, 'realisasikan'])
+            ->where('kodeBooking', NavigasiDemo::POLA_KODE)->middleware('throttle:30,1')->name('booking.realisasikan');
+
         Route::post('anggota/{kodeAnggota}/akses-login', [AksesLoginAnggotaController::class, 'store'])
             ->where('kodeAnggota', NavigasiDemo::POLA_KODE)->middleware('throttle:20,1')->name('anggota.akses-login.store');
         Route::put('anggota/{kodeAnggota}/kata-sandi', [AksesLoginAnggotaController::class, 'resetKataSandi'])
@@ -84,6 +97,11 @@ Route::middleware(['auth', 'auth.session', 'akun.aktif', 'wajib.ganti.sandi'])->
     // Phase 8D — Anggota mengganti kata sandinya sendiri (termasuk kewajiban pada login pertama).
     Route::prefix('anggota')->name('anggota.')->middleware('peran:anggota')->group(function () {
         Route::put('kata-sandi', [KataSandiController::class, 'update'])->middleware('throttle:6,1')->name('kata-sandi.update');
+
+        // Batch 2 — booking milik sendiri (pemilik dari sesi; Gate booking-anggota).
+        Route::post('booking', [BookingAnggotaController::class, 'store'])->middleware('throttle:20,1')->name('booking.store');
+        Route::post('booking/{kodeBooking}/batalkan', [BookingAnggotaController::class, 'batalkan'])
+            ->where('kodeBooking', NavigasiDemo::POLA_KODE)->middleware('throttle:20,1')->name('booking.batalkan');
     });
 
     // Halaman pengembang: katalog komponen UI. Tidak ditautkan dari navigasi; khusus Admin, di luar production.

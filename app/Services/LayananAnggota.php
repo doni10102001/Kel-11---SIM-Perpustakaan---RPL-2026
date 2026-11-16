@@ -8,6 +8,7 @@ use App\Models\AuditLog;
 use App\Models\Booking;
 use App\Models\Member;
 use App\Models\User;
+use App\Services\Transaksi\LayananKedaluwarsaBooking;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -41,7 +42,10 @@ class LayananAnggota
 
     public const PESAN_KODE_DIPAKAI = 'Kode Anggota sudah digunakan anggota lain.';
 
-    public function __construct(private readonly KredensialAkun $kredensial) {}
+    public function __construct(
+        private readonly KredensialAkun $kredensial,
+        private readonly LayananKedaluwarsaBooking $kedaluwarsa,
+    ) {}
 
     /**
      * @param  array{kodeAnggota: string, nama: string, kontak: string, status: string}  $profil
@@ -84,6 +88,15 @@ class LayananAnggota
      */
     public function ubah(string $kodeAnggota, array $profil, User $aktor): Member
     {
+        // Batch 2: booking Disetujui yang sudah lewat Batas Pengambilan (penjadwal belum
+        // memproses) dikedaluwarsakan dulu — booking itu tidak lagi "belum terselesaikan".
+        if (($profil['status'] ?? null) === StatusAnggota::Nonaktif->value) {
+            $id = Member::query()->where('member_code', $kodeAnggota)->value('id');
+            if ($id !== null) {
+                $this->kedaluwarsa->rekonsiliasiAnggota((int) $id, 'penonaktifan');
+            }
+        }
+
         return DB::transaction(function () use ($kodeAnggota, $profil, $aktor) {
             // Kunci member terlebih dahulu (urutan kunci standar), lalu baca ulang data terkini.
             $anggota = Member::query()->where('member_code', $kodeAnggota)->lockForUpdate()->firstOrFail();

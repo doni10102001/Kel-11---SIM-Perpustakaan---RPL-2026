@@ -9,6 +9,8 @@ use App\Models\Booking;
 use App\Models\Loan;
 use App\Models\Member;
 use App\Models\User;
+use App\Services\Transaksi\LayananKedaluwarsaBooking;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -121,6 +123,11 @@ abstract class MySqlTestCase extends TestCase
     protected function buatBooking(Member $anggota, BookCopy $eksemplar, string $status = 'Diajukan', array $lain = []): Booking
     {
         $booking = new Booking;
+        // Batch 2: booking Disetujui wajib punya decided_at & expires_at (= decided_at + 48 jam, CHECK chk_bookings_expiry).
+        if ($status === 'Disetujui') {
+            $lain += ['decided_at' => now()];
+            $lain += ['expires_at' => LayananKedaluwarsaBooking::batasPengambilan(CarbonImmutable::instance($lain['decided_at']))];
+        }
         // $lain di KIRI: pada operator + PHP kunci kiri yang menang, sehingga override test berlaku.
         $booking->forceFill($lain + [
             'booking_code' => 'UJI-BP-'.Str::upper(Str::random(8)),

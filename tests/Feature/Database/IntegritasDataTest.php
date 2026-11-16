@@ -183,7 +183,7 @@ class IntegritasDataTest extends MySqlTestCase
         $disetujui = $this->buatBooking($a, $eksemplar, 'Disetujui');
 
         $this->assertDitolakDb(1062, fn () => $this->buatBooking($b, $eksemplar, 'Disetujui'));
-        $this->assertDitolakDb(1062, fn () => DB::table('bookings')->where('member_id', $b->id)->where('status', 'Diajukan')->limit(1)->update(['status' => 'Disetujui']),
+        $this->assertDitolakDb(1062, fn () => DB::table('bookings')->where('member_id', $b->id)->where('status', 'Diajukan')->limit(1)->update(['status' => 'Disetujui', 'decided_at' => now(), 'expires_at' => now()->addHours(48)]),
             'Mengubah booking lain menjadi Disetujui juga harus ditolak.');
 
         $disetujui->forceFill(['status' => 'Dibatalkan'])->save();

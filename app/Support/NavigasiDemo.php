@@ -389,6 +389,18 @@ class NavigasiDemo
             // Phase 9B — tulis data Buku & eksemplar.
             $rute['buku.store'] = route('admin.buku.store');
             $rute['buku.update'] = url('/admin/buku/{kodeBuku}');
+            // Batch 2 — transaksi Admin.
+            $rute['peminjaman.store'] = route('admin.peminjaman.store');
+            $rute['pengembalian.store'] = route('admin.pengembalian.store');
+            $rute['booking.setujui'] = url('/admin/booking/{kodeBooking}/setujui');
+            $rute['booking.tolak'] = url('/admin/booking/{kodeBooking}/tolak');
+            $rute['booking.realisasikan'] = url('/admin/booking/{kodeBooking}/realisasi');
+        }
+
+        // Batch 2 — booking milik Anggota.
+        if ($peran === self::PERAN_ANGGOTA) {
+            $rute['booking.store'] = route('anggota.booking.store');
+            $rute['booking.batalkan'] = url('/anggota/booking/{kodeBooking}/batalkan');
         }
 
         // Phase 8C/8D — ganti kata sandi sendiri, sesuai peran halaman.

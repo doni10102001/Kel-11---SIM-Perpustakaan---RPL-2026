@@ -67,12 +67,10 @@ Semua aksi di bawah **ditolak eksplisit** (`utils/aksiTertunda.js`): pesan "Belu
 | --- | --- |
 | ~~Admin · Tambah/Ubah Anggota~~ | *Tersimpan ke MySQL sejak Phase 9A (simpan, status, akses login saat tambah) — lihat `docs/phase9/PHASE_9A_CRUD_ANGGOTA.md`; kredensial sejak Phase 8C.* |
 | ~~Admin · Tambah/Ubah Buku~~ | *Tersimpan ke MySQL sejak Phase 9B (simpan buku, tambah eksemplar) — lihat `docs/phase9/PHASE_9B_BUKU_EKSEMPLAR.md`.* |
-| Admin · Peminjaman | Catat peminjaman |
-| Admin · Pengembalian | Proses pengembalian |
-| Admin · Verifikasi Booking | Setujui, Tolak |
-| Admin · Realisasi Booking | Realisasikan menjadi peminjaman |
-| Anggota · Ajukan Booking | Ajukan booking |
-| Anggota · Status Booking | Batalkan booking |
+| ~~Admin · Peminjaman / Pengembalian / Verifikasi / Realisasi Booking~~ | *Tersimpan ke MySQL sejak Batch 2 — lihat `docs/phase10/BATCH_2_TRANSACTION_MANAGEMENT.md`.* |
+| ~~Anggota · Ajukan / Batalkan Booking~~ | *Tersimpan ke MySQL sejak Batch 2 (pemilik dari sesi).* |
+
+Sejak Batch 2 tidak ada lagi aksi tertunda; `AKSI_TERTUNDA` kosong.
 
 Aturan bisnis aksi-aksi ini tetap terdokumentasi dan diuji di `tests/js/fixtures/storeMock.js` (+ `tests/js/transaksi.test.js`, `master-data.test.js`, `anggota.test.js`, `akses-login.test.js`) sebagai spesifikasi implementasi server (transaksi + `lockForUpdate`, Phase 8 berikutnya).
 

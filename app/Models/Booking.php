@@ -13,7 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * Booking pinjam buku (tabel `bookings`).
  *
- * member_id, copy_id, status, decided_at, dan staff_id tidak fillable: diisi
+ * member_id, copy_id, status, decided_at, expires_at, expired_at, dan staff_id
+ * tidak fillable: diisi
  * oleh service domain (Phase 8+) setelah otorisasi dan row lock.
  * Peminjaman hasil realisasi diakses lewat `loan()` (loans.booking_id) —
  * tidak ada kolom bookings.loan_id.
@@ -37,6 +38,9 @@ class Booking extends ModelDomain
             'status' => StatusBooking::class,
             'submitted_at' => 'datetime',
             'decided_at' => 'datetime',
+            // Batch 2: batas pengambilan (decided_at + 48 jam) dan waktu kedaluwarsa diproses — UTC.
+            'expires_at' => 'datetime',
+            'expired_at' => 'datetime',
         ];
     }
 

@@ -47,7 +47,11 @@ class HandleInertiaRequests extends Middleware
             // Phase 8B: "hari ini" menurut kalender WIB (WaktuPerpustakaan), bukan tanggal demo tetap.
             'hariIni' => fn () => WaktuPerpustakaan::hariIni(),
             // Pesan satu kali, mis. setelah keluar atau sesi diakhiri karena status akun.
-            'flash' => fn () => ['status' => $request->hasSession() ? $request->session()->get('status') : null],
+            // Batch 2: `transaksi` = kode transaksi yang baru di-commit (untuk bukti di halaman).
+            'flash' => fn () => [
+                'status' => $request->hasSession() ? $request->session()->get('status') : null,
+                'transaksi' => $request->hasSession() ? $request->session()->get('transaksi') : null,
+            ],
         ];
     }
 }

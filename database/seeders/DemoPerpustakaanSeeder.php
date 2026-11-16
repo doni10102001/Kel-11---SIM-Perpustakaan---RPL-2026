@@ -9,6 +9,7 @@ use App\Models\BookReturn;
 use App\Models\Loan;
 use App\Models\Member;
 use App\Models\User;
+use App\Services\Transaksi\LayananKedaluwarsaBooking;
 use App\Support\PemeriksaInvarianData;
 use App\Support\WaktuPerpustakaan;
 use Carbon\CarbonImmutable;
@@ -103,6 +104,10 @@ class DemoPerpustakaanSeeder extends Seeder
                     'status' => $k['status'],
                     'submitted_at' => $this->tanggal($k['tanggalBooking']),
                     'decided_at' => $k['tanggalKeputusan'] ? $this->tanggal($k['tanggalKeputusan']) : null,
+                    // Batch 2: booking Disetujui wajib punya Batas Pengambilan = keputusan + 48 jam (CHECK chk_bookings_expiry).
+                    'expires_at' => $k['status'] === 'Disetujui' && $k['tanggalKeputusan']
+                        ? LayananKedaluwarsaBooking::batasPengambilan($this->tanggal($k['tanggalKeputusan']))
+                        : null,
                     'staff_id' => $k['diputuskanOleh'] ? $pengguna[$k['diputuskanOleh']]->id : null,
                     'rejection_reason' => $k['alasanPenolakan'],
                 ]);

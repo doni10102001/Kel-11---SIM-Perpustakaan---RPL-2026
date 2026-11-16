@@ -340,9 +340,14 @@ class AnggotaCrudTest extends MySqlTestCase
         $q = array_column(DB::getQueryLog(), 'query');
         DB::disableQueryLog();
         $posMember = collect($q)->search(fn ($s) => preg_match('/from `members` .* for update/i', $s));
-        $posBooking = collect($q)->search(fn ($s) => str_contains($s, 'from `bookings`'));
-        $this->assertSame(0, $posMember);
-        $this->assertGreaterThan($posMember, $posBooking);
+        // Pemeriksaan F-01 (booking Disetujui) dibaca SETELAH member dikunci.
+        $posF01 = collect($q)->search(fn ($s) => str_contains($s, 'exists') && str_contains($s, 'from `bookings`'));
+        $this->assertIsInt($posMember);
+        $this->assertGreaterThan($posMember, $posF01);
+        // Batch 2: sebelum transaksi hanya ada pembacaan rekonsiliasi kedaluwarsa (tanpa kunci).
+        foreach (array_slice($q, 0, $posMember) as $sebelum) {
+            $this->assertStringNotContainsStringIgnoringCase('for update', $sebelum, 'Tidak ada kunci lain sebelum kunci member.');
+        }
     }
 
     // ---------------------------------------------------------------- 22–25 otorisasi

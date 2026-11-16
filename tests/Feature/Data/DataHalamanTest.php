@@ -66,12 +66,15 @@ class DataHalamanTest extends MySqlTestCase
         $this->assertSame(Member::where('member_code', 'AG-001')->value('contact'), $ag001['kontak']);
         $this->assertSame('AG-001', $ag001['idPengguna'], 'Kunci akun = username, bukan id internal.');
 
-        $this->assertCount(11, $props['data']['pengguna']);
-        foreach ($props['data']['pengguna'] as $akun) {
+        // Batch 3: daftar anggota hanya menerima koleksi `anggota`; daftar akun hanya di halaman yang membutuhkannya.
+        $this->assertSame(['anggota'], array_keys($props['data']));
+        $ubah = $this->props('/admin/anggota/AG-001/ubah');
+        $this->assertCount(11, $ubah['data']['pengguna']);
+        foreach ($ubah['data']['pengguna'] as $akun) {
             $this->assertNull($akun['passwordHash']);
         }
 
-        $json = json_encode($props);
+        $json = json_encode($props).json_encode($ubah);
         foreach (DB::table('users')->pluck('password') as $hash) {
             $this->assertStringNotContainsString($hash, $json);
         }
@@ -243,8 +246,10 @@ class DataHalamanTest extends MySqlTestCase
         $props = $this->props('/admin/laporan?jenis=peminjaman&awal=2026-12-02&akhir=2026-12-02');
 
         $this->assertSame(['jenis' => 'peminjaman', 'awal' => '2026-12-02', 'akhir' => '2026-12-02'], $props['filterLaporan']);
-        $this->assertSame(['UJI-20261202000000', 'UJI-20261202051500', 'UJI-20261202235959'], array_column($props['data']['peminjaman'], 'idPeminjaman'));
-        $this->assertSame(['2026-12-02'], array_values(array_unique(array_column($props['data']['peminjaman'], 'tanggalPinjam'))));
+        $baris = $props['data']['laporan']['baris'];
+        $this->assertSame(['UJI-20261202000000', 'UJI-20261202051500', 'UJI-20261202235959'], array_column($baris, 'idPeminjaman'));
+        $this->assertSame(['2026-12-02'], array_values(array_unique(array_column($baris, 'tanggalPinjam'))));
+        $this->assertSame([['label' => 'Jumlah peminjaman', 'nilai' => 3], ['label' => 'Aktif', 'nilai' => 0], ['label' => 'Selesai', 'nilai' => 3]], $props['data']['laporan']['ringkasan']);
     }
 
     public function test_filter_laporan_pengembalian_dan_filter_tidak_valid(): void
@@ -252,17 +257,28 @@ class DataHalamanTest extends MySqlTestCase
         $this->actingAs($this->admin());
 
         $props = $this->props('/admin/laporan?jenis=pengembalian&awal=2026-10-27&akhir=2026-10-28');
-        $this->assertSame(['KB-002', 'KB-003'], array_column($props['data']['pengembalian'], 'idPengembalian'));
-        $this->assertEqualsCanonicalizing(['PJ-002', 'PJ-004'], array_column($props['data']['peminjaman'], 'idPeminjaman'));
+        $baris = $props['data']['laporan']['baris'];
+        $this->assertSame(['KB-002', 'KB-003'], array_column($baris, 'idPengembalian'));
+        $this->assertEqualsCanonicalizing(['PJ-002', 'PJ-004'], array_column($baris, 'idPeminjaman'));
+        // Batch 3: laporan transaksi hanya membawa data laporan (tanpa koleksi akun/kontak anggota).
+        $this->assertSame(['laporan'], array_keys($props['data']));
+        $this->assertStringNotContainsString('kontak', json_encode($props['data']));
 
         // Laporan tanpa periode: daftar anggota saja.
-        $this->assertSame(['anggota'], array_keys($this->props('/admin/laporan?jenis=anggota')['data']));
+        $this->assertSame('anggota', $this->props('/admin/laporan?jenis=anggota')['data']['laporan']['jenis']);
 
-        // Tanpa filter / filter tidak valid → tidak ada data dimuat.
-        foreach (['/admin/laporan', '/admin/laporan?jenis=rahasia', '/admin/laporan?jenis=peminjaman&awal=2026-11-30&akhir=2026-11-01', '/admin/laporan?jenis=peminjaman&awal=2026-02-30'] as $url) {
+        // Tanpa filter → tanpa data & tanpa galat; filter tidak valid → tanpa data & galat dari server.
+        $tanpa = $this->props('/admin/laporan');
+        $this->assertSame([[], null, null], [$tanpa['data'], $tanpa['filterLaporan'], $tanpa['galatLaporan']]);
+        foreach ([
+            '/admin/laporan?jenis=rahasia' => ['jenis' => 'Pilih Jenis Laporan.'],
+            '/admin/laporan?jenis=peminjaman&awal=2026-11-30&akhir=2026-11-01' => ['akhir' => 'Periode Akhir tidak boleh sebelum Periode Awal.'],
+            '/admin/laporan?jenis=peminjaman&awal=2026-02-30' => ['awal' => 'Periode Awal tidak valid.'],
+        ] as $url => $galat) {
             $props = $this->props($url);
             $this->assertSame([], $props['data'], $url);
             $this->assertNull($props['filterLaporan'], $url);
+            $this->assertSame($galat, $props['galatLaporan'], $url);
         }
     }
 

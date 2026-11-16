@@ -42,6 +42,12 @@ final class WaktuPerpustakaan
         return CarbonImmutable::now(self::zonaTampilan())->format(self::FORMAT_TANGGAL);
     }
 
+    /** Instant sebagai ISO-8601 UTC ("2026-11-18T07:00:00Z") untuk dikirim ke frontend (ditampilkan WIB). */
+    public static function isoUtc(DateTimeInterface $instant): string
+    {
+        return CarbonImmutable::instance($instant)->utc()->format('Y-m-d\TH:i:s\Z');
+    }
+
     /** Tanggal kalender (Y-m-d) dari sebuah instant, dilihat pada zona tampilan. */
     public static function tanggalLokal(DateTimeInterface $instant): string
     {

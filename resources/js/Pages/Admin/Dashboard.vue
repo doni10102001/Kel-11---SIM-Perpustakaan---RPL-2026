@@ -8,7 +8,6 @@ import StatCard from '@/Components/StatCard.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
-import { detailBooking, detailPeminjaman, rekapStatus, ringkasanAdmin } from '@/utils/olahData.js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { formatTanggal } from '@/utils/format.js';
 import { daftarStatus } from '@/utils/status.js';
@@ -16,31 +15,32 @@ import { daftarStatus } from '@/utils/status.js';
 const { data, tanggalHariIni } = useDataPerpustakaan();
 const { rute } = useDemo();
 
-// Semua angka dihitung dari dataset (tidak ada nilai tetap).
-const ringkasan = computed(() => ringkasanAdmin(data));
-const jumlahKategori = computed(() => new Set(data.buku.map((b) => b.kategori)).size);
+// Batch 3: semua angka = agregat SQL di server (RingkasanPerpustakaan); tidak dihitung di browser.
+const RINGKASAN_KOSONG = {
+    anggota: { total: 0, Aktif: 0, Nonaktif: 0 },
+    buku: { total: 0, kategori: 0 },
+    eksemplar: { total: 0, Tersedia: 0, Dipesan: 0, Dipinjam: 0 },
+    peminjaman: { Aktif: 0, Selesai: 0 },
+    booking: {},
+    hariIni: { peminjaman: 0, pengembalian: 0, booking: 0 },
+};
+const ringkasan = computed(() => (Array.isArray(data.ringkasan) ? RINGKASAN_KOSONG : data.ringkasan));
+const jumlahKategori = computed(() => ringkasan.value.buku.kategori);
 
-const rekapEksemplar = computed(() => rekapStatus(data.eksemplar, daftarStatus('eksemplar')));
-const rekapPeminjaman = computed(() => rekapStatus(data.peminjaman, daftarStatus('peminjaman')));
-const rekapBooking = computed(() => rekapStatus(data.booking, daftarStatus('booking')));
+// Urutan status resmi; jumlah dari server (0 bila tidak ada).
+const rekap = (jenis, sumber) => daftarStatus(jenis).map((status) => ({ status, jumlah: sumber?.[status] ?? 0 }));
+const rekapEksemplar = computed(() => rekap('eksemplar', ringkasan.value.eksemplar));
+const rekapPeminjaman = computed(() => rekap('peminjaman', ringkasan.value.peminjaman));
+const rekapBooking = computed(() => rekap('booking', ringkasan.value.booking));
 
 const NADA_SEGMEN = { Tersedia: 'is-success', Dipesan: 'is-warning', Dipinjam: 'is-info' };
 const persen = (jumlah, total) => (total === 0 ? 0 : Math.round((jumlah / total) * 100));
 
-const peminjamanAktif = computed(() =>
-    data.peminjaman
-        .filter((p) => p.status === 'Aktif')
-        .map((p) => detailPeminjaman(data, p))
-        .sort((a, b) => a.tanggalJatuhTempo.localeCompare(b.tanggalJatuhTempo) || a.idPeminjaman.localeCompare(b.idPeminjaman)),
-);
-
-const URUTAN_BOOKING = { Diajukan: 0, Disetujui: 1 };
-const bookingBerjalan = computed(() =>
-    data.booking
-        .filter((b) => b.status === 'Diajukan' || b.status === 'Disetujui')
-        .map((b) => detailBooking(data, b))
-        .sort((a, b) => URUTAN_BOOKING[a.status] - URUTAN_BOOKING[b.status] || a.tanggalBooking.localeCompare(b.tanggalBooking)),
-);
+// Daftar ringkas dari server (sudah diurutkan, maks. 10 baris); total dari agregat.
+const peminjamanAktif = computed(() => data.peminjamanAktif);
+const bookingBerjalan = computed(() => data.bookingBerjalan);
+const jumlahBookingBerjalan = computed(() => (ringkasan.value.booking.Diajukan ?? 0) + (ringkasan.value.booking.Disetujui ?? 0));
+const ringkasDaftar = (tampil, total) => (total > tampil ? ` Menampilkan ${tampil} dari ${total}.` : '');
 
 const kolomPeminjaman = [
     { key: 'idPeminjaman', label: 'ID Peminjaman' },
@@ -148,7 +148,10 @@ const deskripsi = `Ringkasan data dan layanan perpustakaan per ${formatTanggal(t
                     <div class="sim-card-header">
                         <div>
                             <h2 class="sim-card-title">Status Transaksi</h2>
-                            <p class="sim-card-subtitle">Jumlah peminjaman dan booking menurut status.</p>
+                            <p class="sim-card-subtitle">
+                                Jumlah peminjaman dan booking menurut status. Hari ini: {{ ringkasan.hariIni.peminjaman }} peminjaman ·
+                                {{ ringkasan.hariIni.pengembalian }} pengembalian · {{ ringkasan.hariIni.booking }} booking baru.
+                            </p>
                         </div>
                     </div>
                     <div class="sim-card-body">
@@ -181,7 +184,7 @@ const deskripsi = `Ringkasan data dan layanan perpustakaan per ${formatTanggal(t
                     <div class="sim-card-header">
                         <div>
                             <h2 class="sim-card-title">Peminjaman Aktif</h2>
-                            <p class="sim-card-subtitle">Diurutkan berdasarkan tanggal jatuh tempo terdekat.</p>
+                            <p class="sim-card-subtitle">Diurutkan berdasarkan tanggal jatuh tempo terdekat.{{ ringkasDaftar(peminjamanAktif.length, ringkasan.peminjaman.Aktif) }}</p>
                         </div>
                         <Link :href="rute('pengembalian')" class="btn btn-secondary btn-sm">
                             Proses Pengembalian
@@ -220,7 +223,7 @@ const deskripsi = `Ringkasan data dan layanan perpustakaan per ${formatTanggal(t
                     <div class="sim-card-header">
                         <div>
                             <h2 class="sim-card-title">Booking Perlu Tindak Lanjut</h2>
-                            <p class="sim-card-subtitle">Menunggu verifikasi atau realisasi.</p>
+                            <p class="sim-card-subtitle">Menunggu verifikasi atau realisasi.{{ ringkasDaftar(bookingBerjalan.length, jumlahBookingBerjalan) }}</p>
                         </div>
                         <Link :href="rute('booking.verifikasi')" class="btn btn-secondary btn-sm">
                             Verifikasi

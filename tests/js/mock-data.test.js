@@ -292,8 +292,12 @@ describe('Cakupan data demonstrasi', () => {
             peminjaman: new Set(D.peminjaman.map((p) => p.status)),
             booking: new Set(D.booking.map((b) => b.status)),
         };
+        // Batch 2: `Kedaluwarsa` hanya muncul lewat penjadwal server (48 jam setelah persetujuan);
+        // data mock historis (pra-Batch 2) sengaja tidak memuatnya.
+        const SETELAH_MOCK = { booking: ['Kedaluwarsa'] };
         for (const [jenis, daftar] of Object.entries(STATUS)) {
-            assert.deepEqual([...ada[jenis]].sort(), Object.keys(daftar).sort(), jenis);
+            const resmi = Object.keys(daftar).filter((s) => !(SETELAH_MOCK[jenis] ?? []).includes(s));
+            assert.deepEqual([...ada[jenis]].sort(), resmi.sort(), jenis);
         }
     });
 

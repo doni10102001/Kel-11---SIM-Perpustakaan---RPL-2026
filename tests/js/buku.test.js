@@ -68,12 +68,10 @@ describe('Simpan Buku ke server (Phase 9B)', () => {
         assert.doesNotMatch(index, /ambilPesan/);
     });
 
-    test('aksi Buku tidak lagi ditolak "Belum tersedia"; aksi transaksi tetap ditolak', () => {
+    test('aksi Buku tidak lagi ditolak "Belum tersedia" (Batch 2: tidak ada lagi aksi tertunda)', () => {
         assert.equal('tambahBuku' in AKSI_TERTUNDA, false);
         assert.equal('ubahBuku' in AKSI_TERTUNDA, false);
-        for (const nama of ['catatPeminjaman', 'prosesPengembalian', 'setujuiBooking', 'tolakBooking', 'realisasikanBooking', 'ajukanBooking', 'batalkanBooking']) {
-            assert.ok(nama in AKSI_TERTUNDA, nama);
-        }
+        assert.deepEqual(Object.keys(AKSI_TERTUNDA), []);
     });
 });
 

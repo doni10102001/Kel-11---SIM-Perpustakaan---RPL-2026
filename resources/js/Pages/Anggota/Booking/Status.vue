@@ -11,14 +11,16 @@ import FormFeedback from '@/Components/FormFeedback.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import SegmentedTabs from '@/Components/SegmentedTabs.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
-import { GalatValidasi, useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { galatPertama, useTransaksiServer } from '@/composables/useTransaksiServer.js';
 import { useDemo } from '@/composables/useDemo.js';
 import { bookingAnggota, detailBooking } from '@/utils/olahData.js';
 import AnggotaLayout from '@/Layouts/AnggotaLayout.vue';
-import { formatTanggal } from '@/utils/format.js';
+import { formatTanggal, formatWaktu } from '@/utils/format.js';
 import { daftarStatus } from '@/utils/status.js';
 
-const { data, batalkanBooking } = useDataPerpustakaan();
+const { data } = useDataPerpustakaan();
+const { memproses, kirim } = useTransaksiServer();
 const { akun, rute } = useDemo();
 const kodeAnggota = akun.value.kodeAnggota;
 
@@ -45,13 +47,15 @@ function keterangan(b) {
         case 'Diajukan':
             return 'Menunggu verifikasi Admin.';
         case 'Disetujui':
-            return `Disetujui ${tanggal(b.tanggalKeputusan)}. Eksemplar dipesan untuk Anda dan menunggu realisasi peminjaman.`;
+            return `Disetujui ${tanggal(b.tanggalKeputusan)}. Eksemplar dipesan untuk Anda; ambil sebelum Batas Pengambilan ${formatWaktu(b.batasPengambilan)}.`;
         case 'Ditolak':
             return b.alasanPenolakan ? `Alasan: ${b.alasanPenolakan}` : 'Booking ditolak.';
         case 'Dibatalkan':
             return 'Booking dibatalkan.';
         case 'Direalisasikan':
             return `Direalisasikan menjadi peminjaman ${b.idPeminjaman}.`;
+        case 'Kedaluwarsa':
+            return `Tidak diambil sebelum Batas Pengambilan ${formatWaktu(b.batasPengambilan)}; reservasi eksemplar dilepas.`;
         default:
             return '—';
     }
@@ -94,19 +98,17 @@ const pesanBatal = computed(() => {
         : dasar;
 });
 
+/** Batch 2 — POST /anggota/booking/{kode}/batalkan; hanya booking milik akun ini (diperiksa server). */
 function batal() {
-    try {
-        const b = batalkanBooking(idDipilih.value, { kodeAnggota });
-        dialog.value = false;
-        pesan.value = {
-            tone: 'success',
-            title: `Booking ${b.idBooking} dibatalkan`,
-            message: 'Status booking kini Dibatalkan. Perubahan pada mode pratinjau tidak disimpan setelah halaman dimuat ulang.',
-        };
-    } catch (error) {
-        if (!(error instanceof GalatValidasi)) throw error;
-        galatBatal.value = Object.values(error.galat)[0];
-    }
+    kirim(rute('booking.batalkan', { kodeBooking: idDipilih.value }), {}, {
+        onSukses: (kode) => {
+            dialog.value = false;
+            pesan.value = { tone: 'success', title: `Booking ${kode} dibatalkan`, message: 'Status booking kini Dibatalkan.' };
+        },
+        onGalat: (e) => {
+            galatBatal.value = galatPertama(e);
+        },
+    });
 }
 </script>
 
@@ -186,6 +188,10 @@ function batal() {
                     <dl class="sim-detail-list">
                         <dt>Tanggal Keputusan</dt>
                         <dd>{{ dipilih.tanggalKeputusan ? tanggal(dipilih.tanggalKeputusan, 'panjang') : '—' }}</dd>
+                        <template v-if="dipilih.batasPengambilan">
+                            <dt>Batas Pengambilan</dt>
+                            <dd>{{ formatWaktu(dipilih.batasPengambilan) }}</dd>
+                        </template>
                         <template v-if="dipilih.peminjaman">
                             <dt>Peminjaman</dt>
                             <dd><span class="sim-code">{{ dipilih.peminjaman.idPeminjaman }}</span></dd>
@@ -214,6 +220,7 @@ function batal() {
             icon="bi-x-circle"
             confirm-label="Batalkan Booking"
             cancel-label="Kembali"
+            :loading="memproses"
             @confirm="batal"
         >
             <FormFeedback v-if="galatBatal" tone="danger" title="Pembatalan ditolak" :message="galatBatal" />

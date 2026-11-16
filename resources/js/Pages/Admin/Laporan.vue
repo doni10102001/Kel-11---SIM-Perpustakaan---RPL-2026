@@ -14,7 +14,7 @@ import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { formatTanggal } from '@/utils/format.js';
-import { JENIS_LAPORAN, buatLaporan, jenisLaporan, mendukungPeriode, validasiFilterLaporan } from '@/utils/laporan.js';
+import { JENIS_LAPORAN, jenisLaporan, laporanDariServer, mendukungPeriode, validasiFilterLaporan } from '@/utils/laporan.js';
 
 const { data, tanggalHariIni } = useDataPerpustakaan();
 const { akun, rute } = useDemo();
@@ -26,6 +26,20 @@ const galat = ref({});
 const diterapkan = ref(null);
 
 const periodeAktif = computed(() => mendukungPeriode(filter.jenis));
+
+// Filter awal dari URL dimuat SEBELUM watch dipasang: bila dipasang sesudahnya, watch pada
+// filter.jenis ikut terpicu dan menghapus galat validasi (mis. rentang terbalik dari URL).
+// Mis. ?jenis=peminjaman&awal=2026-11-01&akhir=2026-11-07 (sudah dimuat server).
+const query = new URLSearchParams(page.url.split('?')[1] ?? '');
+if (jenisLaporan(query.get('jenis'))) {
+    filter.jenis = query.get('jenis');
+    if (mendukungPeriode(filter.jenis)) {
+        filter.awal = query.get('awal') ?? '';
+        filter.akhir = query.get('akhir') ?? '';
+    }
+    galat.value = validasiFilterLaporan(filter);
+    terapkanDariServer();
+}
 
 // Periode tidak berlaku untuk laporan tanpa kolom tanggal.
 watch(
@@ -64,21 +78,12 @@ function tampilkan() {
 function terapkanDariServer() {
     const f = page.props.filterLaporan;
     diterapkan.value = f ? { jenis: f.jenis, awal: f.awal ?? '', akhir: f.akhir ?? '' } : null;
+    // Batch 3: filter yang ditolak server (mis. tanggal tidak valid dari URL) tampil per field.
+    if (page.props.galatLaporan) galat.value = { ...page.props.galatLaporan };
 }
 
-// Filter awal dari URL, mis. ?jenis=peminjaman&awal=2026-11-01&akhir=2026-11-07 (sudah dimuat server).
-const query = new URLSearchParams(page.url.split('?')[1] ?? '');
-if (jenisLaporan(query.get('jenis'))) {
-    filter.jenis = query.get('jenis');
-    if (mendukungPeriode(filter.jenis)) {
-        filter.awal = query.get('awal') ?? '';
-        filter.akhir = query.get('akhir') ?? '';
-    }
-    galat.value = validasiFilterLaporan(filter);
-    terapkanDariServer();
-}
-
-const laporan = computed(() => (diterapkan.value ? buatLaporan(data, diterapkan.value) : null));
+// Batch 3: baris & ringkasan disusun server (agregat SQL, periode WIB → UTC).
+const laporan = computed(() => (diterapkan.value ? laporanDariServer(data.laporan) : null));
 const teksPeriode = computed(() => {
     if (!laporan.value?.kolomTanggal) return 'Seluruh data';
     const { awal, akhir } = diterapkan.value;
@@ -118,6 +123,7 @@ const tanggal = (nilai) => formatTanggal(nilai, 'pendek');
                         type="date"
                         :max="tanggalHariIni"
                         :disabled="!periodeAktif"
+                        :error="galat.awal"
                         :hint="filter.jenis && !periodeAktif ? 'Tidak berlaku untuk jenis laporan ini.' : jenisLaporan(filter.jenis)?.kolomTanggal ? `Berdasarkan ${jenisLaporan(filter.jenis).kolomTanggal}.` : null"
                     />
                     <BaseInput v-model="filter.akhir" label="Periode Akhir" type="date" :max="tanggalHariIni" :disabled="!periodeAktif" :error="galat.akhir" />
@@ -166,7 +172,10 @@ const tanggal = (nilai) => formatTanggal(nilai, 'pendek');
                 <template #cell-no="{ value }"><span class="tabular-nums text-secondary">{{ value }}</span></template>
                 <template #cell-kodeBuku="{ value }"><span class="sim-code">{{ value }}</span></template>
                 <template #cell-kodeAnggota="{ value }"><span class="sim-code">{{ value }}</span></template>
-                <template #cell-idPeminjaman="{ value }"><span class="sim-code">{{ value }}</span></template>
+                <template #cell-idPeminjaman="{ row, value }">
+                    <span class="sim-code">{{ value }}</span>
+                    <span v-if="row.idBooking" class="sim-cell-sub">dari {{ row.idBooking }}</span>
+                </template>
                 <template #cell-idPengembalian="{ value }"><span class="sim-code">{{ value }}</span></template>
                 <template #cell-kodeEksemplar="{ value }"><span class="sim-code">{{ value }}</span></template>
                 <template #cell-judul="{ value }"><span class="sim-cell-title">{{ value }}</span></template>

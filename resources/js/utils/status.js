@@ -24,6 +24,8 @@ export const STATUS = {
         Ditolak: { nada: 'danger', ikon: 'bi-x-circle-fill' },
         Dibatalkan: { nada: 'neutral', ikon: 'bi-slash-circle' },
         Direalisasikan: { nada: 'indigo', ikon: 'bi-bookmark-check-fill' },
+        // Batch 2: Disetujui yang tidak direalisasikan dalam 48 jam (reservasi dilepas).
+        Kedaluwarsa: { nada: 'neutral', ikon: 'bi-hourglass-bottom' },
     },
 };
 

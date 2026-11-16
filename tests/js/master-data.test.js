@@ -76,7 +76,7 @@ describe('Pencarian Data Buku (kode, judul, kategori)', () => {
 describe('Rekap status dashboard', () => {
     test('rekap booking mengikuti urutan status resmi dan totalnya sama dengan jumlah booking', () => {
         const rekap = rekapStatus(D.booking, daftarStatus('booking'));
-        assert.deepEqual(rekap.map((r) => r.status), ['Diajukan', 'Disetujui', 'Ditolak', 'Dibatalkan', 'Direalisasikan']);
+        assert.deepEqual(rekap.map((r) => r.status), ['Diajukan', 'Disetujui', 'Ditolak', 'Dibatalkan', 'Direalisasikan', 'Kedaluwarsa']);
         assert.equal(rekap.reduce((n, r) => n + r.jumlah, 0), D.booking.length);
     });
 });

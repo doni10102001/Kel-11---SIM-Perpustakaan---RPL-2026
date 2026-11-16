@@ -10,14 +10,16 @@ import FormFeedback from '@/Components/FormFeedback.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import ReadonlyField from '@/Components/ReadonlyField.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
-import { GalatValidasi, useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { galatPertama, useTransaksiServer } from '@/composables/useTransaksiServer.js';
 import { useDemo } from '@/composables/useDemo.js';
 import { cariAnggota, cariBuku, detailBooking, eksemplarBuku, ketersediaanBuku } from '@/utils/olahData.js';
 import AnggotaLayout from '@/Layouts/AnggotaLayout.vue';
 import { formatTanggal } from '@/utils/format.js';
 import { validasiAjukanBooking } from '@/utils/validasiTransaksi.js';
 
-const { data, tanggalHariIni, ajukanBooking } = useDataPerpustakaan();
+const { data, tanggalHariIni } = useDataPerpustakaan();
+const { memproses, kirim } = useTransaksiServer();
 const { akun, rute } = useDemo();
 const page = usePage();
 const kodeAnggota = akun.value.kodeAnggota;
@@ -91,20 +93,26 @@ async function ajukan() {
     konfirmasi.value = true;
 }
 
+/**
+ * Batch 2 — POST /anggota/booking. Pemilik booking ditentukan server dari sesi
+ * (kode anggota TIDAK dikirim). Booking baru berstatus Diajukan; eksemplar belum dipesan.
+ */
 function terapkan() {
-    try {
-        const b = ajukanBooking(form, { kodeAnggota });
-        bukti.value = detailBooking(data, data.booking.find((x) => x.idBooking === b.idBooking));
-        konfirmasi.value = false;
-        form.kodeBuku = '';
-        sudahDikirim.value = false;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (error) {
-        konfirmasi.value = false;
-        if (!(error instanceof GalatValidasi)) throw error;
-        // Alasan penolakan langsung (bukan status Ditolak dari Admin).
-        galatAksi.value = Object.values(error.galat)[0];
-    }
+    kirim(rute('booking.store'), { kodeBuku: form.kodeBuku, kodeEksemplar: form.kodeEksemplar }, {
+        onSukses: (kode) => {
+            const b = data.booking.find((x) => x.idBooking === kode);
+            bukti.value = b ? detailBooking(data, b) : null;
+            konfirmasi.value = false;
+            form.kodeBuku = '';
+            sudahDikirim.value = false;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+        onGalat: (e) => {
+            konfirmasi.value = false;
+            // Alasan penolakan langsung dari server (bukan status Ditolak dari Admin).
+            galatAksi.value = galatPertama(e);
+        },
+    });
 }
 
 const tanggalPengajuan = formatTanggal(tanggalHariIni, 'panjang');
@@ -141,7 +149,7 @@ const tanggalPengajuan = formatTanggal(tanggalHariIni, 'panjang');
                 <div class="sim-receipt__item"><dt>Tanggal Pengajuan</dt><dd>{{ formatTanggal(bukti.tanggalBooking, 'panjang') }}</dd></div>
             </dl>
             <div class="sim-receipt__footer">
-                <span>Perubahan pada mode pratinjau tidak disimpan setelah halaman dimuat ulang.</span>
+                <span>Menunggu verifikasi Admin.</span>
                 <BaseButton variant="secondary" size="sm" icon-end="bi-arrow-right" :href="rute('booking.status')">Lihat Status Booking</BaseButton>
             </div>
         </section>
@@ -257,6 +265,7 @@ const tanggalPengajuan = formatTanggal(tanggalHariIni, 'panjang');
             :message="buku && eksemplar ? `Booking “${buku.judul}” eksemplar ${eksemplar.kodeEksemplar} akan diajukan atas nama ${anggota?.nama} (${kodeAnggota}) dan menunggu verifikasi Admin.` : null"
             icon="bi-bookmark-plus"
             confirm-label="Ajukan Booking"
+            :loading="memproses"
             @confirm="terapkan"
         />
     </AnggotaLayout>
