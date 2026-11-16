@@ -212,3 +212,12 @@ Rincian: `docs/phase8/PHASE_8D_PENGERASAN_KEAMANAN.md`.
 - Kolom aditif `users.must_change_password` (default 0, CHECK hanya Anggota): diset saat Admin membuat akses login atau mereset kata sandi Anggota; dihapus hanya setelah Anggota mengganti kata sandinya sendiri.
 - Middleware `wajib.ganti.sandi` membatasi Anggota ber-flag pada halaman Ubah Kata Sandi dan Keluar; Admin tidak terdampak.
 - Anggota dapat mengganti kata sandi sendiri (`/anggota/kata-sandi`); sesi lain berakhir, sesi ini diregenerasi, lalu diarahkan ke Dashboard.
+
+## Phase 9A — CRUD Anggota nyata (15 November 2026)
+
+Rincian: `docs/phase9/PHASE_9A_CRUD_ANGGOTA.md`.
+
+- Tambah Anggota (kode diisi Admin, unik), ubah profil (nama, kontak, status), aktif/nonaktif tersimpan ke MySQL lewat `LayananAnggota` dalam transaksi; tanpa migration baru dan tanpa hapus fisik.
+- Akses login opsional saat Tambah dibuat atomik bersama Anggota (wajib ganti kata sandi saat pertama masuk); pada Ubah tetap aksi eksplisit Phase 8C.
+- F-01 opsi A diterapkan: penonaktifan ditolak bila ada booking `Disetujui`; member dikunci lebih dulu. Persetujuan booking (Phase 11) wajib mengikuti urutan kunci member → copy → booking.
+- Penonaktifan menghapus baris sesi database akun Anggota (selain penolakan oleh `akun.aktif`); akun, kata sandi, dan riwayat tidak dihapus.

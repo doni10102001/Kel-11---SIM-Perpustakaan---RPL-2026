@@ -41,7 +41,8 @@ class AnggotaCrudTest extends MySqlTestCase
 
     private function profil(array $timpa = []): array
     {
-        return ['kodeAnggota' => 'AG-901', 'nama' => 'Anggota Uji Satu', 'kontak' => '0811-0000-0901', 'status' => 'Aktif'] + $timpa;
+        // $timpa di KIRI: pada operator + PHP kunci kiri yang menang.
+        return $timpa + ['kodeAnggota' => 'AG-901', 'nama' => 'Anggota Uji Satu', 'kontak' => '0811-0000-0901', 'status' => 'Aktif'];
     }
 
     private function denganAkses(string $username = 'ag901', string $sandi = self::SANDI_ANGGOTA): array
@@ -216,7 +217,8 @@ class AnggotaCrudTest extends MySqlTestCase
         $this->assertSame($m->id, $pinjam->fresh()->member_id, 'Riwayat tetap tertaut.');
 
         $audit = AuditLog::where('action', 'anggota.diubah')->sole();
-        $this->assertSame(['kode_anggota' => 'AG-903', 'kolom' => ['name', 'contact']], $audit->metadata);
+        // Kolom JSON MySQL tidak menjamin urutan kunci objek.
+        $this->assertEqualsCanonicalizing(['kode_anggota' => 'AG-903', 'kolom' => ['name', 'contact']], $audit->metadata);
         $this->assertStringNotContainsString('0899-1234', json_encode($audit->getAttributes()), 'Nilai kontak tidak dicatat.');
     }
 

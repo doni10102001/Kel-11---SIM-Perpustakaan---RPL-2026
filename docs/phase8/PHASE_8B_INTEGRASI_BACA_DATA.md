@@ -65,7 +65,7 @@ Semua aksi di bawah **ditolak eksplisit** (`utils/aksiTertunda.js`): pesan "Belu
 
 | Halaman | Aksi tertunda |
 | --- | --- |
-| Admin · Tambah/Ubah Anggota | Simpan anggota, ubah status. *(Buat Akses Login & Reset Kata Sandi sudah tersimpan ke MySQL sejak Phase 8C — lihat `PHASE_8C_MANAJEMEN_KREDENSIAL.md`.)* |
+| ~~Admin · Tambah/Ubah Anggota~~ | *Tersimpan ke MySQL sejak Phase 9A (simpan, status, akses login saat tambah) — lihat `docs/phase9/PHASE_9A_CRUD_ANGGOTA.md`; kredensial sejak Phase 8C.* |
 | Admin · Tambah/Ubah Buku | Simpan buku, tambah eksemplar |
 | Admin · Peminjaman | Catat peminjaman |
 | Admin · Pengembalian | Proses pengembalian |

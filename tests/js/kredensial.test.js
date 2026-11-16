@@ -27,7 +27,9 @@ describe('Kredensial di frontend (Phase 8C)', () => {
     });
 
     test('Simpan Anggota ke server: kredensial hanya saat Tambah, tidak pernah saat Ubah (Phase 9A)', () => {
-        assert.match(form, /kirim\(mode === 'tambah' \? rute\('anggota\.store'\) : rute\('anggota\.update', \{ kodeAnggota: kodeAsal \}\), payload/);
+        assert.match(form, /router\[mode === 'tambah' \? 'post' : 'put'\]\(mode === 'tambah' \? rute\('anggota\.store'\) : rute\('anggota\.update', \{ kodeAnggota: kodeAsal \}\), payload/);
+        // Regresi: method router tidak boleh dilepas dari objeknya (const x = router.post) — `this` hilang.
+        assert.doesNotMatch(form, /=\s*(mode === 'tambah' \? )?router\.(post|put)\b/);
         assert.match(form, /const payload = \{ nama: form\.nama, kontak: form\.kontak, status: form\.status \};\s*if \(mode === 'tambah'\) \{/);
         assert.match(form, /memprosesSimpan\.value = false;\s*kosongkanKataSandi\(\);/);
         assert.doesNotMatch(form, /tambahAnggota\(|ubahAnggota\(|setPesan\(/, 'tidak ada simulasi simpan di browser');
