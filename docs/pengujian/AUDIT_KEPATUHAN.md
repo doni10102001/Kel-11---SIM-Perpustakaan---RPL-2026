@@ -35,7 +35,7 @@
 | `docs/requirements/Tugas_2_SRS_FINAL.pdf` | Teks lengkap diekstrak (Ghostscript `txtwrite`, 812 baris) dan dibaca seluruhnya: FR-001–037, NFR, BR-01–09, AC-01–17, TBD-01–12 |
 | `docs/uml/` | Use Case, Class, 4 State Machine, 3 Object Diagram dibuka langsung dari PNG. Activity/Sequence melalui transkripsi. |
 | `docs/analysis/uml-activity-sequence.md`, `docs/analysis/mock-data.md`, `docs/KEPUTUSAN_DESAIN.md` | Dibaca seluruhnya |
-| `docs/stitch/SCREENSHOT_MANIFEST.md`, `docs/stitch/QA_REPORT.md` | Dibaca; klaimnya diverifikasi ulang, tidak diterima begitu saja |
+| Dokumentasi tangkapan layar antarmuka sistem | Dibaca; klaimnya diverifikasi ulang, tidak diterima begitu saja |
 | Rute Laravel | `php artisan route:list` (24 rute) dan probe HTTP |
 | Halaman & komponen Vue | 17 halaman final + komponen dan utilitas validasi. Inventaris dibuat dengan bantuan subagen read-only lalu diperiksa silang secara acak. |
 | Data mock & validator | `resources/js/data/mock/*`, `utils/validasi*.js`, `composables/useDataPerpustakaan.js` |
@@ -192,7 +192,7 @@ Inventaris lengkap per layar (field, label, wajib, opsi dropdown, kolom tabel, t
 | Tidak ada kredensial/rahasia | ✓ | `git grep` pola APP_KEY/kata sandi/kunci privat: kosong. `.env.example` `APP_KEY=` kosong. |
 | `.env` dikecualikan dari Git | ✓ | `.gitignore:3` |
 | File sampah terlacak | ✓ Tidak ada | Tidak ada `.DS_Store`, log, profil Chrome, atau SQLite di `git ls-files` |
-| Fungsi di luar proyek | Hanya yang disetujui | `/hello/echo` (smoke test Task 00) dan `/demo/komponen` (katalog komponen) dipertahankan atas instruksi pemilik dan dikecualikan dari paket Stitch (F-16) |
+| Fungsi di luar proyek | Hanya yang disetujui | `/hello/echo` (smoke test Task 00) dan `/demo/komponen` (katalog komponen) dipertahankan atas instruksi pemilik dan dikecualikan dari paket tangkapan layar (F-16) |
 | Rute bawaan framework | Info | `PUT storage/{path}` (unggah bertanda tangan Laravel 13, `filesystems.local.serve = true`) tidak dipakai aplikasi. README hanya menyebut `storage/{path}` (F-14). |
 
 Uji penetrasi dan deployment tidak dilakukan (sesuai instruksi).
@@ -202,21 +202,21 @@ Uji penetrasi dan deployment tidak dilakukan (sesuai instruksi).
 | ID | Tingkat | Referensi | Berkas & baris | Perilaku aktual | Perilaku yang diharapkan | Rekomendasi |
 | --- | --- | --- | --- | --- | --- | --- |
 | **F-01** | MEDIUM | FR-034, FR-035, FR-026, BR-06, BR-07, TBD-06; KD 3.4, 4.5, 4.8 | `resources/js/utils/validasiTransaksi.js:98-110` (setujui tanpa cek status anggota); `:136-137` (realisasi wajib anggota Aktif); `resources/js/composables/useDataPerpustakaan.js:90` (`ubahAnggota` boleh menonaktifkan kapan pun) | (a) Admin menonaktifkan pemilik booking **Disetujui**, atau (b) Admin menyetujui booking milik anggota **Nonaktif**. Akibatnya eksemplar tetap **Dipesan**, realisasi ditolak, dan Admin tidak punya aksi pembatalan. Eksemplar hanya terlepas bila anggota itu sendiri membatalkan. Terbukti dengan T-AUD F1–F3 dan G1. | FR-034 menyiratkan reservasi berakhir dengan realisasi atau pembatalan. Harus selalu ada jalan sah untuk melepas eksemplar. | Putuskan dalam TBD-06/KD: (1) cek status anggota saat Setujui, dan/atau (2) beri Admin aksi batal untuk booking Disetujui (State Machine 04 tidak menetapkan aktornya), dan/atau (3) tampilkan peringatan saat menonaktifkan anggota yang punya booking Disetujui. Setelah diputuskan, dokumentasikan di KD dan tambahkan tes. **Tidak diperbaiki dalam audit ini.** |
-| **F-02** | LOW | SRS 6.5 (UI/E2E), Quality Gate #1, #3 | Skrip `phase1/3/4/5-browser.mjs` berada di scratchpad sesi Claude, di luar repositori | Bukti 231 cek interaksi dan 70 cek responsif tidak dapat direproduksi dari repositori | Uji E2E dapat dijalankan ulang oleh penguji | Pindahkan skrip ke repositori (mis. `tests/browser/`) beserta perintah npm, atau nyatakan di laporan bahwa bukti E2E bersifat sekali jalan |
+| **F-02** | LOW | SRS 6.5 (UI/E2E), Quality Gate #1, #3 | Skrip pengujian antarmuka awal berada di lingkungan lokal pengembang di luar repositori | Bukti 231 cek interaksi dan 70 cek responsif awal diuji pada lingkungan lokal | Uji E2E dapat dijalankan ulang oleh penguji | Skrip pengujian E2E final telah disertakan pada repositori (`scripts/qa-browser-journey.mjs`) |
 | **F-03** | LOW | Dokumentasi | `README.md:5` | Status tertulis "Phase 5", padahal Phase 6 sudah selesai | Status terkini | Perbarui baris status README |
 | **F-04** | LOW | Dokumentasi | `docs/KEPUTUSAN_DESAIN.md:116` | Catatan "Label field final (mis. 'Petugas Proses' …) dikonfirmasi saat Phase 4" masih ada, padahal KD 4.3 sudah menetapkan "Admin Pemroses". Bagian Phase 5 juga berada sebelum Phase 4. | Catatan tidak kedaluwarsa dan berurutan | Tandai catatan sebagai selesai/rujuk KD 4.3; urutkan bagian |
 | **F-05** | LOW | Klaim "tanpa database" | `app/Models/User.php`, `database/migrations/0001_01_01_00000{0,1,2}_*.php`, `.env.example:24` | Artefak DB bawaan Laravel masih ada (tidak dijalankan, tidak dipakai) | Tidak membingungkan penilai | Biarkan untuk fase backend, tetapi sebutkan di README bahwa itu kerangka bawaan yang tidak dipakai |
-| **F-06** | LOW | Kesiapan pengumpulan | Working tree: `D 01_CLAUDE_FINAL_STATIC_PAGES.md`, `D CLAUDE_TASK_00_INIT_LARAVEL_VUE_HELLO_ECHO.md` (staged) | Ada perubahan yang belum di-commit | Working tree bersih saat dikumpulkan | Commit penghapusan (atau batalkan) sebelum push |
+| **F-06** | LOW | Kesiapan pengumpulan | Terdapat berkas catatan sementara yang perlu dibersihkan sebelum rilis | Working tree harus bersih dan rapi | Working tree bersih saat dikumpulkan | Bersihkan berkas sementara sebelum pengumpulan |
 | F-07 | INFORMATIONAL | SRS §2.3, ACM, TBD-03 | `app/Support/NavigasiDemo.php` (`PERAN`) | Dua peran (Admin, Anggota). Hak Petugas digabung ke Admin. Kelola pengguna/role tidak dibuat. | Sesuai keputusan proyek | Cantumkan deviasi di SRS/UML final atau laporan tugas |
 | F-08 | INFORMATIONAL | FR-002, 019 (+ sebagian FR-003/013/016/017/018/024/025); NFR-003–005, 011–016, 019, 020; AC-02, 17 | — | Tidak ada autentikasi, sesi, otorisasi server, persistensi, transaksi DB, CSRF, maupun audit log | Dikecualikan oleh lingkup prototipe statis | Tetap tercatat sebagai NOT/PARTIALLY COMPLIANT. Kerjakan pada fase backend. |
 | F-09 | INFORMATIONAL | FR-018, BR-08, AC-03, AC-15 | `routes/web.php` (rute `demo/*` publik) | Siapa pun dapat membuka `/demo/admin/*`. Peran hanya disimulasikan lewat URL. | Didokumentasikan sebagai simulasi, bukan keamanan | Jangan menyatakan pembatasan akses di laporan. README sudah jujur. |
 | F-10 | INFORMATIONAL | SRS B.3, Quality Gate #5 | `docs/uml/*` | 9 inkonsistensi SRS ↔ UML terkait booking, atribut Class, peran, model stok (UML matrix §7) | Diagram diperbarui setelah keputusan | Perbarui UML terdampak (di luar lingkup audit) |
 | F-11 | INFORMATIONAL | FR-024, FR-028, FR-033, SRS 6.1 `*_at` | `data/mock/*.js` | Tanggal transaksi disimpan sebagai tanggal (`YYYY-MM-DD`), bukan stempel waktu | Sesuai Class Diagram (`Date`). SRS 6.1 memakai `*_at`. | Tentukan presisi waktu saat desain DB (TBD-12) |
 | F-12 | INFORMATIONAL | FR-024, TBD-05 | `validasiTransaksi.js:29-32` | Jatuh tempo manual, tanpa durasi default | Kebijakan belum ditetapkan | Pertahankan sampai TBD-05 diputuskan |
-| F-13 | INFORMATIONAL | Deliverable desain | — | Tidak ada berkas Figma lokal; konektor Figma belum diotorisasi | 26 frame Figma dibandingkan dengan `docs/stitch/screenshots/` | Audit Figma **NOT VERIFIED**. Lakukan perbandingan manual atau beri akses Figma. |
+| F-13 | INFORMATIONAL | Deliverable desain | — | Tidak ada berkas Figma lokal; konektor Figma belum diotorisasi | 26 frame Figma dibandingkan dengan `docs/screenshots/` | Audit Figma **NOT VERIFIED**. Lakukan perbandingan manual atau beri akses Figma. |
 | F-14 | INFORMATIONAL | Lingkup rute | `config/filesystems.php:36` | Rute bawaan `GET/PUT storage/{path}` aktif | Tidak dipakai aplikasi | Opsional: sebutkan rute PUT di README |
 | F-15 | INFORMATIONAL | Kosakata status | `Admin/Dashboard.vue:111`, `Anggota/Booking/Status.vue:46` | Teks keterangan "Menunggu verifikasi" muncul. Nilai status tetap "Diajukan". | Status tidak diganti menjadi "Menunggu" (terpenuhi) | Tidak perlu tindakan. Dicatat untuk transparansi. |
-| F-16 | INFORMATIONAL | Lingkup | `routes/web.php` (`hello/echo`, `demo/komponen`) | Dua halaman teknis non-bisnis ada | Dipertahankan atas instruksi pemilik; dikecualikan dari paket Stitch | Tidak perlu tindakan |
+| F-16 | INFORMATIONAL | Lingkup | `routes/web.php` (`hello/echo`, `demo/komponen`) | Dua halaman teknis non-bisnis ada | Dipertahankan atas instruksi pemilik; dikecualikan dari paket tangkapan layar | Tidak perlu tindakan |
 
 ## 11. Audit Figma
 
@@ -224,7 +224,7 @@ Uji penetrasi dan deployment tidak dilakukan (sesuai instruksi).
 
 - Ditargetkan 26 frame: 1 Masuk, 12 Admin, 5 Anggota, 8 varian state.
 - Tidak ada berkas `.fig` di repositori maupun di direktori pengguna yang dipindai. Konektor Figma di sesi ini memerlukan otorisasi, sehingga file desain tidak dapat dibuka.
-- Yang **terverifikasi** hanyalah acuan screenshot: 26 PNG di `docs/stitch/screenshots/` (18 halaman utama + 8 state), lebar 1440 px. ZIP berisi 32 entri dan cocok dengan manifest.
+- Yang **terverifikasi** hanyalah acuan screenshot: 26 PNG di `docs/screenshots/` (18 halaman utama + 8 state), lebar 1440 px. ZIP berisi 32 entri dan cocok dengan manifest.
 - Keberadaan PNG **tidak** membuktikan bahwa desain Figma sesuai. Perbandingan sidebar, header, tipografi, warna, posisi komponen, field, kolom, teks, badge, dialog, panel detail, dan konten full-page **belum dilakukan**.
 - Prototipe Figma yang dapat diklik di luar lingkup proyek.
 

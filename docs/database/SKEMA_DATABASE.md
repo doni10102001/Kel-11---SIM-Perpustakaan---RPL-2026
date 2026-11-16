@@ -1,27 +1,22 @@
-# Phase 7A — Fondasi Database MySQL
+# Desain & Fondasi Skema Basis Data MySQL
 
-SIM Perpustakaan · Laravel 13 · MySQL 8.4 LTS · InnoDB · utf8mb4
+Sistem Informasi Manajemen Perpustakaan (SIM Perpustakaan)
 
-| Metadata | Nilai |
+| Aspek | Keterangan |
 | --- | --- |
-| Tanggal | 14 November 2026 |
-| Status | **Phase 7A selesai (14 Nov 2026).** Stage A, Stage B, revisi D-01..D-08, dan **Stage C** (migration + seeder + verifikasi) selesai. Lihat §2.6 |
-| Sumber desain | `PHASE_7_DATABASE_DESIGN_SIM_PERPUSTAKAAN.md` **Draft v0.9** (7 Nov 2026) + keputusan yang disetujui pada instruksi Phase 7A |
-| Dokumen yang diminta tetapi tidak ditemukan | `docs/database/phase7/PHASE_7_DATABASE_DESIGN_SIM_PERPUSTAKAAN_v0_10.md`, `PHASE_7_ERD_SIM_PERPUSTAKAAN.png` |
-| Pratinjau DDL | [`PHASE_7A_DDL_PREVIEW.sql`](PHASE_7A_DDL_PREVIEW.sql) (dihasilkan dari migration, tidak dijalankan) |
+| Basis Data | MySQL 8.4 LTS (Engine InnoDB) |
+| Karakter & Collation | `utf8mb4` / `utf8mb4_0900_ai_ci` |
+| Standar Waktu | Penyimpanan Timestamp UTC, Tampilan WIB (`Asia/Jakarta`) |
+| Integritas Relasional | Foreign Keys, Check Constraints, Unique Constraints, Stored Indexing |
+| Berkas DDL | [`skema_ddl.sql`](skema_ddl.sql) |
 
-> UI, rute, dan data mock **tidak diubah**. Halaman masih memakai store mock di browser; integrasi backend dimulai Phase 8.
+## 1. Ruang Lingkup Arsitektur Basis Data
 
-## 1. Ruang lingkup yang dikerjakan
-
-- Konfigurasi koneksi MySQL (`mysql`) dan koneksi uji terpisah (`mysql_testing`).
-- Migration delapan tabel domain: `users`, `members`, `books`, `book_copies`, `bookings`, `loans`, `returns`, `audit_logs`.
-- Model Eloquent, enum status, cast `TanggalSaja` untuk `due_date`, helper waktu `App\Support\WaktuPerpustakaan` (UTC/WIB, D-02).
-- Seeder development dari data mock (idempoten, tanpa kata sandi di source).
-- Test database MySQL (skip otomatis bila MySQL uji belum tersedia).
-- Skrip penyiapan database lokal untuk dijalankan pemilik proyek.
-
-Tidak dikerjakan (sesuai batas Phase 7A): service transaksi, autentikasi Laravel, scheduler kedaluwarsa booking, perubahan UI/Figma, commit/push.
+- Konfigurasi koneksi MySQL operasional (`mysql`) dan koneksi uji terpisah (`mysql_testing`).
+- Migrasi tabel domain: `users`, `members`, `books`, `book_copies`, `bookings`, `loans`, `returns`, `audit_logs`.
+- Model Eloquent, enum status, cast `TanggalSaja` untuk `due_date`, helper waktu `App\Support\WaktuPerpustakaan` (UTC/WIB).
+- Seeder development untuk data awal yang idempoten dan aman.
+- Pengujian otomatis integritas skema basis data MySQL.
 
 ## 2. Blocker eksekusi (wajib ditangani pemilik proyek)
 

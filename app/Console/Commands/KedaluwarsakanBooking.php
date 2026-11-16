@@ -12,7 +12,7 @@ use Illuminate\Console\Command;
  * Mengubah booking Disetujui yang melewati Batas Pengambilan (decided_at + 48 jam)
  * menjadi Kedaluwarsa dan melepas reservasi eksemplar. Idempoten, per batch,
  * kegagalan satu booking tidak menghentikan booking lain. Dijadwalkan tiap 5 menit
- * (routes/console.php). Lihat docs/phase10/BOOKING_EXPIRATION.md.
+ * (routes/console.php). Lihat docs/fitur/KEDALUWARSA_BOOKING.md.
  */
 #[Signature('bookings:expire {--batch=100 : Jumlah booking per batch}')]
 #[Description('Kedaluwarsakan booking Disetujui yang melewati Batas Pengambilan (48 jam) dan lepaskan reservasinya')]

@@ -7,7 +7,7 @@ namespace App\Enums;
  *
  * Batch 2 (Phase 10): `Kedaluwarsa` (keputusan disetujui) — booking Disetujui
  * yang tidak direalisasikan dalam 48 jam sejak persetujuan berpindah ke status
- * ini dan reservasi eksemplarnya dilepas. Lihat docs/phase10/BOOKING_EXPIRATION.md.
+ * ini dan reservasi eksemplarnya dilepas. Lihat docs/fitur/KEDALUWARSA_BOOKING.md.
  */
 enum StatusBooking: string
 {

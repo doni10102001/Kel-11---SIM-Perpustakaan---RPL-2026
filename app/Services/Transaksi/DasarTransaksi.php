@@ -15,7 +15,7 @@ use Illuminate\Validation\ValidationException;
  * Batch 2 — dasar service transaksi perpustakaan.
  *
  * URUTAN KUNCI (wajib di semua service transaksi; lihat
- * docs/phase10/CONCURRENCY_AND_LOCKING.md):
+ * docs/fitur/KONKURENSI_DAN_LOCKING.md):
  *   1. members  2. bookings  3. book_copies  4. loans  5. returns
  * Baris dikunci dengan SELECT … FOR UPDATE (lockForUpdate) di dalam
  * DB::transaction, lalu SEMUA syarat dibaca ulang setelah kunci dipegang.

@@ -1,16 +1,14 @@
-# Batch 2 — Manajemen Transaksi Perpustakaan (MySQL)
+# Manajemen Transaksi Sirkulasi & Reservasi Perpustakaan
 
-SIM Perpustakaan · Laravel 13 · MySQL 8.4 · Inertia 3 / Vue 3
+Sistem Informasi Manajemen Perpustakaan (SIM Perpustakaan)
 
-| Metadata | Nilai |
+| Aspek | Keterangan |
 | --- | --- |
-| Tanggal | 16 November 2026 |
-| Branch | `phase-9b-buku-eksemplar` (HEAD `54582f3`; isi identik dengan `origin/main` `c128235`, merge PR #3). Belum di-commit. |
-| Lingkup | Peminjaman langsung, pengembalian, ajukan/batalkan booking (Anggota), setujui/tolak/realisasi booking (Admin), kedaluwarsa booking 48 jam + penjadwal 5 menit |
-| Migration baru | `2026_11_16_000009_add_expiration_to_bookings_table` (aditif) |
-| Dokumen terkait | `BOOKING_EXPIRATION.md`, `CONCURRENCY_AND_LOCKING.md`, `TRANSACTION_TEST_REPORT.md` |
+| Ruang Lingkup | Peminjaman langsung, pengembalian, ajukan/batalkan booking (Anggota), verifikasi/penolakan/realisasi booking (Admin), otomatisasi kedaluwarsa booking 48 jam |
+| Basis Data & ORM | MySQL 8.4 InnoDB, Laravel 13 Eloquent, Pessimistic Locking (`lockForUpdate`), Deadlock Retry (x3) |
+| Dokumen Terkait | `KEDALUWARSA_BOOKING.md`, `KONKURENSI_DAN_LOCKING.md`, `../pengujian/LAPORAN_UJI_TRANSAKSI.md` |
 
-## 1. Arsitektur
+## 1. Arsitektur Transaksi
 
 ```text
 Halaman Vue (router.post terikat, useTransaksiServer: cegah kirim ganda)

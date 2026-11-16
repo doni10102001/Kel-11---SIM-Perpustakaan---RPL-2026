@@ -1,23 +1,22 @@
-# Performance Audit & Query Optimization — Batch 3
+# Audit Kinerja & Optimasi Kueri Basis Data
 
-SIM Perpustakaan · Laravel 13 · MySQL 8.4 Engine
+Sistem Informasi Manajemen Perpustakaan (SIM Perpustakaan)
 
-| Metadata | Nilai |
+| Aspek | Keterangan |
 | --- | --- |
-| Tanggal Audit | 16 November 2026 |
-| Target Database | MySQL 8.4 (`sim_perpustakaan_db` / `sim_perpustakaan_test`) |
-| Fokus | Eliminasi N+1 Queries, Indeks Aditif, Pengurangan Ukuran Payload, EXPLAIN Analysis |
-| Status Audit | **OPTIMAL & BOUNDED** |
+| Topik | Optimasi Kinerja Basis Data & Kueri Eloquent |
+| Database Target | MySQL 8.4 Engine (InnoDB) |
+| Fokus Pengujian | Pencegahan N+1 Queries, Indeks Komposit, Pengurangan Beban Payload, Analisis EXPLAIN Plan |
 
 ---
 
-## 1. Ringkasan Eksekutif
+## 1. Ringkasan Optimasi Kinerja
 
-Audit kinerja komprehensif dilakukan pada seluruh 19 layar aplikasi untuk mendeteksi bottleneck I/O, latensi kueri, dan pembengkakan memori. Hasil optimasi Batch 3 meliputi:
+Audit kinerja komprehensif dilakukan pada seluruh antarmuka aplikasi untuk mendeteksi potensi hambatan I/O, latensi kueri, dan pembengkakan memori. Hasil optimasi sistem meliputi:
 
 1. **Eliminasi N+1 Queries**: Menerapkan eager loading terstruktur (`with(['member:id,member_code,name', ...])`) pada seluruh relasi transaksi dan pelaporan.
-2. **Indeks Aditif Baru**: Menambahkan indeks komposit `idx_loans_status_due` pada tabel `loans(status, due_date, loan_code)` lewat migration non-destruktif `2026_11_16_000010_add_status_due_index_to_loans_table`.
-3. **Pengurangan Beban Memori**: Membatasi formulir operasional (`Peminjaman` dan `Realisasi Booking`) agar hanya memuat transaksi berjalan (`status = 'Aktif'`), menghemat lebih dari 80% payload JSON pada dataset historis besar.
+2. **Penambahan Indeks Komposit**: Menambahkan indeks komposit `idx_loans_status_due` pada tabel `loans(status, due_date, loan_code)` lewat berkas migrasi `2026_11_16_000010_add_status_due_index_to_loans_table`.
+3. **Pengurangan Beban Memori**: Membatasi formulir operasional (`Peminjaman` dan `Realisasi Booking`) agar hanya memuat transaksi berjalan (`status = 'Aktif'`), menghemat lebih dari 80% transfer data pada dataset transaksi besar.
 4. **Kueri Terikat (Bounded Queries)**: Jumlah kueri database pada dashboard dan laporan bersifat konstan $O(1)$, tidak bertambah seiring membesarnya tabel transaksi.
 
 ---
@@ -138,7 +137,7 @@ Pengujian membuktikan bahwa ketika 15 transaksi pengembalian dan peminjaman baru
 
 ## 4. Efisiensi Ukuran Payload Inertia
 
-| Halaman | Pendekatan Batch 2 (Lama) | Pendekatan Batch 3 (Baru) | Penghematan |
+| Halaman | Pendekatan Awal (Client-Side) | Pendekatan Teroptimasi (Server-Side) | Penghematan |
 | --- | --- | --- | --- |
 | **Admin Dashboard** | Memuat seluruh baris tabel members, books, copies, loans, bookings | Hanya prop `ringkasan` (agregat numerik) + 10 baris pinjaman + 10 baris booking | ~90% pengurangan payload |
 | **Form Peminjaman** | Memuat seluruh riwayat peminjaman dan pengembalian | Hanya memuat peminjaman berstatus `Aktif` | ~85% pengurangan payload |

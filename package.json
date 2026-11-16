@@ -5,8 +5,7 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "test:data": "node --test tests/js/",
-        "screenshots:stitch": "node --experimental-websocket scripts/stitch-screenshots.mjs"
+        "test:data": "node --test tests/js/"
     },
     "devDependencies": {
         "@inertiajs/vite": "^3.11.0",

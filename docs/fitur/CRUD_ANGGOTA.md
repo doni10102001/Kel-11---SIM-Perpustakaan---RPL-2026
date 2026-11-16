@@ -1,16 +1,13 @@
-# Phase 9A — CRUD Anggota Nyata (MySQL)
+# Manajemen Data Master Anggota
 
-SIM Perpustakaan · Laravel 13 · MySQL 8.4 · Inertia 3 / Vue 3
+Sistem Informasi Manajemen Perpustakaan (SIM Perpustakaan)
 
-| Metadata | Nilai |
+| Aspek | Keterangan |
 | --- | --- |
-| Tanggal | 15 November 2026 |
-| Branch | `phase-7a-8a-mysql-auth` — 8D `e6a6cdc`; 9A `bfa430d` (implementasi antara) + commit koreksi `fix: send member saves via bound Inertia router and correct member tests` |
-| Lingkup | Tambah Anggota (opsional dengan akses login), ubah profil, aktif/nonaktif, F-01 opsi A |
-| Di luar lingkup | Buku/eksemplar, transaksi, booking, scheduler, hapus fisik, registrasi mandiri |
-| Migration baru | **Tidak ada** (tabel `members`, `users`, `audit_logs` yang ada) |
+| Ruang Lingkup | Pendaftaran anggota baru, pembaruan profil anggota, pengelolaan status (Aktif/Nonaktif), pembuatan akses login anggota |
+| Basis Data & Transaksi | MySQL 8.4 InnoDB, Laravel 13 Form Requests, Pessimistic Locking (`lockForUpdate`), Audit Trail |
 
-## 1. Arsitektur
+## 1. Arsitektur Modul Anggota
 
 ```text
 Form Tambah/Ubah Anggota (Inertia router.post / router.put)

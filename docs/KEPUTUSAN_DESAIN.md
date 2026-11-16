@@ -7,7 +7,7 @@ Catatan keputusan yang telah disetujui pemilik proyek. Dokumen ini **khusus peng
 1. **SRS v1.1** (`docs/requirements/Tugas_2_SRS_FINAL.pdf`) adalah referensi utama untuk fungsi, field, status, dan aturan bisnis.
 2. **UML** (`docs/uml/`) dipakai untuk alur, state, dan relasi data. Bila berbeda dengan SRS v1.1, **SRS v1.1 yang dipakai**.
 3. Transkripsi Activity/Sequence Diagram: `docs/analysis/uml-activity-sequence.md` (hasil transkripsi, bukan dokumen otoritatif).
-4. Website Laravel/Vue yang sudah final menjadi acuan visual untuk mockup Google Stitch. Stitch hanya mereplikasi, tidak mendesain ulang.
+4. Website Laravel/Vue menjadi acuan visual antarmuka sistem.
 
 ## Keputusan Phase 0 (disetujui 7 November 2026)
 
@@ -183,9 +183,9 @@ Rincian: `docs/auth/PHASE_8A_AUTENTIKASI.md`.
 - Identitas di frontend hanya dari sesi server (`auth.akun`); akun pratinjau AG-001 tidak dipakai lagi. Kotak "Mode pratinjau" di halaman Masuk dihapus.
 - Akun Anggota hasil seed belum dapat masuk (hash acak, D-08) sampai Phase 8C menyediakan provisioning/reset oleh Admin.
 
-## Phase 8B — Integrasi baca MySQL & privasi data (14 November 2026)
+## Integrasi Baca MySQL & Privasi Data (14 November 2026)
 
-Rincian: `docs/phase8/PHASE_8B_INTEGRASI_BACA_DATA.md`.
+Rincian: `docs/keamanan/INTEGRASI_DATA_SERVER.md`.
 
 - Data mock (anggota, akun, buku, transaksi) dan store mock dikeluarkan dari bundel frontend ke `tests/js/fixtures/`; build publik diverifikasi bebas data seed.
 - Seluruh halaman Admin dan Anggota membaca MySQL lewat `HalamanController` → `App\Queries\DataPerpustakaan` (Eloquent, eager loading) → prop Inertia `data` berbentuk sama dengan prototipe; komponen Vue tidak didesain ulang.
@@ -193,9 +193,9 @@ Rincian: `docs/phase8/PHASE_8B_INTEGRASI_BACA_DATA.md`.
 - "Hari ini" mengikuti kalender WIB server; filter periode Laporan dikonversi batas hari WIB → UTC di server.
 - Semua aksi tulis ditolak eksplisit ("Belum tersedia … Tidak ada data yang diubah") sampai endpoint server tersedia; tidak ada simulasi sukses.
 
-## Phase 8C — Manajemen kredensial nyata (14 November 2026)
+## Manajemen Kredensial Pengguna (14 November 2026)
 
-Rincian: `docs/phase8/PHASE_8C_MANAJEMEN_KREDENSIAL.md`.
+Rincian: `docs/keamanan/MANAJEMEN_KREDENSIAL.md`.
 
 - Admin membuat akses login untuk Anggota yang sudah tersimpan dan mereset kata sandi Anggota lewat aksi eksplisit (bukan lewat Simpan Anggota); tersimpan ke MySQL dalam transaksi dengan penguncian baris Anggota.
 - Akun Anggota selalu `role=anggota`, `name=NULL`, `is_active=true`; Status Anggota tidak berubah dan tetap satu-satunya pengendali login (D-03). Field istimewa dari klien diabaikan.
@@ -203,9 +203,9 @@ Rincian: `docs/phase8/PHASE_8C_MANAJEMEN_KREDENSIAL.md`.
 - Reset/ganti kata sandi mengakhiri sesi lama (baris sesi dihapus + `auth.session`). Audit log mencatat aksi dan aktor, tanpa kata sandi.
 - Tidak ada migration baru; aksi tulis non-kredensial tetap ditolak eksplisit.
 
-## Phase 8D — Pengerasan keamanan & wajib ganti kata sandi (14 November 2026)
+## Pengerasan Keamanan & Wajib Ganti Kata Sandi (14 November 2026)
 
-Rincian: `docs/phase8/PHASE_8D_PENGERASAN_KEAMANAN.md`.
+Rincian: `docs/keamanan/PENGERASAN_KEAMANAN.md`.
 
 - SSR Inertia dinonaktifkan (`config/inertia.php` default false, `INERTIA_SSR_ENABLED=false`, `inertia({ ssr: false })`); aplikasi dirender di klien.
 - Penyajian URL sementara disk `local` dimatikan (`serve => false`); tidak ada pemakaian di aplikasi.
@@ -213,27 +213,27 @@ Rincian: `docs/phase8/PHASE_8D_PENGERASAN_KEAMANAN.md`.
 - Middleware `wajib.ganti.sandi` membatasi Anggota ber-flag pada halaman Ubah Kata Sandi dan Keluar; Admin tidak terdampak.
 - Anggota dapat mengganti kata sandi sendiri (`/anggota/kata-sandi`); sesi lain berakhir, sesi ini diregenerasi, lalu diarahkan ke Dashboard.
 
-## Phase 9A — CRUD Anggota nyata (15 November 2026)
+## Manajemen Data Anggota (15 November 2026)
 
-Rincian: `docs/phase9/PHASE_9A_CRUD_ANGGOTA.md`.
+Rincian: `docs/fitur/CRUD_ANGGOTA.md`.
 
 - Tambah Anggota (kode diisi Admin, unik), ubah profil (nama, kontak, status), aktif/nonaktif tersimpan ke MySQL lewat `LayananAnggota` dalam transaksi; tanpa migration baru dan tanpa hapus fisik.
 - Akses login opsional saat Tambah dibuat atomik bersama Anggota (wajib ganti kata sandi saat pertama masuk); pada Ubah tetap aksi eksplisit Phase 8C.
-- F-01 opsi A diterapkan: penonaktifan ditolak bila ada booking `Disetujui`; member dikunci lebih dulu. Persetujuan booking (Phase 11) wajib mengikuti urutan kunci member → copy → booking.
+- F-01 opsi A diterapkan: penonaktifan ditolak bila ada booking `Disetujui`; member dikunci lebih dulu. Persetujuan booking wajib mengikuti urutan kunci member → copy → booking.
 - Penonaktifan menghapus baris sesi database akun Anggota (selain penolakan oleh `akun.aktif`); akun, kata sandi, dan riwayat tidak dihapus.
 
-## Phase 9B (Batch 1) — Buku & eksemplar nyata (16 November 2026)
+## Manajemen Buku & Eksemplar (16 November 2026)
 
-Rincian: `docs/phase9/PHASE_9B_BUKU_EKSEMPLAR.md`.
+Rincian: `docs/fitur/CRUD_BUKU_DAN_EKSEMPLAR.md`.
 
 - Tambah Buku beserta eksemplar awal (minimal satu) dibuat atomik lewat `LayananBuku`; ubah data bibliografi dan tambah eksemplar dalam satu transaksi. Tanpa migration baru, tanpa rute hapus.
 - Kode Buku tetap tidak dapat diubah (keputusan 3.3). Eksemplar baru selalu `Tersedia` dan ditetapkan server; status eksemplar lama tidak pernah diubah dari formulir buku (3.6).
 - Pencarian Data Buku dan Cari Buku dijalankan MySQL (kode buku, judul, kategori; filter kategori persis), lewat Inertia GET `?q=&kategori=&page=`, dengan 20 buku per halaman. Kolom pencarian tetap sesuai 3.10/5.2.
 - Nama aksi audit seragam berbahasa Indonesia: `buku.dibuat`, `buku.diubah`, `eksemplar.dibuat`.
 
-## Batch 2 — Manajemen transaksi & kedaluwarsa booking (16 November 2026)
+## Manajemen Transaksi & Kedaluwarsa Booking (16 November 2026)
 
-Rincian: `docs/phase10/` (BATCH_2_TRANSACTION_MANAGEMENT, BOOKING_EXPIRATION, CONCURRENCY_AND_LOCKING, TRANSACTION_TEST_REPORT). Ekstensi atas SRS/UML; dokumen SRS dan UML asli tidak diubah.
+Rincian: `docs/fitur/` (MANAJEMEN_TRANSAKSI, KEDALUWARSA_BOOKING, KONKURENSI_DAN_LOCKING). Ekstensi atas SRS/UML; dokumen SRS dan UML asli tidak diubah.
 
 - **Kedaluwarsa booking (disetujui):** booking Disetujui kedaluwarsa tepat 48 jam setelah persetujuan (`expires_at = decided_at + 48 jam`, UTC). Status baru `Kedaluwarsa`; `expired_at` = waktu pemrosesan; reservasi dilepas tanpa melepas eksemplar milik transaksi lain. UI menampilkan "Batas Pengambilan" (WIB). Migration aditif `000009`; backfill hanya booking Disetujui, tanpa mengarang timestamp.
 - **Penjadwal:** `bookings:expire` tiap 5 menit (`withoutOverlapping`, `onOneServer`), per batch, idempoten. Realisasi, pembatalan, peminjaman, pengajuan, persetujuan, dan penonaktifan memeriksa/merekonsiliasi batas sendiri, sehingga jeda penjadwal tidak memperpanjang batas. Production memerlukan cron `schedule:run` tiap menit (belum dikonfigurasi).

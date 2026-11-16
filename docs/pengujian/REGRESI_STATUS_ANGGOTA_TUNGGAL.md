@@ -80,7 +80,7 @@ Alur yang diperiksa:
 | `admin/states/03a-tambah-anggota-akses-login.png` | Status Akses diganti Status Login baca-saja |
 | `admin/states/04a-ubah-anggota-reset-kata-sandi.png` | Panel Reset Kata Sandi baru |
 
-Screenshot lain identik byte-per-byte. Keempat file di atas perlu diregenerasi di Google Stitch dan diperbarui di Figma secara manual. Figma tidak diubah otomatis.
+Screenshot lain identik byte-per-byte. Keempat file di atas perlu diregenerasi dan diperbarui di Figma secara manual. Figma tidak diubah otomatis.
 
 ## 6. Temuan terbuka
 

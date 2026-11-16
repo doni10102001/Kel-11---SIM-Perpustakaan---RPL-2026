@@ -1,26 +1,25 @@
-# Batch 3 — Dashboard, Reporting, and Server-Side SQL Aggregation
+# Dashboard Analitik & Modul Pelaporan Berbasis Agregasi Basis Data
 
-SIM Perpustakaan · Laravel 13 · MySQL 8.4 · Inertia 3 / Vue 3
+Sistem Informasi Manajemen Perpustakaan (SIM Perpustakaan)
 
-| Metadata | Nilai |
+| Aspek | Keterangan |
 | --- | --- |
-| Tanggal | 16 November 2026 |
-| Branch | `phase-9b-buku-eksemplar` (HEAD `78de79c`) |
-| Arsitektur | Agregasi SQL Server (`RingkasanPerpustakaan`, `LaporanPerpustakaan`), Index Aditif `idx_loans_status_due`, Zero Client-Side Math |
-| Pengujian | PHPUnit 270 passed (3.466 assertion) · Node 245 passed · Browser QA 23/23 passed |
-| Dokumen Terkait | `PERFORMANCE_AUDIT.md`, `REPORTING_SPECIFICATION.md`, `../phase13/FINAL_SYSTEM_QA.md`, `../phase13/FINAL_SECURITY_AUDIT.md` |
+| Modul | Dashboard Ringkasan & Pelaporan Dinamis |
+| Teknologi | Laravel 13, MySQL 8.4 InnoDB, Vue 3, Inertia.js |
+| Mekanisme Kueri | Agregasi Database Server-Side (`RingkasanPerpustakaan`, `LaporanPerpustakaan`), Indeks `idx_loans_status_due` |
+| Dokumen Terkait | `AUDIT_KINERJA.md`, `SPESIFIKASI_PELAPORAN.md`, `../pengujian/LAPORAN_QA_SISTEM.md` |
 
 ---
 
-## 1. Latar Belakang & Masalah Sebelumnya
+## 1. Latar Belakang & Optimalisasi Sistem
 
-Sebelum Batch 3, ringkasan dashboard Admin dan Anggota dihitung di sisi klien (browser) dengan memuat seluruh koleksi transaksi dan entitas master ke memori JavaScript. Hal ini menimbulkan sejumlah kelemahan mendasar:
+Pada tahap pengembangan prototipe awal, ringkasan dashboard Admin dan Anggota dihitung di sisi klien (browser) dengan memuat seluruh koleksi transaksi dan entitas master ke memori JavaScript. Hal ini menimbulkan sejumlah kelemahan mendasar:
 
-1. **Skalabilitas**: Seiring bertambahnya volume transaksi (ribuan peminjaman dan booking), memuat seluruh tabel ke browser mengakibatkan ukuran payload Inertia membengkak (megabytes), waktu parsing DOM melonjak, dan potensi kebocoran data kontak anggota.
-2. **Inkonsistensi Angka**: Perhitungan status transaksi di browser rawan desinkronisasi bila data booking kedaluwarsa atau peminjaman selesai tidak dihitung secara real-time dari database engine.
+1. **Skalabilitas**: Seiring bertambahnya volume transaksi (ribuan peminjaman dan booking), memuat seluruh tabel ke browser mengakibatkan ukuran payload transfer membengkak, waktu parsing DOM melonjak, dan potensi kebocoran data kontak anggota.
+2. **Konsistensi Data**: Perhitungan status transaksi di browser rawan desinkronisasi bila data booking kedaluwarsa atau peminjaman selesai tidak dihitung secara real-time dari database engine.
 3. **Ketiadaan Laporan Terfilter di Server**: Halaman laporan Admin hanya melakukan filter visual atas dataset yang sudah diunduh, bukan kueri terarah ke MySQL berdasarkan batas waktu UTC.
 
-Batch 3 menyelesaikan seluruh kelemahan di atas dengan memindahkan perhitungan agregat secara penuh ke **MySQL 8.4**, membatasi payload data ringkas, dan mengimplementasikan pelaporan dinamis server-side.
+Optimalisasi sistem menyelesaikan seluruh kelemahan di atas dengan memindahkan perhitungan agregat secara penuh ke **MySQL 8.4**, membatasi payload data ringkas, dan mengimplementasikan pelaporan dinamis server-side.
 
 ---
 
@@ -140,7 +139,7 @@ Member Dashboard menerapkan **Zero Trust Client Input**:
 
 ## 5. UI/UX & Konsistensi Tampilan
 
-1. **Tata Letak Kartu**: Semua kartu ringkasan visual pada Figma/Stitch dipertahankan persis.
+1. **Tata Letak Kartu**: Semua kartu ringkasan visual pada desain antarmuka dipertahankan persis.
 2. **Tautan Navigasi**:
    - Kartu Anggota menaut ke `admin.anggota.index`.
    - Kartu Buku menaut ke `admin.buku.index`.

@@ -1,14 +1,13 @@
-# Final System QA & Verification Report — Batch 3
+# Laporan Pengujian Sistem & Jaminan Mutu (Quality Assurance)
 
-SIM Perpustakaan · Laravel 13 · MySQL 8.4 · Vue 3 / Inertia
+Sistem Informasi Manajemen Perpustakaan (SIM Perpustakaan)
 
-| Metadata | Nilai |
+| Aspek | Keterangan |
 | --- | --- |
-| Tanggal QA | 16 November 2026 |
-| Target Testing | MySQL 8.4 Engine (`sim_perpustakaan_test`) |
-| Pengujian Otomatis | PHPUnit: **270 Passed** · Node.js: **245 Passed** · Browser QA: **23/23 Passed** |
-| Hasil Invarian Data | **0 Pelanggaran** (`PemeriksaInvarianData`) pada Dev dan Test DB |
-| Status Akhir QA | **BATCH 3 COMPLETE** |
+| Ruang Lingkup | Pengujian Backend, Frontend, Transaksi Database, Konkurensi & End-to-End |
+| Lingkungan Pengujian | PHP 8.4, Laravel 13, MySQL 8.4 Engine (`sim_perpustakaan_test`), Node.js 20 |
+| Hasil Pengujian Otomatis | PHPUnit: **270 Passed** · Node.js: **245 Passed** · Browser QA: **23/23 Passed** |
+| Verifikasi Invarian Data | **0 Pelanggaran** (`PemeriksaInvarianData`) pada Database Development dan Test |
 
 ---
 
@@ -94,13 +93,13 @@ SIM Perpustakaan · Laravel 13 · MySQL 8.4 · Vue 3 / Inertia
 Sebagaimana diidentifikasi pada laporan Batch 2, pada database development (`sim_perpustakaan_db`) terdapat 2 rekaman booking Disetujui yang telah melewati batas 48 jam:
 
 1. **BP-001**:
-   - `member_id`: 2 (AG-001)
+   - `member_id`: 2 (`AG-002`, Rizky Pratama)
    - `copy_id`: 2 (`EK-002`, status saat ini `Dipesan`)
    - `decided_at`: `2026-10-17 05:00:00 UTC`
    - `expires_at`: `2026-10-19 05:00:00 UTC` (melewati batas 28 hari)
    - *Status Kepemilikan*: Tidak ada loan aktif atau booking lain pada `EK-002`.
 2. **BP-006**:
-   - `member_id`: 3 (AG-002)
+   - `member_id`: 3 (`AG-003`, Siti Aisyah Putri)
    - `copy_id`: 13 (`EK-013`, status saat ini `Dipesan`)
    - `decided_at`: `2026-11-06 05:00:00 UTC`
    - `expires_at`: `2026-11-08 05:00:00 UTC` (melewati batas 8 hari)

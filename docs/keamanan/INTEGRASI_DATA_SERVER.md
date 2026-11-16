@@ -74,17 +74,9 @@ Sejak Batch 2 tidak ada lagi aksi tertunda; `AKSI_TERTUNDA` kosong.
 
 Aturan bisnis aksi-aksi ini tetap terdokumentasi dan diuji di `tests/js/fixtures/storeMock.js` (+ `tests/js/transaksi.test.js`, `master-data.test.js`, `anggota.test.js`, `akses-login.test.js`) sebagai spesifikasi implementasi server (transaksi + `lockForUpdate`, Phase 8 berikutnya).
 
-## 6. Skrip screenshot (`npm run screenshots:stitch`)
+## 6. Dokumentasi Tangkapan Layar Antarmuka
 
-Dipulihkan untuk rute terautentikasi: login lewat halaman Masuk per peran (browser terpisah), kredensial dari environment — **tidak ada kata sandi di source**:
-
-```bash
-STITCH_ADMIN_PASSWORD=... STITCH_ANGGOTA_PASSWORD=... \
-  npm run screenshots:stitch -- --base=http://127.0.0.1:8014 --out=/tmp/stitch-uji
-# opsional: STITCH_ADMIN_USERNAME (default admin), STITCH_ANGGOTA_USERNAME (default AG-001)
-```
-
-Jalankan terhadap database berisi data demo fiktif (mis. `sim_perpustakaan_test` yang di-seed sementara), bukan data pribadi nyata. Akun Anggota development berkata sandi acak (D-08), sehingga capture Anggota memerlukan akun uji sementara di database uji. Tanpa `--out`, skrip menimpa `docs/stitch/` (artefak ter-track) — lakukan hanya bila memang ingin memperbarui ekspor.
+Tangkapan layar antarmuka sistem disimpan pada direktori `docs/screenshots/` sebagai dokumentasi visual halaman Admin dan Anggota.
 
 ## 7. Pengujian
 

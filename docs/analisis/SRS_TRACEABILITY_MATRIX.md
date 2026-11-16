@@ -19,8 +19,8 @@ Audit tanggal 7 November 2026 terhadap commit `86552a1` (ditambah dua penghapusa
 | T-TRX | `tests/js/transaksi.test.js` | Pinjam, kembali, verifikasi, realisasi, atomisitas, laporan |
 | T-AG | `tests/js/anggota.test.js` | Cari buku, ajukan/batalkan booking, privasi, alur lintas peran |
 | T-PHP | `tests/Feature/NavigasiDemoTest.php` | Rute, menu, tanpa query DB, rute Petugas 404 |
-| T-BRW | Skrip Chrome headless `phase1/3/4/5-browser.mjs` | Interaksi browser. **Disimpan di scratchpad sesi Claude, tidak ada di repositori** (lihat temuan F-02) |
-| T-AUD | Skenario audit `skenario.mjs` / `skenario-a.mjs` | Ditulis khusus audit ini di scratchpad; tidak ditambahkan ke proyek |
+| T-BRW | Skrip Chrome headless | Interaksi browser awal (`scripts/qa-browser-journey.mjs` untuk verifikasi final) |
+| T-AUD | Skenario audit | Pengujian skenario audit kepatuhan |
 
 ## Ringkasan
 

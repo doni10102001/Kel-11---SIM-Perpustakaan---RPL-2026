@@ -1,16 +1,13 @@
-# Phase 9B (Batch 1) — Buku & Eksemplar Nyata (MySQL)
+# Manajemen Data Master Buku & Eksemplar Fisik
 
-SIM Perpustakaan · Laravel 13 · MySQL 8.4 · Inertia 3 / Vue 3
+Sistem Informasi Manajemen Perpustakaan (SIM Perpustakaan)
 
-| Metadata | Nilai |
+| Aspek | Keterangan |
 | --- | --- |
-| Tanggal | 16 November 2026 |
-| Branch | `phase-9b-buku-eksemplar` dari `origin/main` `e13d143` (PR #2); commit `feat: implement database-backed book and copy management` |
-| Lingkup | Tambah Buku + eksemplar awal, ubah data buku, tambah eksemplar, pencarian SQL + pagination, detail, ketersediaan, katalog Anggota |
-| Di luar lingkup | Hapus buku/eksemplar, ubah status eksemplar manual, peminjaman, pengembalian, booking |
-| Migration baru | **Tidak ada** (tabel `books`, `book_copies`, `audit_logs` yang ada) |
+| Ruang Lingkup | Tambah buku baru beserta eksemplar fisik awal secara atomik, ubah data bibliografi buku, tambah eksemplar tambahan, pencarian katalog server-side dengan pagination |
+| Basis Data & Integritas | MySQL 8.4 InnoDB, Transaksi Database Atomik, Auto-increment Business Code, Isolasi Ketersediaan Eksemplar |
 
-## 1. Arsitektur
+## 1. Arsitektur Modul Buku
 
 ```text
 Form Tambah/Ubah Buku (Inertia router.post / router.put)
