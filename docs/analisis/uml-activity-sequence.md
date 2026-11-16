@@ -1,6 +1,6 @@
 > **Catatan dokumen — hasil transkripsi**
 >
-> Dokumen ini adalah **transkripsi teks** dari 18 gambar Activity Diagram (A01–A09) dan Sequence Diagram (S01–S09) di `docs/uml/`. Transkripsi dibuat oleh asisten AI (Claude) pada 7 November 2026, lalu sampel S04 diperiksa ulang secara manual terhadap gambar aslinya.
+> Dokumen ini memuat **transkripsi alur teks** dari 18 diagram (Activity Diagram A01–A09 dan Sequence Diagram S01–S09) yang terdapat pada direktori `docs/uml/` untuk memudahkan penelusuran spesifikasi alur sistem.
 >
 > - Sumber otoritatif tetap **gambar asli** di `docs/uml/` dan **SRS v1.1** (`docs/requirements/Tugas_2_SRS_FINAL.pdf`).
 > - Bila diagram berbeda dengan SRS v1.1, **SRS v1.1 yang dipakai** (keputusan pengguna, lihat `docs/KEPUTUSAN_DESAIN.md`).

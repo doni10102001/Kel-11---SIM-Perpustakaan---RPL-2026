@@ -80,7 +80,7 @@ Respon `data.laporan` dari server memiliki skema konsisten:
     {
       "no": 1,
       "idPeminjaman": "PJ-001",
-      "idBooking": "BP-001",
+      "idBooking": null,
       "anggota": {
         "kodeAnggota": "AG-001",
         "nama": "Nadia Rahmawati"

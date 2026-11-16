@@ -1,15 +1,13 @@
-# Phase 8A — Autentikasi Nyata & Manajemen Sesi
+# Arsitektur Autentikasi & Manajemen Sesi Pengguna
 
-SIM Perpustakaan · Laravel 13 · MySQL 8.4 · Inertia 3 / Vue 3
+Sistem Informasi Manajemen Perpustakaan (SIM Perpustakaan)
 
-| Metadata | Nilai |
+| Aspek | Keterangan |
 | --- | --- |
-| Tanggal | 14 November 2026 |
-| Branch | `phase-7a-8a-mysql-auth` (checkpoint Phase 7A: commit `bd8ca39`; Phase 8A belum di-commit) |
-| Lingkup | Autentikasi username + kata sandi, sesi server, logout, otorisasi peran, perlindungan rute |
-| Di luar lingkup | Konversi data transaksi ke MySQL (8B), kelola kredensial Anggota (8C), scheduler kedaluwarsa booking |
+| Ruang Lingkup | Autentikasi username + kata sandi, sesi server, logout, otorisasi berbasis peran (RBAC), proteksi rute |
+| Komponen Keamanan | Guard `web`, sesi database MySQL (`sessions`), Hash Bcrypt/Argon2id, Rate Limiting (5 percobaan/menit), CSRF Token |
 
-## 1. Arsitektur
+## 1. Arsitektur Autentikasi
 
 ```
 Browser (Login.vue, useForm)                    Laravel (guard web, sesi DB)                MySQL
@@ -119,5 +117,5 @@ Halaman Vue tidak memakai URL `/demo/` secara langsung (dijaga `tests/js/autenti
 3. Halaman 403 memakai tampilan error bawaan Laravel (belum ditata sesuai desain).
 4. Pembatasan percobaan per (username, IP); belum ada batas global per IP lintas username.
 5. `SESSION_SECURE_COOKIE` belum di-set (lokal HTTP); wajib `true` dan HTTPS sebelum deployment. `SESSION_ENCRYPT=false`.
-6. ~~Skrip `npm run screenshots:stitch` masih memakai URL `/demo/*`~~ **Dipulihkan Phase 8B** (login per peran, kredensial dari environment). dan tidak memiliki sesi, sehingga kini hanya memotret halaman Masuk; perlu pembaruan bila ekspor screenshot dibutuhkan lagi.
+6. Skrip uji browser memakai URL `/admin/*` dan `/anggota/*` dengan sesi login yang valid.
 7. Laravel 13 menerima request POST dengan `Sec-Fetch-Site: same-origin` tanpa token CSRF (perilaku framework).

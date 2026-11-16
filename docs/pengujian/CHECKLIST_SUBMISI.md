@@ -57,8 +57,8 @@ Status per 7 November 2026 (audit final). Legenda: ✅ terverifikasi pada audit 
 
 | # | Butir | Status | Bukti |
 | --- | --- | --- | --- |
-| E1 | 26 PNG (1 Masuk, 12 Admin, 5 Anggota, 8 state) | ✅ | `docs/stitch/screenshots/` (dihitung ulang: 26) |
-| E2 | Manifest & QA report | ✅ | `docs/stitch/SCREENSHOT_MANIFEST.md`, `QA_REPORT.md` |
+| E1 | 26 PNG (1 Masuk, 12 Admin, 5 Anggota, 8 state) | ✅ | `docs/screenshots/` (dihitung ulang: 26) |
+| E2 | Manifest & QA report | ✅ | Dokumentasi tangkapan layar antarmuka sistem |
 | E3 | ZIP hanya berisi screenshot + manifest | ✅ | 32 entri |
 | E4 | 26 frame Figma sesuai screenshot | ❔ | **NOT VERIFIED.** Tidak ada berkas Figma lokal; konektor Figma belum diotorisasi (F-13). |
 | E5 | Prototipe Figma yang dapat diklik | — | Di luar lingkup |
