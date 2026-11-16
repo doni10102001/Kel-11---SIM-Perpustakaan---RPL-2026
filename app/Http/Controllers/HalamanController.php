@@ -40,11 +40,13 @@ class HalamanController extends Controller
             ]);
         }
 
-        $laporan = $kunci === 'laporan' ? $this->filterLaporan($request) : null;
+        [$laporan, $galatLaporan] = $kunci === 'laporan' ? $this->filterLaporan($request) : [null, null];
 
         return Inertia::render($halaman['komponen'], [
-            'data' => $data->untukHalaman($peran, $kunci, $request->user(), $laporan),
+            'data' => $data->untukHalaman($peran, $kunci, $request->user(), $laporan, $request->route()->parameters()),
             'filterLaporan' => $laporan,
+            // Batch 3: filter laporan tidak valid ditolak server dengan pesan per field (tanpa data).
+            'galatLaporan' => $galatLaporan,
         ]);
     }
 
@@ -72,16 +74,29 @@ class HalamanController extends Controller
      *
      * @return array{jenis: string, awal: ?string, akhir: ?string}|null
      */
-    private function filterLaporan(Request $request): ?array
+    /**
+     * @return array{0: array{jenis: string, awal: ?string, akhir: ?string}|null, 1: array<string, string>|null}
+     *                                                                                                           [filter valid, galat per field]
+     */
+    private function filterLaporan(Request $request): array
     {
+        // Belum ada permintaan laporan (halaman dibuka tanpa query) → bukan galat.
+        if (! $request->query->has('jenis')) {
+            return [null, null];
+        }
+
         $validator = Validator::make($request->query(), [
-            'jenis' => ['required', 'in:buku,anggota,peminjaman,pengembalian'],
-            'awal' => ['nullable', 'date_format:Y-m-d'],
-            'akhir' => ['nullable', 'date_format:Y-m-d'],
+            'jenis' => ['required', 'string', 'in:buku,anggota,peminjaman,pengembalian'],
+            'awal' => ['nullable', 'string', 'date_format:Y-m-d'],
+            'akhir' => ['nullable', 'string', 'date_format:Y-m-d'],
+        ], [
+            'jenis.*' => 'Pilih Jenis Laporan.',
+            'awal.*' => 'Periode Awal tidak valid.',
+            'akhir.*' => 'Periode Akhir tidak valid.',
         ]);
 
         if ($validator->fails()) {
-            return null;
+            return [null, array_map(fn ($p) => $p[0], $validator->errors()->toArray())];
         }
 
         $nilai = $validator->validated();
@@ -89,15 +104,15 @@ class HalamanController extends Controller
         $awal = $bertanggal ? ($nilai['awal'] ?? null) : null;
         $akhir = $bertanggal ? ($nilai['akhir'] ?? null) : null;
 
-        foreach ([$awal, $akhir] as $tanggal) {
+        foreach (['awal' => $awal, 'akhir' => $akhir] as $kunci => $tanggal) {
             if ($tanggal !== null && ! WaktuPerpustakaan::tanggalValid($tanggal)) {
-                return null;
+                return [null, [$kunci => $kunci === 'awal' ? 'Periode Awal tidak valid.' : 'Periode Akhir tidak valid.']];
             }
         }
         if ($awal !== null && $akhir !== null && $awal > $akhir) {
-            return null;
+            return [null, ['akhir' => 'Periode Akhir tidak boleh sebelum Periode Awal.']];
         }
 
-        return ['jenis' => $nilai['jenis'], 'awal' => $awal, 'akhir' => $akhir];
+        return [['jenis' => $nilai['jenis'], 'awal' => $awal, 'akhir' => $akhir], null];
     }
 }

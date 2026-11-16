@@ -11,30 +11,20 @@ import StatCard from '@/Components/StatCard.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
 import { useDemo } from '@/composables/useDemo.js';
-import { cariAnggota, bookingAnggota, detailBooking, detailPeminjaman, peminjamanAnggota, ringkasanAnggota } from '@/utils/olahData.js';
 import AnggotaLayout from '@/Layouts/AnggotaLayout.vue';
-import { formatTanggal } from '@/utils/format.js';
+import { formatTanggal, formatWaktu } from '@/utils/format.js';
 
 const { data, tanggalHariIni } = useDataPerpustakaan();
 const { akun, rute } = useDemo();
 const kodeAnggota = akun.value.kodeAnggota;
 
-// Semua angka dihitung dari data milik anggota aktif (tidak ada nilai tetap).
-const anggota = computed(() => cariAnggota(data, kodeAnggota));
-const ringkasan = computed(() => ringkasanAnggota(data, kodeAnggota));
-
-const peminjamanAktif = computed(() =>
-    peminjamanAnggota(data, kodeAnggota)
-        .filter((p) => p.status === 'Aktif')
-        .map((p) => detailPeminjaman(data, p))
-        .sort((a, b) => a.tanggalJatuhTempo.localeCompare(b.tanggalJatuhTempo)),
-);
-const bookingBerjalan = computed(() =>
-    bookingAnggota(data, kodeAnggota)
-        .filter((b) => b.status === 'Diajukan' || b.status === 'Disetujui')
-        .map((b) => detailBooking(data, b))
-        .sort((a, b) => b.tanggalBooking.localeCompare(a.tanggalBooking)),
-);
+// Batch 3: angka & daftar = agregat SQL di server atas data milik anggota SESI saja
+// (RingkasanPerpustakaan::anggota); tidak dihitung di browser.
+const anggota = computed(() => data.anggota.find((a) => a.kodeAnggota === kodeAnggota) ?? null);
+const RINGKASAN_KOSONG = { bookingAktif: 0, bookingDiajukan: 0, bookingDisetujui: 0, bookingKedaluwarsa: 0, peminjamanAktif: 0, riwayatSelesai: 0 };
+const ringkasan = computed(() => (Array.isArray(data.ringkasan) ? RINGKASAN_KOSONG : data.ringkasan));
+const peminjamanAktif = computed(() => data.peminjamanAktif);
+const bookingBerjalan = computed(() => data.bookingBerjalan);
 
 const kolomPinjam = [
     { key: 'idPeminjaman', label: 'ID Peminjaman' },
@@ -79,7 +69,7 @@ const tanggal = (nilai) => formatTanggal(nilai, 'pendek');
                 :value="ringkasan.bookingAktif"
                 icon="bi-bookmark-plus"
                 tone="warning"
-                caption="Diajukan atau disetujui"
+                :caption="`${ringkasan.bookingDiajukan} diajukan · ${ringkasan.bookingDisetujui} disetujui`"
                 :href="rute('booking.status')"
                 link-label="Status Booking"
             />
@@ -131,7 +121,10 @@ const tanggal = (nilai) => formatTanggal(nilai, 'pendek');
                     <div class="sim-card-header">
                         <div>
                             <h2 class="sim-card-title">Booking Berjalan</h2>
-                            <p class="sim-card-subtitle">Booking yang menunggu verifikasi atau realisasi peminjaman.</p>
+                            <p class="sim-card-subtitle">
+                                Booking yang menunggu verifikasi atau realisasi peminjaman.
+                                <template v-if="ringkasan.bookingKedaluwarsa > 0">{{ ringkasan.bookingKedaluwarsa }} booking Anda pernah Kedaluwarsa (lihat Status Booking).</template>
+                            </p>
                         </div>
                         <BaseButton variant="secondary" size="sm" icon-end="bi-arrow-right" :href="rute('booking.status')">Status Booking</BaseButton>
                     </div>
@@ -140,7 +133,10 @@ const tanggal = (nilai) => formatTanggal(nilai, 'pendek');
                         <template #cell-buku="{ row }"><span class="sim-cell-title">{{ row.buku.judul }}</span></template>
                         <template #cell-kodeEksemplar="{ value }"><span class="sim-code">{{ value }}</span></template>
                         <template #cell-tanggalBooking="{ value }"><span class="text-nowrap tabular-nums">{{ tanggal(value) }}</span></template>
-                        <template #cell-status="{ value }"><StatusBadge type="booking" :status="value" /></template>
+                        <template #cell-status="{ row, value }">
+                            <StatusBadge type="booking" :status="value" />
+                            <span v-if="row.batasPengambilan" class="sim-cell-sub">Ambil sebelum {{ formatWaktu(row.batasPengambilan) }}</span>
+                        </template>
                         <template #empty>
                             <EmptyState compact icon="bi-bookmark" title="Tidak ada booking berjalan" description="Cari buku yang tersedia, lalu ajukan booking.">
                                 <template #actions>

@@ -11,7 +11,6 @@ use App\Models\Loan;
 use App\Models\Member;
 use App\Models\User;
 use App\Support\WaktuPerpustakaan;
-use Carbon\CarbonImmutable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -45,55 +44,87 @@ class DataPerpustakaan
 
     /** Koleksi per halaman Anggota (tanpa `pengguna`). */
     private const KOLEKSI_ANGGOTA = [
-        'dashboard' => ['anggota', 'buku', 'eksemplar', 'peminjaman', 'pengembalian', 'booking'],
         'cari-buku' => ['buku', 'eksemplar'],
         'booking.ajukan' => ['anggota', 'buku', 'eksemplar', 'peminjaman', 'booking'],
         'booking.status' => ['anggota', 'buku', 'eksemplar', 'peminjaman', 'booking'],
         'history' => ['anggota', 'buku', 'eksemplar', 'peminjaman', 'pengembalian', 'booking'],
     ];
 
-    /** Koleksi per jenis laporan Admin. */
-    private const KOLEKSI_LAPORAN = [
-        'buku' => ['buku', 'eksemplar'],
-        'anggota' => ['anggota'],
-        'peminjaman' => ['pengguna', 'anggota', 'buku', 'eksemplar', 'peminjaman', 'pengembalian'],
+    /**
+     * Batch 3 — koleksi per halaman Admin: HANYA yang dipakai halaman itu
+     * (termasuk kebutuhan fungsi relasi di browser, mis. detailPeminjaman →
+     * anggota/eksemplar/buku/pengguna/pengembalian). Dashboard & Laporan memakai
+     * agregat/laporan SQL (RingkasanPerpustakaan, LaporanPerpustakaan).
+     */
+    private const KOLEKSI_ADMIN = [
+        'anggota.index' => ['anggota'],
+        'anggota.tambah' => ['pengguna', 'anggota'],
+        'anggota.ubah' => ['pengguna', 'anggota', 'peminjaman', 'booking'],
+        'buku.tambah' => ['buku', 'eksemplar'],
+        'buku.ubah' => ['buku', 'eksemplar'],
+        'peminjaman' => ['pengguna', 'anggota', 'buku', 'eksemplar', 'peminjaman', 'booking'],
         'pengembalian' => ['pengguna', 'anggota', 'buku', 'eksemplar', 'peminjaman', 'pengembalian'],
+        'booking.verifikasi' => ['pengguna', 'anggota', 'buku', 'eksemplar', 'peminjaman', 'booking'],
+        'booking.realisasi' => ['pengguna', 'anggota', 'buku', 'eksemplar', 'peminjaman', 'booking'],
     ];
 
     /**
-     * @param  array{jenis?: string, awal?: ?string, akhir?: ?string}|null  $laporan  filter Laporan yang sudah tervalidasi
+     * Batch 3 (audit kinerja) — formulir yang hanya memerlukan transaksi YANG
+     * MASIH BERJALAN tidak lagi memuat seluruh riwayat (2,6 MB → ratusan KB pada
+     * 5.200 peminjaman). Riwayat lengkap tetap di Pengembalian, Verifikasi,
+     * Laporan, dan History Anggota.
+     */
+    private const SARING_ADMIN = [
+        'peminjaman' => ['peminjamanStatus' => ['Aktif'], 'bookingStatus' => ['Diajukan', 'Disetujui']],
+        'booking.realisasi' => ['peminjamanStatus' => ['Aktif'], 'bookingStatus' => ['Disetujui']],
+    ];
+
+    /** Halaman Admin yang MENAMPILKAN kontak anggota; halaman lain menerima kontak = null. */
+    private const KONTAK_ADMIN = ['anggota.index', 'anggota.tambah', 'anggota.ubah'];
+
+    /**
+     * @param  array{jenis?: string, awal?: ?string, akhir?: ?string}|null  $laporan  filter Laporan yang sudah tervalidasi (Batch 3: disusun LaporanPerpustakaan)
      * @return array<string, list<array<string, mixed>>>
      */
-    public function untukHalaman(string $peran, string $halaman, User $akun, ?array $laporan = null): array
+    public function untukHalaman(string $peran, string $halaman, User $akun, ?array $laporan = null, array $parameter = []): array
     {
         if ($akun->role?->value !== $peran) {
             throw new AuthorizationException('Data halaman ini bukan untuk peran akun.');
         }
 
         return $peran === Peran::Admin->value
-            ? $this->admin($halaman, $laporan)
+            ? $this->admin($halaman, $laporan, $parameter)
             : $this->anggota($halaman, $akun);
     }
 
     // ------------------------------------------------------------------ Admin
 
-    private function admin(string $halaman, ?array $laporan): array
+    private function admin(string $halaman, ?array $laporan, array $parameter = []): array
     {
         // Halaman Ubah Kata Sandi tidak memerlukan data perpustakaan.
         if ($halaman === 'kata-sandi') {
             return [];
         }
 
-        if ($halaman !== 'laporan') {
-            return $this->muat(self::KOLEKSI, cakupan: null);
+        // Batch 3: ringkasan dashboard = agregat SQL.
+        if ($halaman === 'dashboard') {
+            return (new RingkasanPerpustakaan)->admin();
         }
 
-        // Laporan: tanpa filter = belum ada laporan yang ditampilkan → tanpa data.
-        if (! isset($laporan['jenis'], self::KOLEKSI_LAPORAN[$laporan['jenis']])) {
-            return [];
+        if ($halaman === 'laporan') {
+            // Tanpa filter valid = belum ada laporan yang ditampilkan → tanpa data.
+            return isset($laporan['jenis']) && in_array($laporan['jenis'], LaporanPerpustakaan::JENIS, true)
+                ? ['laporan' => (new LaporanPerpustakaan)->susun($laporan)]
+                : [];
         }
 
-        return $this->muat(self::KOLEKSI_LAPORAN[$laporan['jenis']], cakupan: null, laporan: $laporan);
+        $saring = self::SARING_ADMIN[$halaman] ?? [];
+        // Ubah Anggota: transaksi milik anggota yang diubah saja (transaksi berjalan & jumlah riwayat).
+        if ($halaman === 'anggota.ubah') {
+            $saring['anggotaId'] = Member::query()->where('member_code', (string) ($parameter['kodeAnggota'] ?? ''))->value('id') ?? 0;
+        }
+
+        return $this->muat(self::KOLEKSI_ADMIN[$halaman] ?? [], cakupan: null, kontak: in_array($halaman, self::KONTAK_ADMIN, true), saring: $saring);
     }
 
     // ------------------------------------------------------------------ Anggota
@@ -105,6 +136,11 @@ class DataPerpustakaan
             throw new AuthorizationException('Akun Anggota tidak tertaut ke data Anggota.');
         }
 
+        // Batch 3: ringkasan dashboard = agregat SQL atas data milik anggota sesi saja.
+        if ($halaman === 'dashboard') {
+            return (new RingkasanPerpustakaan)->anggota($anggota);
+        }
+
         return $this->muat(self::KOLEKSI_ANGGOTA[$halaman] ?? [], cakupan: $anggota);
     }
 
@@ -114,40 +150,33 @@ class DataPerpustakaan
      * @param  list<string>  $koleksi
      * @param  Member|null  $cakupan  null = Admin (semua); Member = hanya milik Anggota ini
      */
-    private function muat(array $koleksi, ?Member $cakupan, ?array $laporan = null): array
+    /**
+     * @param  array{peminjamanStatus?: list<string>, bookingStatus?: list<string>, anggotaId?: int}  $saring
+     */
+    private function muat(array $koleksi, ?Member $cakupan, bool $kontak = true, array $saring = []): array
     {
         $hasil = [];
         $admin = $cakupan === null;
 
-        // Rentang periode Laporan (kalender WIB → UTC), hanya untuk jenis bertanggal.
-        [$mulai, $sebelum] = $this->rentang($laporan);
-        $jenis = $laporan['jenis'] ?? null;
-
-        $pinjam = in_array('peminjaman', $koleksi, true) ? $this->queryPeminjaman($cakupan) : null;
+        $pinjam = in_array('peminjaman', $koleksi, true) ? $this->queryPeminjaman($cakupan, $saring) : null;
 
         $kembali = null;
         if (in_array('pengembalian', $koleksi, true)) {
             $kembali = BookReturn::query()
                 ->with(['loan:id,loan_code', 'staff:id,username'])
                 ->when($cakupan, fn (Builder $q) => $q->whereHas('loan', fn (Builder $l) => $l->where('member_id', $cakupan->id)))
-                ->when($jenis === 'pengembalian', fn (Builder $q) => $this->dalamRentang($q, 'returned_at', $mulai, $sebelum))
                 ->orderBy('return_code')
                 ->get();
         }
 
         if ($pinjam !== null) {
-            if ($jenis === 'peminjaman') {
-                $this->dalamRentang($pinjam, 'loaned_at', $mulai, $sebelum);
-            } elseif ($jenis === 'pengembalian') {
-                $pinjam->whereIn('id', $kembali->pluck('loan_id'));
-            }
             $pinjam = $pinjam->get();
         }
 
         foreach ($koleksi as $nama) {
             $hasil[$nama] = match ($nama) {
                 'pengguna' => $admin ? $this->pengguna() : [],
-                'anggota' => $this->anggotaData($cakupan),
+                'anggota' => $this->anggotaData($cakupan, $kontak),
                 'buku' => Book::query()->orderBy('book_code')->get()->map(fn (Book $b) => $this->barisBuku($b))->all(),
                 'eksemplar' => BookCopy::query()->with('book:id,book_code')->orderBy('copy_code')->get()->map(fn (BookCopy $e) => [
                     'kodeEksemplar' => $e->copy_code,
@@ -169,7 +198,7 @@ class DataPerpustakaan
                     'tanggalKembali' => WaktuPerpustakaan::tanggalLokal($k->returned_at),
                     'diprosesOleh' => $admin ? $k->staff->username : null,
                 ])->values()->all(),
-                'booking' => $this->bookingData($cakupan),
+                'booking' => $this->bookingData($cakupan, $saring),
             };
         }
 
@@ -270,16 +299,18 @@ class DataPerpustakaan
         ];
     }
 
-    private function queryPeminjaman(?Member $cakupan): Builder
+    private function queryPeminjaman(?Member $cakupan, array $saring = []): Builder
     {
         return Loan::query()
             ->with(['member:id,member_code', 'copy:id,copy_code', 'staff:id,username'])
             ->when($cakupan, fn (Builder $q) => $q->where('member_id', $cakupan->id))
+            ->when(isset($saring['anggotaId']), fn (Builder $q) => $q->where('member_id', $saring['anggotaId']))
+            ->when(isset($saring['peminjamanStatus']), fn (Builder $q) => $q->whereIn('status', $saring['peminjamanStatus']))
             ->orderBy('loan_code');
     }
 
     /** @return list<array<string, mixed>> */
-    private function anggotaData(?Member $cakupan): array
+    private function anggotaData(?Member $cakupan, bool $kontak = true): array
     {
         return Member::query()
             ->with('user:id,username')
@@ -290,19 +321,22 @@ class DataPerpustakaan
                 'kodeAnggota' => $a->member_code,
                 'idPengguna' => $cakupan === null ? $a->user?->username : null,
                 'nama' => $a->name,
-                'kontak' => $a->contact,
+                // Batch 3: kontak hanya dikirim ke halaman yang menampilkannya.
+                'kontak' => $kontak ? $a->contact : null,
                 'status' => $a->status->value,
             ])->all();
     }
 
     /** @return list<array<string, mixed>> */
-    private function bookingData(?Member $cakupan): array
+    private function bookingData(?Member $cakupan, array $saring = []): array
     {
         $admin = $cakupan === null;
 
         return Booking::query()
             ->with(['member:id,member_code', 'copy:id,copy_code', 'staff:id,username', 'loan:id,booking_id,loan_code'])
             ->when($cakupan, fn (Builder $q) => $q->where('member_id', $cakupan->id))
+            ->when(isset($saring['anggotaId']), fn (Builder $q) => $q->where('member_id', $saring['anggotaId']))
+            ->when(isset($saring['bookingStatus']), fn (Builder $q) => $q->whereIn('status', $saring['bookingStatus']))
             ->orderBy('booking_code')
             ->get()
             ->map(fn (Booking $b) => [
@@ -338,26 +372,5 @@ class DataPerpustakaan
                 'statusAkun' => $u->bolehMasuk() ? 'Aktif' : 'Nonaktif',
                 'passwordHash' => null,
             ])->all();
-    }
-
-    // ------------------------------------------------------------------ Periode
-
-    /** @return array{0: ?CarbonImmutable, 1: ?CarbonImmutable} batas UTC [mulai, sebelum) */
-    private function rentang(?array $laporan): array
-    {
-        $awal = $laporan['awal'] ?? null;
-        $akhir = $laporan['akhir'] ?? null;
-
-        return [
-            $awal ? WaktuPerpustakaan::awalHariLokal($awal)->utc() : null,
-            $akhir ? WaktuPerpustakaan::awalHariLokal($akhir)->addDay()->utc() : null,
-        ];
-    }
-
-    private function dalamRentang(Builder $q, string $kolom, ?CarbonImmutable $mulai, ?CarbonImmutable $sebelum): Builder
-    {
-        return $q
-            ->when($mulai, fn (Builder $x) => $x->where($kolom, '>=', $mulai))
-            ->when($sebelum, fn (Builder $x) => $x->where($kolom, '<', $sebelum));
     }
 }
