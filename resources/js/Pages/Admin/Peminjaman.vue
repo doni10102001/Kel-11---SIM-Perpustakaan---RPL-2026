@@ -11,14 +11,16 @@ import FormFeedback from '@/Components/FormFeedback.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import ReadonlyField from '@/Components/ReadonlyField.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
-import { GalatValidasi, useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { galatPertama, useTransaksiServer } from '@/composables/useTransaksiServer.js';
 import { useDemo } from '@/composables/useDemo.js';
 import { cariAnggota, cariBuku, detailPeminjaman, eksemplarBuku, ketersediaanBuku } from '@/utils/olahData.js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { formatTanggal } from '@/utils/format.js';
 import { validasiPeminjaman } from '@/utils/validasiTransaksi.js';
 
-const { data, tanggalHariIni, catatPeminjaman } = useDataPerpustakaan();
+const { data, tanggalHariIni } = useDataPerpustakaan();
+const { memproses, kirim } = useTransaksiServer();
 const { akun, rute } = useDemo();
 
 const form = reactive({ kodeAnggota: '', kodeBuku: '', kodeEksemplar: '', tanggalJatuhTempo: '' });
@@ -67,10 +69,16 @@ const opsiEksemplar = computed(() =>
 );
 
 const galatSemua = computed(() => validasiPeminjaman(form, data, { tanggalPinjam: tanggalHariIni }));
+// Galat dari server (validasi ulang + kunci baris MySQL) menimpa galat browser per field.
+const galatServer = ref({});
+watch(form, () => {
+    galatServer.value = {};
+});
 // Pesan tampil untuk field yang sudah disentuh, atau semuanya setelah percobaan simpan.
-const galat = computed(() =>
-    Object.fromEntries(Object.entries(galatSemua.value).filter(([k]) => sudahDikirim.value || disentuh[k])),
-);
+const galat = computed(() => ({
+    ...Object.fromEntries(Object.entries(galatSemua.value).filter(([k]) => sudahDikirim.value || disentuh[k])),
+    ...galatServer.value,
+}));
 const tanpaEksemplarTersedia = computed(() => ketersediaan.value && ketersediaan.value.Tersedia === 0);
 
 async function simpan() {
@@ -87,18 +95,26 @@ async function simpan() {
     konfirmasi.value = true;
 }
 
+/**
+ * Batch 2 — POST /admin/peminjaman. Admin pemroses ditentukan server dari sesi.
+ * Bukti dibangun dari data MySQL SETELAH commit (flash `transaksi`).
+ */
 function terapkan() {
-    try {
-        const p = catatPeminjaman(form);
-        bukti.value = detailPeminjaman(data, data.peminjaman.find((x) => x.idPeminjaman === p.idPeminjaman));
-        konfirmasi.value = false;
-        aturUlang();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (error) {
-        konfirmasi.value = false;
-        if (error instanceof GalatValidasi) galatUmum.value = Object.values(error.galat)[0];
-        else throw error;
-    }
+    kirim(rute('peminjaman.store'), { ...form }, {
+        onSukses: (kode) => {
+            const p = data.peminjaman.find((x) => x.idPeminjaman === kode);
+            bukti.value = p ? detailPeminjaman(data, p) : null;
+            konfirmasi.value = false;
+            aturUlang();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+        onGalat: (e) => {
+            konfirmasi.value = false;
+            const { umum, ...field } = e;
+            galatServer.value = field;
+            galatUmum.value = umum ?? (Object.keys(field).length ? null : galatPertama(e));
+        },
+    });
 }
 
 function aturUlang() {
@@ -106,6 +122,7 @@ function aturUlang() {
     Object.keys(disentuh).forEach((k) => (disentuh[k] = false));
     sudahDikirim.value = false;
     galatUmum.value = null;
+    galatServer.value = {};
 }
 
 const tanggalPinjamTeks = formatTanggal(tanggalHariIni, 'panjang');
@@ -142,7 +159,7 @@ const ringkasKonfirmasi = computed(() =>
                 <div class="sim-receipt__item"><dt>Status</dt><dd><StatusBadge type="peminjaman" :status="bukti.status" /></dd></div>
             </dl>
             <div class="sim-receipt__footer">
-                <span>Perubahan pada mode pratinjau tidak disimpan setelah halaman dimuat ulang.</span>
+                <span>Tersimpan di database.</span>
                 <BaseButton variant="secondary" size="sm" icon-end="bi-arrow-right" :href="rute('pengembalian')">Lihat di Pengembalian Buku</BaseButton>
             </div>
         </section>
@@ -292,6 +309,7 @@ const ringkasKonfirmasi = computed(() =>
             :message="ringkasKonfirmasi"
             icon="bi-journal-arrow-up"
             confirm-label="Simpan Peminjaman"
+            :loading="memproses"
             @confirm="terapkan"
         />
     </AdminLayout>

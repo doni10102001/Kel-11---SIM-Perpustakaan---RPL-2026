@@ -112,16 +112,20 @@ class SkemaDatabaseTest extends MySqlTestCase
         }
     }
 
-    public function test_tautan_booking_peminjaman_hanya_satu_sumber_dan_belum_ada_kolom_kedaluwarsa(): void
+    public function test_tautan_booking_peminjaman_hanya_satu_sumber_dan_kolom_kedaluwarsa_batch_2(): void
     {
         $kolomBooking = DB::table('information_schema.COLUMNS')
             ->where('TABLE_SCHEMA', $this->skema())->where('TABLE_NAME', 'bookings')
             ->pluck('COLUMN_NAME')->all();
 
         $this->assertNotContains('loan_id', $kolomBooking, 'Tautan booking→loan hanya lewat loans.booking_id.');
-        foreach ($kolomBooking as $nama) {
-            $this->assertDoesNotMatchRegularExpression('/expir|kedaluwarsa|batas_waktu/i', $nama, 'Kolom kedaluwarsa booking belum disetujui.');
+        // Batch 2 (disetujui): kedaluwarsa 48 jam → expires_at (batas) & expired_at (waktu diproses), DATETIME(6) NULL.
+        foreach (['expires_at', 'expired_at'] as $kolom) {
+            $info = DB::table('information_schema.COLUMNS')->where('TABLE_SCHEMA', $this->skema())
+                ->where('TABLE_NAME', 'bookings')->where('COLUMN_NAME', $kolom)->first(['COLUMN_TYPE', 'IS_NULLABLE']);
+            $this->assertSame(['datetime(6)', 'YES'], [$info->COLUMN_TYPE ?? null, $info->IS_NULLABLE ?? null], $kolom);
         }
+        $this->assertSame([], array_values(array_filter($kolomBooking, fn ($n) => preg_match('/kedaluwarsa|batas_waktu/i', $n))), 'Tanpa kolom kedaluwarsa lain.');
         $this->assertNotContains('email', DB::table('information_schema.COLUMNS')
             ->where('TABLE_SCHEMA', $this->skema())->where('TABLE_NAME', 'users')->pluck('COLUMN_NAME')->all());
     }

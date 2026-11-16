@@ -13,16 +13,18 @@ import PageHeader from '@/Components/PageHeader.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import SegmentedTabs from '@/Components/SegmentedTabs.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
-import { GalatValidasi, useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { galatPertama, useTransaksiServer } from '@/composables/useTransaksiServer.js';
 import { useDemo } from '@/composables/useDemo.js';
 import { detailBooking } from '@/utils/olahData.js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { formatTanggal } from '@/utils/format.js';
+import { formatTanggal, formatWaktu } from '@/utils/format.js';
 import { cocokKataKunci } from '@/utils/pencarian.js';
 import { daftarStatus } from '@/utils/status.js';
 import { eksemplarDapatDipesan, validasiTolakBooking } from '@/utils/validasiTransaksi.js';
 
-const { data, setujuiBooking, tolakBooking } = useDataPerpustakaan();
+const { data } = useDataPerpustakaan();
+const { memproses, kirim } = useTransaksiServer();
 const { rute } = useDemo();
 
 const tab = ref('Diajukan');
@@ -77,21 +79,26 @@ function mintaSetujui(b) {
     dialogSetujui.value = true;
 }
 
+/** Batch 2 — POST /admin/booking/{kode}/setujui (kunci member → booking → eksemplar di server). */
 function setujui() {
-    try {
-        const b = setujuiBooking(idDipilih.value);
-        const d = detailBooking(data, data.booking.find((x) => x.idBooking === b.idBooking));
-        dialogSetujui.value = false;
-        pesan.value = {
-            tone: 'success',
-            title: `Booking ${d.idBooking} disetujui`,
-            message: `Eksemplar ${d.kodeEksemplar} (“${d.buku.judul}”) kini Dipesan untuk ${d.anggota.nama} hingga direalisasikan atau dibatalkan. Perubahan pada mode pratinjau tidak disimpan setelah halaman dimuat ulang.`,
-            realisasi: d.idBooking,
-        };
-    } catch (error) {
-        if (!(error instanceof GalatValidasi)) throw error;
-        galatSetujui.value = Object.values(error.galat)[0];
-    }
+    kirim(rute('booking.setujui', { kodeBooking: idDipilih.value }), {}, {
+        onSukses: (kode) => {
+            const b = data.booking.find((x) => x.idBooking === kode);
+            const d = b ? detailBooking(data, b) : null;
+            dialogSetujui.value = false;
+            pesan.value = d
+                ? {
+                      tone: 'success',
+                      title: `Booking ${d.idBooking} disetujui`,
+                      message: `Eksemplar ${d.kodeEksemplar} (“${d.buku.judul}”) kini Dipesan untuk ${d.anggota.nama}. Batas Pengambilan: ${formatWaktu(d.batasPengambilan)} (48 jam sejak disetujui); lewat dari itu booking menjadi Kedaluwarsa.`,
+                      realisasi: d.idBooking,
+                  }
+                : null;
+        },
+        onGalat: (e) => {
+            galatSetujui.value = galatPertama(e);
+        },
+    });
 }
 
 // ---- Tolak -------------------------------------------------------------------
@@ -116,18 +123,17 @@ function tolak() {
     galatTolak.value = validasiTolakBooking(idDipilih.value, alasan.value, data);
     if (Object.keys(galatTolak.value).length > 0) return;
 
-    try {
-        const b = tolakBooking(idDipilih.value, alasan.value);
-        dialogTolak.value = false;
-        pesan.value = {
-            tone: 'success',
-            title: `Booking ${b.idBooking} ditolak`,
-            message: `Alasan: ${b.alasanPenolakan} Perubahan pada mode pratinjau tidak disimpan setelah halaman dimuat ulang.`,
-        };
-    } catch (error) {
-        if (!(error instanceof GalatValidasi)) throw error;
-        galatTolak.value = error.galat;
-    }
+    // Batch 2 — POST /admin/booking/{kode}/tolak; alasan divalidasi ulang di server.
+    kirim(rute('booking.tolak', { kodeBooking: idDipilih.value }), { alasanPenolakan: alasan.value }, {
+        onSukses: (kode) => {
+            const b = data.booking.find((x) => x.idBooking === kode);
+            dialogTolak.value = false;
+            pesan.value = b ? { tone: 'success', title: `Booking ${b.idBooking} ditolak`, message: `Alasan: ${b.alasanPenolakan}` } : null;
+        },
+        onGalat: (e) => {
+            galatTolak.value = e;
+        },
+    });
 }
 
 const tanggal = (nilai, gaya = 'pendek') => formatTanggal(nilai, gaya);
@@ -247,6 +253,14 @@ const tanggal = (nilai, gaya = 'pendek') => formatTanggal(nilai, gaya);
                             <dt>Diputuskan oleh</dt>
                             <dd>{{ namaPengguna(dipilih.diputuskanOleh) }}</dd>
                         </template>
+                        <template v-if="dipilih.batasPengambilan">
+                            <dt>Batas Pengambilan</dt>
+                            <dd>{{ formatWaktu(dipilih.batasPengambilan) }}</dd>
+                        </template>
+                        <template v-if="dipilih.waktuKedaluwarsa">
+                            <dt>Kedaluwarsa pada</dt>
+                            <dd>{{ formatWaktu(dipilih.waktuKedaluwarsa) }}</dd>
+                        </template>
                         <template v-if="dipilih.alasanPenolakan">
                             <dt>Alasan Penolakan</dt>
                             <dd>{{ dipilih.alasanPenolakan }}</dd>
@@ -281,6 +295,7 @@ const tanggal = (nilai, gaya = 'pendek') => formatTanggal(nilai, gaya);
             tone="success"
             icon="bi-check2-circle"
             confirm-label="Setujui Booking"
+            :loading="memproses"
             @confirm="setujui"
         >
             <FormFeedback v-if="galatSetujui" tone="danger" title="Persetujuan ditolak" :message="galatSetujui" />
@@ -294,6 +309,7 @@ const tanggal = (nilai, gaya = 'pendek') => formatTanggal(nilai, gaya);
             icon="bi-x-circle"
             confirm-label="Tolak Booking"
             size="md"
+            :loading="memproses"
             @confirm="tolak"
         >
             <FormFeedback v-if="galatTolak.umum" class="mb-3" tone="danger" :message="galatTolak.umum" />

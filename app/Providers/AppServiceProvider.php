@@ -35,6 +35,12 @@ class AppServiceProvider extends ServiceProvider
         // Phase 9B — tulis data Buku & eksemplar (tambah, ubah data buku, tambah eksemplar): Admin yang layak masuk.
         Gate::define('kelola-buku', fn (User $akun): bool => $akun->isAdmin() && $akun->bolehMasuk());
 
+        // Batch 2 — peminjaman, pengembalian, verifikasi & realisasi booking: Admin yang layak masuk.
+        Gate::define('kelola-transaksi', fn (User $akun): bool => $akun->isAdmin() && $akun->bolehMasuk());
+
+        // Batch 2 — ajukan/batalkan booking milik sendiri: akun Anggota yang layak masuk dan tertaut ke data Anggota.
+        Gate::define('booking-anggota', fn (User $akun): bool => $akun->role?->value === 'anggota' && $akun->bolehMasuk() && $akun->member !== null);
+
         // Phase 8D — ganti kata sandi sendiri: akun mana pun yang layak masuk.
         Gate::define('ubah-kata-sandi-sendiri', fn (User $akun): bool => $akun->bolehMasuk());
     }

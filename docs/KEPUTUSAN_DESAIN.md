@@ -230,3 +230,17 @@ Rincian: `docs/phase9/PHASE_9B_BUKU_EKSEMPLAR.md`.
 - Kode Buku tetap tidak dapat diubah (keputusan 3.3). Eksemplar baru selalu `Tersedia` dan ditetapkan server; status eksemplar lama tidak pernah diubah dari formulir buku (3.6).
 - Pencarian Data Buku dan Cari Buku dijalankan MySQL (kode buku, judul, kategori; filter kategori persis), lewat Inertia GET `?q=&kategori=&page=`, dengan 20 buku per halaman. Kolom pencarian tetap sesuai 3.10/5.2.
 - Nama aksi audit seragam berbahasa Indonesia: `buku.dibuat`, `buku.diubah`, `eksemplar.dibuat`.
+
+## Batch 2 — Manajemen transaksi & kedaluwarsa booking (16 November 2026)
+
+Rincian: `docs/phase10/` (BATCH_2_TRANSACTION_MANAGEMENT, BOOKING_EXPIRATION, CONCURRENCY_AND_LOCKING, TRANSACTION_TEST_REPORT). Ekstensi atas SRS/UML; dokumen SRS dan UML asli tidak diubah.
+
+- **Kedaluwarsa booking (disetujui):** booking Disetujui kedaluwarsa tepat 48 jam setelah persetujuan (`expires_at = decided_at + 48 jam`, UTC). Status baru `Kedaluwarsa`; `expired_at` = waktu pemrosesan; reservasi dilepas tanpa melepas eksemplar milik transaksi lain. UI menampilkan "Batas Pengambilan" (WIB). Migration aditif `000009`; backfill hanya booking Disetujui, tanpa mengarang timestamp.
+- **Penjadwal:** `bookings:expire` tiap 5 menit (`withoutOverlapping`, `onOneServer`), per batch, idempoten. Realisasi, pembatalan, peminjaman, pengajuan, persetujuan, dan penonaktifan memeriksa/merekonsiliasi batas sendiri, sehingga jeda penjadwal tidak memperpanjang batas. Production memerlukan cron `schedule:run` tiap menit (belum dikonfigurasi).
+- **Pengembalian oleh Admin untuk Anggota Nonaktif (disetujui):** diizinkan; status anggota tidak berubah.
+- **Status anggota:** hanya Aktif yang dapat meminjam dan mengajukan booking; persetujuan untuk anggota Nonaktif ditolak; F-01 tetap (penonaktifan ditolak bila ada booking Disetujui yang belum lewat batas).
+- **Urutan kunci:** members → bookings → book_copies → loans → returns (`lockForUpdate`), dibuktikan dengan test dua koneksi MySQL.
+- **Tanggal:** timestamp kejadian UTC, ditampilkan WIB; `loans.due_date` DATE diisi Admin, harus setelah tanggal pinjam (WIB), tanpa durasi bawaan.
+- **Audit:** `peminjaman.dibuat`, `pengembalian.dibuat`, `booking.diajukan|disetujui|ditolak|dibatalkan|direalisasikan|kedaluwarsa`; kejadian penjadwal beraktor NULL (sistem).
+- **Tidak ada pembatalan otomatis** atas booking lain yang tidak terkait.
+- **Masih terbuka:** kuota/antrean/masa booking Diajukan (TBD-06; perilaku teruji dipertahankan), denda/perpanjangan/durasi pinjam (TBD-05).

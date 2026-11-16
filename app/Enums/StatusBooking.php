@@ -5,8 +5,9 @@ namespace App\Enums;
 /**
  * Status booking (bookings.status) — SRS §6.3 / State Machine 04.
  *
- * Status kedaluwarsa booking BELUM ditambahkan: durasi dan representasinya
- * masih menunggu keputusan (lihat docs/database/phase7/PHASE_7A_DATABASE_SETUP.md).
+ * Batch 2 (Phase 10): `Kedaluwarsa` (keputusan disetujui) — booking Disetujui
+ * yang tidak direalisasikan dalam 48 jam sejak persetujuan berpindah ke status
+ * ini dan reservasi eksemplarnya dilepas. Lihat docs/phase10/BOOKING_EXPIRATION.md.
  */
 enum StatusBooking: string
 {
@@ -15,4 +16,5 @@ enum StatusBooking: string
     case Ditolak = 'Ditolak';
     case Dibatalkan = 'Dibatalkan';
     case Direalisasikan = 'Direalisasikan';
+    case Kedaluwarsa = 'Kedaluwarsa';
 }

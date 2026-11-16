@@ -1,6 +1,6 @@
 <script setup>
 import { Head, usePage } from '@inertiajs/vue3';
-import { computed, nextTick, ref } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 
 import BaseButton from '@/Components/BaseButton.vue';
 import BaseInput from '@/Components/BaseInput.vue';
@@ -11,14 +11,16 @@ import FormFeedback from '@/Components/FormFeedback.vue';
 import PageHeader from '@/Components/PageHeader.vue';
 import ReadonlyField from '@/Components/ReadonlyField.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
-import { GalatValidasi, useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { galatPertama, useTransaksiServer } from '@/composables/useTransaksiServer.js';
 import { useDemo } from '@/composables/useDemo.js';
 import { detailBooking, detailPeminjaman } from '@/utils/olahData.js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { formatTanggal } from '@/utils/format.js';
+import { formatTanggal, formatWaktu } from '@/utils/format.js';
 import { validasiRealisasi } from '@/utils/validasiTransaksi.js';
 
-const { data, tanggalHariIni, realisasikanBooking } = useDataPerpustakaan();
+const { data, tanggalHariIni } = useDataPerpustakaan();
+const { memproses, kirim } = useTransaksiServer();
 const { akun, rute } = useDemo();
 const page = usePage();
 
@@ -43,13 +45,22 @@ const formulir = ref(null);
 const galatSemua = computed(() =>
     dipilih.value ? validasiRealisasi(dipilih.value.idBooking, { tanggalJatuhTempo: tanggalJatuhTempo.value }, data, { tanggalPinjam: tanggalHariIni }) : {},
 );
+// Galat dari server (mis. booking sudah Kedaluwarsa) menimpa galat browser.
+const galatServer = ref({});
+const galatHalaman = ref(null);
+watch([idDipilih, tanggalJatuhTempo], () => {
+    galatServer.value = {};
+});
 // Syarat anggota & eksemplar ditampilkan langsung; jatuh tempo setelah percobaan simpan.
 const galat = computed(() => ({
-    umum: galatSemua.value.umum,
-    tanggalJatuhTempo: sudahDikirim.value ? galatSemua.value.tanggalJatuhTempo : null,
+    umum: galatServer.value.umum ?? galatSemua.value.umum,
+    tanggalJatuhTempo: galatServer.value.tanggalJatuhTempo ?? (sudahDikirim.value ? galatSemua.value.tanggalJatuhTempo : null),
 }));
+// Batas Pengambilan (48 jam) terlewati: server akan mengubah booking menjadi Kedaluwarsa dan menolak realisasi.
+const batasTerlewati = computed(() => Boolean(dipilih.value?.batasPengambilan) && new Date(dipilih.value.batasPengambilan) <= new Date());
 
 async function pilih(b) {
+    galatHalaman.value = null;
     idDipilih.value = b.idBooking;
     tanggalJatuhTempo.value = '';
     sudahDikirim.value = false;
@@ -74,18 +85,28 @@ async function simpan() {
     konfirmasi.value = true;
 }
 
+/**
+ * Batch 2 — POST /admin/booking/{kode}/realisasi. Server memeriksa ulang batas
+ * pengambilan; booking yang sudah lewat batas dikedaluwarsakan dan ditolak.
+ */
 function terapkan() {
-    try {
-        const { peminjaman } = realisasikanBooking(idDipilih.value, { tanggalJatuhTempo: tanggalJatuhTempo.value });
-        const p = detailPeminjaman(data, data.peminjaman.find((x) => x.idPeminjaman === peminjaman.idPeminjaman));
-        bukti.value = { ...p, idBooking: idDipilih.value };
-        konfirmasi.value = false;
-        batal();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (error) {
-        konfirmasi.value = false;
-        if (!(error instanceof GalatValidasi)) throw error;
-    }
+    const idBooking = idDipilih.value;
+    kirim(rute('booking.realisasikan', { kodeBooking: idBooking }), { tanggalJatuhTempo: tanggalJatuhTempo.value }, {
+        onSukses: (kode) => {
+            const p = data.peminjaman.find((x) => x.idPeminjaman === kode);
+            bukti.value = p ? { ...detailPeminjaman(data, p), idBooking } : null;
+            konfirmasi.value = false;
+            batal();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+        onGalat: (e) => {
+            konfirmasi.value = false;
+            galatServer.value = { umum: e.umum ?? (e.tanggalJatuhTempo ? null : galatPertama(e)), tanggalJatuhTempo: e.tanggalJatuhTempo ?? null };
+            // Booking yang ditolak karena Kedaluwarsa keluar dari daftar Disetujui (formulir tertutup):
+            // pesan ditampilkan juga di tingkat halaman agar tetap terlihat.
+            galatHalaman.value = e.umum ? { idBooking, pesan: e.umum } : null;
+        },
+    });
 }
 
 const kolom = [
@@ -111,6 +132,16 @@ const tanggal = (nilai, gaya = 'pendek') => formatTanggal(nilai, gaya);
             </template>
         </PageHeader>
 
+        <FormFeedback
+            v-if="galatHalaman && !dipilih"
+            class="mb-4"
+            tone="danger"
+            :title="`Booking ${galatHalaman.idBooking} tidak dapat direalisasikan`"
+            :message="galatHalaman.pesan"
+            dismissible
+            @dismiss="galatHalaman = null"
+        />
+
         <section v-if="bukti" class="sim-receipt mb-4" aria-labelledby="judul-bukti-realisasi" role="status">
             <div class="sim-receipt__header">
                 <span class="sim-receipt__icon" aria-hidden="true"><i class="bi bi-bookmark-check"></i></span>
@@ -131,7 +162,7 @@ const tanggal = (nilai, gaya = 'pendek') => formatTanggal(nilai, gaya);
                 <div class="sim-receipt__item"><dt>Status</dt><dd><StatusBadge type="peminjaman" :status="bukti.status" /></dd></div>
             </dl>
             <div class="sim-receipt__footer">
-                <span>Perubahan pada mode pratinjau tidak disimpan setelah halaman dimuat ulang.</span>
+                <span>Tersimpan di database.</span>
             </div>
         </section>
 
@@ -196,6 +227,9 @@ const tanggal = (nilai, gaya = 'pendek') => formatTanggal(nilai, gaya);
                             <span class="sim-code">{{ dipilih.kodeEksemplar }}</span>
                             <StatusBadge type="eksemplar" :status="dipilih.eksemplar.status" />
                         </ReadonlyField>
+                        <ReadonlyField label="Batas Pengambilan" :hint="batasTerlewati ? 'Batas terlewati: booking akan menjadi Kedaluwarsa dan tidak dapat direalisasikan.' : '48 jam sejak booking disetujui.'">
+                            <span class="tabular-nums">{{ formatWaktu(dipilih.batasPengambilan) }}</span>
+                        </ReadonlyField>
                         <ReadonlyField label="Tanggal Pinjam" hint="Tanggal transaksi dicatat otomatis.">
                             <i class="bi bi-calendar3 text-secondary" aria-hidden="true"></i>{{ tanggal(tanggalHariIni, 'panjang') }}
                         </ReadonlyField>
@@ -228,6 +262,7 @@ const tanggal = (nilai, gaya = 'pendek') => formatTanggal(nilai, gaya);
             :message="dipilih ? `Peminjaman Aktif akan dibuat untuk ${dipilih.anggota.nama}: “${dipilih.buku.judul}” (${dipilih.kodeEksemplar}), jatuh tempo ${tanggal(tanggalJatuhTempo, 'panjang')}. Booking menjadi Direalisasikan dan eksemplar menjadi Dipinjam.` : null"
             icon="bi-bookmark-check"
             confirm-label="Realisasikan"
+            :loading="memproses"
             @confirm="terapkan"
         />
     </AdminLayout>

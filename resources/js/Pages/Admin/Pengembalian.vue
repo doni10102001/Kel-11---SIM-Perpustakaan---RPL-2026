@@ -11,14 +11,16 @@ import PageHeader from '@/Components/PageHeader.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import SegmentedTabs from '@/Components/SegmentedTabs.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
-import { GalatValidasi, useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { useDataPerpustakaan } from '@/composables/useDataPerpustakaan.js';
+import { galatPertama, useTransaksiServer } from '@/composables/useTransaksiServer.js';
 import { useDemo } from '@/composables/useDemo.js';
 import { detailPeminjaman } from '@/utils/olahData.js';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { formatTanggal } from '@/utils/format.js';
 import { cocokKataKunci } from '@/utils/pencarian.js';
 
-const { data, tanggalHariIni, prosesPengembalian } = useDataPerpustakaan();
+const { data, tanggalHariIni } = useDataPerpustakaan();
+const { memproses, kirim } = useTransaksiServer();
 const { akun, rute } = useDemo();
 
 const tab = ref('aktif');
@@ -72,20 +74,28 @@ function buka(p) {
     dialog.value = true;
 }
 
+/**
+ * Batch 2 — POST /admin/pengembalian. Anggota Aktif maupun Nonaktif dapat
+ * dikembalikan (kebijakan disetujui); Admin penerima dari sesi.
+ */
 function proses() {
-    try {
-        const k = prosesPengembalian(idDipilih.value);
-        const p = semua.value.find((x) => x.idPeminjaman === k.idPeminjaman);
-        dialog.value = false;
-        pesan.value = {
-            tone: 'success',
-            title: 'Konfirmasi pengembalian',
-            message: `${p.idPeminjaman} — “${p.buku.judul}” dari ${p.anggota.nama} dikembalikan pada ${formatTanggal(k.tanggalKembali, 'panjang')} (${k.idPengembalian}). Eksemplar ${p.kodeEksemplar} kembali Tersedia. Perubahan pada mode pratinjau tidak disimpan setelah halaman dimuat ulang.`,
-        };
-    } catch (error) {
-        if (!(error instanceof GalatValidasi)) throw error;
-        galatDialog.value = Object.values(error.galat)[0];
-    }
+    kirim(rute('pengembalian.store'), { idPeminjaman: idDipilih.value }, {
+        onSukses: (kode) => {
+            const k = data.pengembalian.find((x) => x.idPengembalian === kode);
+            const p = k ? semua.value.find((x) => x.idPeminjaman === k.idPeminjaman) : null;
+            dialog.value = false;
+            pesan.value = p
+                ? {
+                      tone: 'success',
+                      title: 'Konfirmasi pengembalian',
+                      message: `${p.idPeminjaman} — “${p.buku.judul}” dari ${p.anggota.nama} dikembalikan pada ${formatTanggal(k.tanggalKembali, 'panjang')} (${k.idPengembalian}). Eksemplar ${p.kodeEksemplar} kembali Tersedia.`,
+                  }
+                : null;
+        },
+        onGalat: (e) => {
+            galatDialog.value = galatPertama(e);
+        },
+    });
 }
 
 const tanggal = (nilai) => formatTanggal(nilai, 'pendek');
@@ -173,6 +183,7 @@ const tanggal = (nilai) => formatTanggal(nilai, 'pendek');
             icon="bi-journal-arrow-down"
             confirm-label="Proses Pengembalian"
             size="md"
+            :loading="memproses"
             @confirm="proses"
         >
             <FormFeedback v-if="galatDialog" class="mb-3" tone="danger" title="Pengembalian ditolak" :message="galatDialog" />

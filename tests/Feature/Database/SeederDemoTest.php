@@ -10,8 +10,10 @@ use App\Models\BookReturn;
 use App\Models\Loan;
 use App\Models\Member;
 use App\Models\User;
+use App\Services\Transaksi\LayananKedaluwarsaBooking;
 use App\Support\PemeriksaInvarianData;
 use App\Support\WaktuPerpustakaan;
+use Carbon\CarbonImmutable;
 use Database\Seeders\DemoPerpustakaanSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -100,6 +102,35 @@ class SeederDemoTest extends MySqlTestCase
         $this->assertSame('PJ-001', BookReturn::cariKode('KB-001')->loan->loan_code);
         $this->assertSame('Dipesan', BookCopy::cariKode('EK-002')->status->value);
         $this->assertSame('Eksemplar sudah dipinjam anggota lain sebelum pengajuan diproses.', Booking::cariKode('BP-002')->rejection_reason);
+    }
+
+    /**
+     * Batch 2 (butir 50): booking Disetujui hasil seed memperoleh Batas Pengambilan
+     * = decided_at + 48 jam (sama dengan backfill migration); riwayat lain tidak diberi
+     * batas. Data demo (sama dengan development) batasnya sudah lewat → saat diproses
+     * menjadi Kedaluwarsa dan eksemplarnya Tersedia, invariant tetap utuh.
+     */
+    public function test_booking_disetujui_seed_berbatas_48_jam_dan_lewat_batas_diproses_aman(): void
+    {
+        $this->jalankanSeeder();
+
+        $baris = DB::table('bookings')->orderBy('booking_code')->get(['booking_code', 'status', 'decided_at', 'expires_at', 'expired_at']);
+        foreach ($baris as $b) {
+            if ($b->status === 'Disetujui') {
+                $this->assertSame(CarbonImmutable::parse($b->decided_at, 'UTC')->addHours(48)->format('Y-m-d H:i:s.u'), $b->expires_at, $b->booking_code);
+            } else {
+                $this->assertNull($b->expires_at, "{$b->booking_code}: riwayat {$b->status} tidak ditulis ulang.");
+            }
+            $this->assertNull($b->expired_at);
+        }
+        $this->assertSame(['BP-001', 'BP-006'], $baris->where('status', 'Disetujui')->pluck('booking_code')->values()->all());
+
+        $this->travelTo(CarbonImmutable::parse('2026-11-16 07:00:00', 'UTC'));
+        $hasil = $this->app->make(LayananKedaluwarsaBooking::class)->prosesJatuhTempo();
+        $this->assertSame(['diproses' => 2, 'dilewati' => 0, 'gagal' => 0], $hasil);
+        $this->assertSame(['Kedaluwarsa', 'Kedaluwarsa'], DB::table('bookings')->whereIn('booking_code', ['BP-001', 'BP-006'])->orderBy('booking_code')->pluck('status')->all());
+        $this->assertSame(['Tersedia', 'Tersedia'], DB::table('book_copies')->whereIn('copy_code', ['EK-002', 'EK-013'])->orderBy('copy_code')->pluck('status')->all());
+        $this->assertSame([], (new PemeriksaInvarianData)->periksa());
     }
 
     public function test_kata_sandi_seed_hanya_hash_dan_akun_anggota_tidak_dapat_ditebak(): void

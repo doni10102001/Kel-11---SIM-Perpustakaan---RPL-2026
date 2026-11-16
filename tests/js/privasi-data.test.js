@@ -109,11 +109,14 @@ describe('Aksi tulis belum terhubung database (Phase 8B)', () => {
 
     test('halaman tidak lagi mengaku menyimpan: tidak ada fungsi tulis yang melewati aksiTertunda', () => {
         const halaman = semuaBerkas(join(JS, 'Pages')).filter((j) => j.endsWith('.vue'));
+        // Batch 2: daftar aksi tertunda kosong; halaman TIDAK boleh lagi memanggil fungsi tulis
+        // simulasi lama sama sekali — semua aksi tulis lewat endpoint server.
+        const FUNGSI_SIMULASI = ['tambahAnggota', 'ubahAnggota', 'tambahBuku', 'ubahBuku', 'catatPeminjaman', 'prosesPengembalian',
+            'setujuiBooking', 'tolakBooking', 'realisasikanBooking', 'ajukanBooking', 'batalkanBooking', ...Object.keys(AKSI_TERTUNDA)];
         const pelanggar = halaman
-            .filter((j) => /from\s+['"]@\/(composables\/useDataPerpustakaan|utils\/aksiTertunda)/.test(readFileSync(j, 'utf8')) === false)
-            .filter((j) => new RegExp(`\\b(${Object.keys(AKSI_TERTUNDA).join('|')})\\(`).test(readFileSync(j, 'utf8')))
+            .filter((j) => new RegExp(`\\b(${FUNGSI_SIMULASI.join('|')})\\(`).test(readFileSync(j, 'utf8')))
             .map((j) => j.slice(AKAR.length));
 
-        assert.deepEqual(pelanggar, [], 'fungsi tulis harus berasal dari composable yang menolak aksi');
+        assert.deepEqual(pelanggar, [], 'tidak ada simulasi tulis di halaman');
     });
 });

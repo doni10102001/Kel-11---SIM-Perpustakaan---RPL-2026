@@ -315,6 +315,9 @@ class DataPerpustakaan
                 'diputuskanOleh' => $admin ? $b->staff?->username : null,
                 'alasanPenolakan' => $b->rejection_reason,
                 'idPeminjaman' => $b->loan?->loan_code,
+                // Batch 2: instant UTC (ISO-8601 "Z"); frontend menampilkan WIB.
+                'batasPengambilan' => $b->expires_at ? WaktuPerpustakaan::isoUtc($b->expires_at) : null,
+                'waktuKedaluwarsa' => $b->expired_at ? WaktuPerpustakaan::isoUtc($b->expired_at) : null,
             ])->all();
     }
 
