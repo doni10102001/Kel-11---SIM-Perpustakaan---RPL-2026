@@ -1,0 +1,40 @@
+---
+title: "S-IMPL-02 — Tambah Anggota + Akses Login (AnggotaController, LayananAnggota, KredensialAkun)"
+---
+sequenceDiagram
+    autonumber
+    actor A as Admin
+    participant V as Vue 3 + Inertia<br/>Admin/Anggota/Form.vue
+    participant R as TambahAnggotaRequest<br/>(Gate kelola-anggota)
+    participant C as AnggotaController
+    participant S as LayananAnggota /<br/>KredensialAkun
+    participant O as Eloquent<br/>Member, User, AuditLog
+    participant DB as MySQL 8.4
+    A->>V: Isi Kode, Nama, Kontak, Status (+ opsional Akses Login)
+    V->>C: POST /admin/anggota (CSRF, throttle 30/menit)
+    C->>R: authorize() + rules()
+    alt Tidak berhak / input tidak valid
+        R-->>V: 403 / galat validasi per field
+    else Valid
+        C->>S: tambah(profil, akses, admin)
+        rect rgb(235, 242, 255)
+            Note over S,DB: DB::transaction
+            S->>O: Member::save()
+            O->>DB: INSERT members (user_id = NULL)
+            alt Kode anggota duplikat (MySQL 1062)
+                DB-->>S: galat unik
+                S-->>V: galat validasi — "Kode Anggota sudah dipakai"
+            end
+            S->>O: AuditLog anggota.dibuat
+            O->>DB: INSERT audit_logs
+            opt Akses login diminta
+                S->>O: kunci Member (FOR UPDATE), User::create (password di-hash, must_change_password = 1)
+                O->>DB: INSERT users, UPDATE members.user_id
+                S->>O: AuditLog anggota.akses_login.dibuat
+                O->>DB: INSERT audit_logs (tanpa kata sandi)
+            end
+            S->>DB: COMMIT
+        end
+        C-->>V: 302 /admin/anggota + flash sukses
+        V->>C: GET /admin/anggota → daftar terbaru dari MySQL
+    end

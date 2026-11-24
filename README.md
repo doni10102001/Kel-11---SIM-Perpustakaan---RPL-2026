@@ -3,6 +3,8 @@
 **Tugas Besar Rekayasa Perangkat Lunak (RPL) — Kelompok 11**
 Aplikasi Web Terintegrasi Berbasis Laravel 13, MySQL 8.4, Inertia.js, Vue 3, dan Bootstrap 5.3.
 
+> 📦 **[Dokumentasi Pengumpulan Tugas 10](docs/TUGAS-10-FINAL/README.md)** — paket 10 deliverable (SRS, UML, desain UI/UX, pengujian, hasil sistem, dan PPT presentasi).
+
 ---
 
 ## 1. Gambaran Umum Sistem
@@ -167,12 +169,14 @@ npm run test:data
 ```
 *Hasil Pengujian*: **245 pengujian lulus** (46 test suites) tanpa kegagalan.
 
-### 7.3 Pengujian Alur Perjalanan Pengguna (End-to-End Browser QA)
-Menguji skenario nyata interaksi pengguna (Login $\rightarrow$ Dashboard $\rightarrow$ CRUD $\rightarrow$ Booking $\rightarrow$ Verifikasi $\rightarrow$ Realisasi $\rightarrow$ Pengembalian $\rightarrow$ Laporan) menggunakan peramban Chrome headless:
-```bash
-node --experimental-websocket scripts/qa-browser-journey.mjs
+### 7.3 Pengujian Alur Perjalanan Pengguna (Browser QA, Chrome headless)
+Menjalankan perjalanan Admin dan Anggota (login, tambah anggota/buku, peminjaman, verifikasi booking, laporan, pengajuan booking, histori, otorisasi) terhadap database uji. Kredensial MySQL uji **wajib** diberikan lewat environment; skrip tidak memiliki kata sandi bawaan:
+```zsh
+read -rs "DB_TEST_PASSWORD?Kata sandi MySQL uji: " && export DB_TEST_PASSWORD
+DB_TEST_USERNAME=sim_perpus_test node --experimental-websocket scripts/qa-browser-journey.mjs
+unset DB_TEST_PASSWORD
 ```
-*Hasil Pengujian*: **23 skenario perjalanan pengguna lulus 100%**.
+*Hasil Pengujian*: **23/23 cek tercatat PASS** (24 Nov 2026). Hanya 7 cek memiliki assertion eksplisit, 8 cek tidak memeriksa hasil, dan langkah Pengembalian serta Pembatalan bersifat kondisional dan tidak tereksekusi. Verifikasi alur lengkap (booking → realisasi → pengembalian) dengan pemeriksaan MySQL di setiap mutasi ada pada E2E demo 22/22: lihat [laporan pengujian Tugas 10](docs/TUGAS-10-FINAL/08-SOFTWARE-TESTING/SOFTWARE_TESTING_REPORT.md).
 
 ---
 

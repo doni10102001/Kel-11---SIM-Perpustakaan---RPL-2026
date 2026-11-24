@@ -1,0 +1,1566 @@
+# Node.js test runner — eksekusi ulang Tugas 10
+# Tanggal mulai: 2026-11-21 20:05:33 WIB
+# Perintah: npm run test:data  (node --test tests/js/, Node v20.19.2)
+
+> test:data
+> node --test tests/js/
+
+TAP version 13
+# [data] Uji atomik akses dibatalkan: data tidak konsisten. [ 'Pengguna: username "ADMIN" duplikat' ]
+# Subtest: 1–2. Tambah Anggota dengan/tanpa akses login
+    # Subtest: 1. tanpa akses login: anggota dibuat, tidak ada akun baru (idPengguna null)
+    ok 1 - 1. tanpa akses login: anggota dibuat, tidak ada akun baru (idPengguna null)
+      ---
+      duration_ms: 5.032834
+      ...
+    # Subtest: 2. dengan akses login: anggota + akun peran anggota dibuat dan terhubung
+    ok 2 - 2. dengan akses login: anggota + akun peran anggota dibuat dan terhubung
+      ---
+      duration_ms: 4.740458
+      ...
+    # Subtest: kata sandi hanya tersimpan sebagai hash bergaram; tidak ada di data anggota maupun store
+    ok 3 - kata sandi hanya tersimpan sebagai hash bergaram; tidak ada di data anggota maupun store
+      ---
+      duration_ms: 1.694791
+      ...
+    # Subtest: anggota Nonaktif dengan akses login: akun tercatat, statusAkun diturunkan = Nonaktif
+    ok 4 - anggota Nonaktif dengan akses login: akun tercatat, statusAkun diturunkan = Nonaktif
+      ---
+      duration_ms: 1.641833
+      ...
+    # Subtest: tidak ada Status Akses: nilai statusAkun tersembunyi pada isian diabaikan
+    ok 5 - tidak ada Status Akses: nilai statusAkun tersembunyi pada isian diabaikan
+      ---
+      duration_ms: 7.481208
+      ...
+    1..5
+ok 1 - 1–2. Tambah Anggota dengan/tanpa akses login
+  ---
+  duration_ms: 21.41175
+  type: 'suite'
+  ...
+# Subtest: 3–4. Validasi kredensial
+    # Subtest: 3. username duplikat ditolak (tidak peka huruf besar/kecil), termasuk username Admin
+    ok 1 - 3. username duplikat ditolak (tidak peka huruf besar/kecil), termasuk username Admin
+      ---
+      duration_ms: 5.179125
+      ...
+    # Subtest: 3b. username duplikat dengan akun yang dibuat pada sesi yang sama ditolak
+    ok 2 - 3b. username duplikat dengan akun yang dibuat pada sesi yang sama ditolak
+      ---
+      duration_ms: 2.261542
+      ...
+    # Subtest: username kosong / berspasi ditolak
+    ok 3 - username kosong / berspasi ditolak
+      ---
+      duration_ms: 2.361291
+      ...
+    # Subtest: kata sandi kosong saat membuat akun ditolak
+    ok 4 - kata sandi kosong saat membuat akun ditolak
+      ---
+      duration_ms: 1.0465
+      ...
+    # Subtest: 4. konfirmasi kata sandi yang tidak sesuai ditolak
+    ok 5 - 4. konfirmasi kata sandi yang tidak sesuai ditolak
+      ---
+      duration_ms: 0.842458
+      ...
+    # Subtest: pesan galat tidak pernah memuat kata sandi
+    ok 6 - pesan galat tidak pernah memuat kata sandi
+      ---
+      duration_ms: 1.38675
+      ...
+    # Subtest: validator tidak lagi mengenal field statusAkun
+    ok 7 - validator tidak lagi mengenal field statusAkun
+      ---
+      duration_ms: 0.460208
+      ...
+    1..7
+ok 2 - 3–4. Validasi kredensial
+  ---
+  duration_ms: 14.106167
+  type: 'suite'
+  ...
+# Subtest: 5–8, 14. Masuk simulasi
+    # Subtest: 5. kredensial valid → sesi berisi akun anggota baru (tidak peka huruf besar/kecil pada username)
+    ok 1 - 5. kredensial valid → sesi berisi akun anggota baru (tidak peka huruf besar/kecil pada username)
+      ---
+      duration_ms: 3.053209
+      ...
+    # Subtest: 6. kata sandi salah ditolak dengan pesan generik; sesi tidak berubah
+    ok 2 - 6. kata sandi salah ditolak dengan pesan generik; sesi tidak berubah
+      ---
+      duration_ms: 1.005167
+      ...
+    # Subtest: akun anggota bawaan tanpa kata sandi dari Admin tidak dapat masuk
+    ok 3 - akun anggota bawaan tanpa kata sandi dari Admin tidak dapat masuk
+      ---
+      duration_ms: 0.3035
+      ...
+    # Subtest: Anggota Nonaktif + akun valid → ditolak walau username & kata sandi benar
+    ok 4 - Anggota Nonaktif + akun valid → ditolak walau username & kata sandi benar
+      ---
+      duration_ms: 3.58525
+      ...
+    # Subtest: Anggota Nonaktif → Aktif kembali: kredensial lama berlaku lagi tanpa akun/kata sandi baru
+    ok 5 - Anggota Nonaktif → Aktif kembali: kredensial lama berlaku lagi tanpa akun/kata sandi baru
+      ---
+      duration_ms: 2.702916
+      ...
+    # Subtest: Anggota Aktif tanpa akun → tidak dapat masuk
+    ok 6 - Anggota Aktif tanpa akun → tidak dapat masuk
+      ---
+      duration_ms: 0.999292
+      ...
+    # Subtest: 8b. menonaktifkan anggota yang punya akun → tidak dapat masuk; riwayat tetap ada
+    ok 7 - 8b. menonaktifkan anggota yang punya akun → tidak dapat masuk; riwayat tetap ada
+      ---
+      duration_ms: 1.193958
+      ...
+    # Subtest: relasi akun ↔ anggota tidak valid ditolak saat masuk
+    ok 8 - relasi akun ↔ anggota tidak valid ditolak saat masuk
+      ---
+      duration_ms: 1.425
+      ...
+    # Subtest: 14. akun Admin existing tetap berfungsi (kata sandi apa pun yang tidak kosong)
+    ok 9 - 14. akun Admin existing tetap berfungsi (kata sandi apa pun yang tidak kosong)
+      ---
+      duration_ms: 0.626708
+      ...
+    # Subtest: akun Admin tidak terpengaruh perubahan status anggota mana pun
+    ok 10 - akun Admin tidak terpengaruh perubahan status anggota mana pun
+      ---
+      duration_ms: 20.047458
+      ...
+    # Subtest: akun pratinjau AG-001 tetap dapat masuk seperti sebelumnya
+    ok 11 - akun pratinjau AG-001 tetap dapat masuk seperti sebelumnya
+      ---
+      duration_ms: 0.25825
+      ...
+    # Subtest: keluar menghapus sesi; tanpa sesi halaman memakai akun pratinjau
+    ok 12 - keluar menghapus sesi; tanpa sesi halaman memakai akun pratinjau
+      ---
+      duration_ms: 0.955917
+      ...
+    # Subtest: sesi Anggota tidak dipakai untuk halaman Admin (dan sebaliknya)
+    ok 13 - sesi Anggota tidak dipakai untuk halaman Admin (dan sebaliknya)
+      ---
+      duration_ms: 0.76975
+      ...
+    1..13
+ok 3 - 5–8, 14. Masuk simulasi
+  ---
+  duration_ms: 37.454792
+  type: 'suite'
+  ...
+# Subtest: Ubah Anggota: kelola akses login
+    # Subtest: 9–10. reset kata sandi → kata sandi lama ditolak, kata sandi baru diterima
+    ok 1 - 9–10. reset kata sandi → kata sandi lama ditolak, kata sandi baru diterima
+      ---
+      duration_ms: 1.890417
+      ...
+    # Subtest: tanpa reset, kata sandi tidak berubah
+    ok 2 - tanpa reset, kata sandi tidak berubah
+      ---
+      duration_ms: 3.837833
+      ...
+    # Subtest: reset kata sandi: konfirmasi berbeda / kosong ditolak tanpa perubahan
+    ok 3 - reset kata sandi: konfirmasi berbeda / kosong ditolak tanpa perubahan
+      ---
+      duration_ms: 7.710958
+      ...
+    # Subtest: reset kata sandi akun pratinjau AG-001 → hanya kata sandi baru yang diterima
+    ok 4 - reset kata sandi akun pratinjau AG-001 → hanya kata sandi baru yang diterima
+      ---
+      duration_ms: 0.922916
+      ...
+    # Subtest: reset kata sandi akun anggota bawaan (AG-002) membuatnya dapat dipakai masuk
+    ok 5 - reset kata sandi akun anggota bawaan (AG-002) membuatnya dapat dipakai masuk
+      ---
+      duration_ms: 2.887333
+      ...
+    # Subtest: menonaktifkan anggota: akun tetap ada, status akun ikut Nonaktif, riwayat booking & peminjaman tetap
+    ok 6 - menonaktifkan anggota: akun tetap ada, status akun ikut Nonaktif, riwayat booking & peminjaman tetap
+      ---
+      duration_ms: 2.788584
+      ...
+    # Subtest: ubah status tanpa reset tidak mengubah kata sandi; reset tidak mengubah transaksi
+    ok 7 - ubah status tanpa reset tidak mengubah kata sandi; reset tidak mengubah transaksi
+      ---
+      duration_ms: 3.865541
+      ...
+    # Subtest: anggota tanpa akun: Buat Akses Login dari Ubah Anggota tanpa membuat anggota baru
+    ok 8 - anggota tanpa akun: Buat Akses Login dari Ubah Anggota tanpa membuat anggota baru
+      ---
+      duration_ms: 2.567875
+      ...
+    # Subtest: anggota yang sudah punya akun tidak dapat dibuatkan akun kedua
+    ok 9 - anggota yang sudah punya akun tidak dapat dibuatkan akun kedua
+      ---
+      duration_ms: 0.911541
+      ...
+    # Subtest: relasi akun rusak menolak perubahan akses login
+    ok 10 - relasi akun rusak menolak perubahan akses login
+      ---
+      duration_ms: 0.791417
+      ...
+    # Subtest: periksaKonsistensi mendeteksi satu akun yang terhubung ke dua anggota
+    ok 11 - periksaKonsistensi mendeteksi satu akun yang terhubung ke dua anggota
+      ---
+      duration_ms: 0.685291
+      ...
+    # Subtest: periksaKonsistensi menolak status akun anggota yang bertentangan dengan Status Anggota
+    ok 12 - periksaKonsistensi menolak status akun anggota yang bertentangan dengan Status Anggota
+      ---
+      duration_ms: 0.715917
+      ...
+    # Subtest: periksaKonsistensi menolak kata sandi plaintext pada passwordHash
+    ok 13 - periksaKonsistensi menolak kata sandi plaintext pada passwordHash
+      ---
+      duration_ms: 0.65375
+      ...
+    1..13
+ok 4 - Ubah Anggota: kelola akses login
+  ---
+  duration_ms: 30.576917
+  type: 'suite'
+  ...
+# Subtest: 11. Anggota baru melihat data miliknya sendiri
+    # Subtest: booking diajukan oleh anggota yang masuk tercatat atas namanya, bukan AG-001
+    ok 1 - booking diajukan oleh anggota yang masuk tercatat atas namanya, bukan AG-001
+      ---
+      duration_ms: 3.201042
+      ...
+    1..1
+ok 5 - 11. Anggota baru melihat data miliknya sendiri
+  ---
+  duration_ms: 3.338084
+  type: 'suite'
+  ...
+# Subtest: 12. Atomisitas
+    # Subtest: validasi akses gagal → anggota juga tidak dibuat
+    ok 1 - validasi akses gagal → anggota juga tidak dibuat
+      ---
+      duration_ms: 1.107125
+      ...
+    # Subtest: draf tidak konsisten di tengah transaksi → anggota & akun tidak tersimpan sebagian
+    ok 2 - draf tidak konsisten di tengah transaksi → anggota & akun tidak tersimpan sebagian
+      ---
+      duration_ms: 4.485958
+      ...
+    1..2
+ok 6 - 12. Atomisitas
+  ---
+  duration_ms: 5.659792
+  type: 'suite'
+  ...
+# Subtest: 13. Regresi booking & peminjaman
+    # Subtest: alur lengkap tetap berjalan untuk anggota baru yang masuk dengan akun buatan Admin
+    ok 1 - alur lengkap tetap berjalan untuk anggota baru yang masuk dengan akun buatan Admin
+      ---
+      duration_ms: 7.561291
+      ...
+    1..1
+ok 7 - 13. Regresi booking & peminjaman
+  ---
+  duration_ms: 7.654333
+  type: 'suite'
+  ...
+# Subtest: Cari Buku
+    # Subtest: akun demo Anggota = AG-001 Nadia Rahmawati
+    ok 1 - akun demo Anggota = AG-001 Nadia Rahmawati
+      ---
+      duration_ms: 1.316375
+      ...
+    # Subtest: cari berdasarkan judul, kode buku, dan kategori
+    ok 2 - cari berdasarkan judul, kode buku, dan kategori
+      ---
+      duration_ms: 0.931083
+      ...
+    # Subtest: filter kategori digabung dengan kata kunci
+    ok 3 - filter kategori digabung dengan kata kunci
+      ---
+      duration_ms: 0.333875
+      ...
+    # Subtest: tidak ditemukan → daftar kosong
+    ok 4 - tidak ditemukan → daftar kosong
+      ---
+      duration_ms: 1.119084
+      ...
+    # Subtest: ketersediaan dihitung dari status eksemplar sebenarnya
+    ok 5 - ketersediaan dihitung dari status eksemplar sebenarnya
+      ---
+      duration_ms: 4.81625
+      ...
+    1..5
+ok 8 - Cari Buku
+  ---
+  duration_ms: 9.465375
+  type: 'suite'
+  ...
+# Subtest: Ajukan Booking
+    # Subtest: booking valid: ID unik BP-009, Diajukan, tanggal pengajuan hari ini, eksemplar TIDAK dikunci
+    ok 1 - booking valid: ID unik BP-009, Diajukan, tanggal pengajuan hari ini, eksemplar TIDAK dikunci
+      ---
+      duration_ms: 5.523583
+      ...
+    # Subtest: dashboard Anggota & Admin ikut berubah; tampil di Status Booking & Verifikasi
+    ok 2 - dashboard Anggota & Admin ikut berubah; tampil di Status Booking & Verifikasi
+      ---
+      duration_ms: 3.421625
+      ...
+    # Subtest: eksemplar Dipinjam atau Dipesan ditolak (hanya Tersedia)
+    ok 3 - eksemplar Dipinjam atau Dipesan ditolak (hanya Tersedia)
+      ---
+      duration_ms: 4.338417
+      ...
+    # Subtest: eksemplar tidak terdaftar / tidak dipilih / bukan milik buku ditolak
+    ok 4 - eksemplar tidak terdaftar / tidak dipilih / bukan milik buku ditolak
+      ---
+      duration_ms: 2.290542
+      ...
+    # Subtest: buku tanpa eksemplar Tersedia → pesan yang menjelaskan
+    ok 5 - buku tanpa eksemplar Tersedia → pesan yang menjelaskan
+      ---
+      duration_ms: 0.857084
+      ...
+    # Subtest: anggota Nonaktif ditolak (FR-031)
+    ok 6 - anggota Nonaktif ditolak (FR-031)
+      ---
+      duration_ms: 1.314416
+      ...
+    # Subtest: pengajuan ganda untuk eksemplar yang sama ditolak (pencegahan transaksi ganda)
+    ok 7 - pengajuan ganda untuk eksemplar yang sama ditolak (pencegahan transaksi ganda)
+      ---
+      duration_ms: 3.617209
+      ...
+    # Subtest: anggota lain boleh mengajukan eksemplar yang sama selama belum Dipesan (antrean belum diatur)
+    ok 8 - anggota lain boleh mengajukan eksemplar yang sama selama belum Dipesan (antrean belum diatur)
+      ---
+      duration_ms: 3.881792
+      ...
+    1..8
+ok 9 - Ajukan Booking
+  ---
+  duration_ms: 25.682291
+  type: 'suite'
+  ...
+# Subtest: Batalkan Booking
+    # Subtest: Diajukan → Dibatalkan; eksemplar tetap Tersedia; dashboard ikut berubah
+    ok 1 - Diajukan → Dibatalkan; eksemplar tetap Tersedia; dashboard ikut berubah
+      ---
+      duration_ms: 2.8115
+      ...
+    # Subtest: Disetujui → Dibatalkan melepas reservasi (Dipesan → Tersedia)
+    ok 2 - Disetujui → Dibatalkan melepas reservasi (Dipesan → Tersedia)
+      ---
+      duration_ms: 3.46025
+      ...
+    # Subtest: Direalisasikan, Dibatalkan, Ditolak tidak dapat dibatalkan
+    ok 3 - Direalisasikan, Dibatalkan, Ditolak tidak dapat dibatalkan
+      ---
+      duration_ms: 2.280458
+      ...
+    # Subtest: booking milik anggota lain tidak dapat dibatalkan
+    ok 4 - booking milik anggota lain tidak dapat dibatalkan
+      ---
+      duration_ms: 1.716667
+      ...
+    # Subtest: pembatalan ganda ditolak
+    ok 5 - pembatalan ganda ditolak
+      ---
+      duration_ms: 3.091166
+      ...
+    1..5
+ok 10 - Batalkan Booking
+  ---
+  duration_ms: 13.672625
+  type: 'suite'
+  ...
+# Subtest: History & privasi
+    # Subtest: riwayat hanya milik AG-001; Aktif tanpa tanggal kembali, Selesai dengan tanggal kembali
+    ok 1 - riwayat hanya milik AG-001; Aktif tanpa tanggal kembali, Selesai dengan tanggal kembali
+      ---
+      duration_ms: 0.493916
+      ...
+    # Subtest: booking yang Direalisasikan muncul sebagai peminjaman di riwayat
+    ok 2 - booking yang Direalisasikan muncul sebagai peminjaman di riwayat
+      ---
+      duration_ms: 0.235417
+      ...
+    # Subtest: Status Booking hanya berisi booking milik AG-001
+    ok 3 - Status Booking hanya berisi booking milik AG-001
+      ---
+      duration_ms: 2.064708
+      ...
+    1..3
+ok 11 - History & privasi
+  ---
+  duration_ms: 2.874667
+  type: 'suite'
+  ...
+# Subtest: Alur lintas peran (satu store)
+    # Subtest: A–E: ajukan → setujui → realisasi → kembalikan; dan ajukan → batalkan
+    ok 1 - A–E: ajukan → setujui → realisasi → kembalikan; dan ajukan → batalkan
+      ---
+      duration_ms: 15.345083
+      ...
+    # Subtest: booking yang dibatalkan Anggota tidak dapat lagi disetujui/direalisasikan Admin
+    ok 2 - booking yang dibatalkan Anggota tidak dapat lagi disetujui/direalisasikan Admin
+      ---
+      duration_ms: 3.199208
+      ...
+    # Subtest: eksemplar yang dipinjam langsung Admin tidak dapat dibooking Anggota
+    ok 3 - eksemplar yang dipinjam langsung Admin tidak dapat dibooking Anggota
+      ---
+      duration_ms: 1.777042
+      ...
+    1..3
+ok 12 - Alur lintas peran (satu store)
+  ---
+  duration_ms: 20.512709
+  type: 'suite'
+  ...
+# Subtest: Autentikasi server (Phase 8A)
+    # Subtest: halaman Masuk mengirim kredensial ke server, bukan verifikasi mock
+    ok 1 - halaman Masuk mengirim kredensial ke server, bukan verifikasi mock
+      ---
+      duration_ms: 3.50925
+      ...
+    # Subtest: halaman Masuk tidak lagi menawarkan akun pratinjau atau kata sandi bebas
+    ok 2 - halaman Masuk tidak lagi menawarkan akun pratinjau atau kata sandi bebas
+      ---
+      duration_ms: 0.720792
+      ...
+    # Subtest: Keluar mengakhiri sesi server lewat POST /logout
+    ok 3 - Keluar mengakhiri sesi server lewat POST /logout
+      ---
+      duration_ms: 0.3995
+      ...
+    # Subtest: identitas akun hanya dari sesi server (auth.akun), tanpa akun pratinjau AG-001
+    ok 4 - identitas akun hanya dari sesi server (auth.akun), tanpa akun pratinjau AG-001
+      ---
+      duration_ms: 0.342333
+      ...
+    # Subtest: tidak ada halaman, layout, atau komponen yang memakai masuk/keluar/akunAktif mock
+    ok 5 - tidak ada halaman, layout, atau komponen yang memakai masuk/keluar/akunAktif mock
+      ---
+      duration_ms: 12.418833
+      ...
+    # Subtest: tidak ada URL /demo/ yang di-hardcode di frontend
+    ok 6 - tidak ada URL /demo/ yang di-hardcode di frontend
+      ---
+      duration_ms: 8.877708
+      ...
+    1..6
+ok 13 - Autentikasi server (Phase 8A)
+  ---
+  duration_ms: 27.264458
+  type: 'suite'
+  ...
+# Subtest: Simpan Buku ke server (Phase 9B)
+    # Subtest: POST /admin/buku atau PUT /admin/buku/{kode} lewat router Inertia yang terikat
+    ok 1 - POST /admin/buku atau PUT /admin/buku/{kode} lewat router Inertia yang terikat
+      ---
+      duration_ms: 0.83525
+      ...
+    # Subtest: payload: Kode Buku hanya saat Tambah; hanya eksemplar BARU yang dikirim
+    ok 2 - payload: Kode Buku hanya saat Tambah; hanya eksemplar BARU yang dikirim
+      ---
+      duration_ms: 0.757416
+      ...
+    # Subtest: tidak ada simulasi simpan di browser dan kirim ganda dicegah
+    ok 3 - tidak ada simulasi simpan di browser dan kirim ganda dicegah
+      ---
+      duration_ms: 0.4105
+      ...
+    # Subtest: galat eksemplar dari server (eksemplar.N.kodeEksemplar) ditampilkan di bagian Eksemplar
+    ok 4 - galat eksemplar dari server (eksemplar.N.kodeEksemplar) ditampilkan di bagian Eksemplar
+      ---
+      duration_ms: 0.153042
+      ...
+    # Subtest: Dipesan/Dipinjam tetap tidak dapat dipilih untuk eksemplar baru
+    ok 5 - Dipesan/Dipinjam tetap tidak dapat dipilih untuk eksemplar baru
+      ---
+      duration_ms: 0.076375
+      ...
+    # Subtest: Data Buku menampilkan pesan sukses dari flash server (setelah commit)
+    ok 6 - Data Buku menampilkan pesan sukses dari flash server (setelah commit)
+      ---
+      duration_ms: 0.065209
+      ...
+    # Subtest: aksi Buku tidak lagi ditolak "Belum tersedia" (Batch 2: tidak ada lagi aksi tertunda)
+    ok 7 - aksi Buku tidak lagi ditolak "Belum tersedia" (Batch 2: tidak ada lagi aksi tertunda)
+      ---
+      duration_ms: 0.364542
+      ...
+    1..7
+ok 14 - Simpan Buku ke server (Phase 9B)
+  ---
+  duration_ms: 3.580375
+  type: 'suite'
+  ...
+# Subtest: Validasi Buku di browser selaras dengan server (Phase 9B)
+    # Subtest: panjang maksimum mengikuti kolom MySQL
+    ok 1 - panjang maksimum mengikuti kolom MySQL
+      ---
+      duration_ms: 0.609542
+      ...
+    # Subtest: eksemplar baru selain Tersedia ditolak
+    ok 2 - eksemplar baru selain Tersedia ditolak
+      ---
+      duration_ms: 0.191541
+      ...
+    1..2
+ok 15 - Validasi Buku di browser selaras dengan server (Phase 9B)
+  ---
+  duration_ms: 0.977
+  type: 'suite'
+  ...
+# Subtest: Pencarian buku di server (Phase 9B)
+    # Subtest: Data Buku & Cari Buku tidak lagi memfilter di browser
+    ok 1 - Data Buku & Cari Buku tidak lagi memfilter di browser
+      ---
+      duration_ms: 0.22475
+      ...
+    # Subtest: kata kunci dikirim lewat Inertia GET (query string), dengan jeda ketik dan tanpa request ganda
+    ok 2 - kata kunci dikirim lewat Inertia GET (query string), dengan jeda ketik dan tanpa request ganda
+      ---
+      duration_ms: 0.141084
+      ...
+    # Subtest: tautan pagination membawa filter aktif dan mempertahankan state
+    ok 3 - tautan pagination membawa filter aktif dan mempertahankan state
+      ---
+      duration_ms: 0.109958
+      ...
+    # Subtest: parameter query: tanpa nilai kosong, halaman 1 tidak ditulis, spasi tepi dirapikan
+    ok 4 - parameter query: tanpa nilai kosong, halaman 1 tidak ditulis, spasi tepi dirapikan
+      ---
+      duration_ms: 0.821167
+      ...
+    # Subtest: nomor halaman maks. 5, berpusat pada halaman aktif
+    ok 5 - nomor halaman maks. 5, berpusat pada halaman aktif
+      ---
+      duration_ms: 0.373375
+      ...
+    # Subtest: ketersediaan tetap dihitung dari seluruh eksemplar buku yang dikirim server
+    ok 6 - ketersediaan tetap dihitung dari seluruh eksemplar buku yang dikirim server
+      ---
+      duration_ms: 0.426458
+      ...
+    1..6
+ok 16 - Pencarian buku di server (Phase 9B)
+  ---
+  duration_ms: 2.478667
+  type: 'suite'
+  ...
+# Subtest: Dashboard Admin (Batch 3)
+    # Subtest: angka dari agregat server, tanpa perhitungan dataset di browser
+    ok 1 - angka dari agregat server, tanpa perhitungan dataset di browser
+      ---
+      duration_ms: 0.962125
+      ...
+    # Subtest: kartu ringkasan tetap menaut ke halaman yang sama
+    ok 2 - kartu ringkasan tetap menaut ke halaman yang sama
+      ---
+      duration_ms: 0.382583
+      ...
+    1..2
+ok 17 - Dashboard Admin (Batch 3)
+  ---
+  duration_ms: 2.057542
+  type: 'suite'
+  ...
+# Subtest: Dashboard Anggota (Batch 3)
+    # Subtest: ringkasan & daftar dari server (data milik sesi), tanpa fungsi relasi di browser
+    ok 1 - ringkasan & daftar dari server (data milik sesi), tanpa fungsi relasi di browser
+      ---
+      duration_ms: 0.136875
+      ...
+    1..1
+ok 18 - Dashboard Anggota (Batch 3)
+  ---
+  duration_ms: 0.197583
+  type: 'suite'
+  ...
+# Subtest: Laporan dari server (Batch 3)
+    # Subtest: baris & ringkasan dari server; filter URL, galat server, dan cetak dipertahankan
+    ok 1 - baris & ringkasan dari server; filter URL, galat server, dan cetak dipertahankan
+      ---
+      duration_ms: 0.256584
+      ...
+    # Subtest: definisi tampilan untuk keempat jenis laporan SRS (tanpa format ekspor)
+    ok 2 - definisi tampilan untuk keempat jenis laporan SRS (tanpa format ekspor)
+      ---
+      duration_ms: 0.492125
+      ...
+    # Subtest: laporanDariServer menggabungkan data server dengan definisi tampilan
+    ok 3 - laporanDariServer menggabungkan data server dengan definisi tampilan
+      ---
+      duration_ms: 0.181375
+      ...
+    1..3
+ok 19 - Laporan dari server (Batch 3)
+  ---
+  duration_ms: 1.128708
+  type: 'suite'
+  ...
+# Subtest: Kredensial di frontend (Phase 8C)
+    # Subtest: buat akses login & reset kata sandi dikirim ke endpoint server
+    ok 1 - buat akses login & reset kata sandi dikirim ke endpoint server
+      ---
+      duration_ms: 1.705375
+      ...
+    # Subtest: isian kata sandi dikosongkan setelah setiap permintaan
+    ok 2 - isian kata sandi dikosongkan setelah setiap permintaan
+      ---
+      duration_ms: 0.167417
+      ...
+    # Subtest: Simpan Anggota ke server: kredensial hanya saat Tambah, tidak pernah saat Ubah (Phase 9A)
+    ok 3 - Simpan Anggota ke server: kredensial hanya saat Tambah, tidak pernah saat Ubah (Phase 9A)
+      ---
+      duration_ms: 0.360167
+      ...
+    # Subtest: setelah sukses, default formulir dikosongkan (Inertia v3 menyalin isian sukses ke default)
+    ok 4 - setelah sukses, default formulir dikosongkan (Inertia v3 menyalin isian sukses ke default)
+      ---
+      duration_ms: 0.169916
+      ...
+    # Subtest: halaman Admin & Anggota memakai formulir bersama; Anggota wajib tanpa tombol Batal
+    ok 5 - halaman Admin & Anggota memakai formulir bersama; Anggota wajib tanpa tombol Batal
+      ---
+      duration_ms: 0.489708
+      ...
+    # Subtest: ganti kata sandi sendiri memakai PUT ke rute server dengan kata sandi saat ini
+    ok 6 - ganti kata sandi sendiri memakai PUT ke rute server dengan kata sandi saat ini
+      ---
+      duration_ms: 0.075083
+      ...
+    1..6
+ok 20 - Kredensial di frontend (Phase 8C)
+  ---
+  duration_ms: 4.138375
+  type: 'suite'
+  ...
+# Subtest: Pencarian & filter Data Anggota
+    # Subtest: tanpa filter menampilkan semua anggota
+    ok 1 - tanpa filter menampilkan semua anggota
+      ---
+      duration_ms: 1.404208
+      ...
+    # Subtest: cari berdasarkan kode, nama, atau kontak (tidak peka huruf besar/kecil)
+    ok 2 - cari berdasarkan kode, nama, atau kontak (tidak peka huruf besar/kecil)
+      ---
+      duration_ms: 0.421291
+      ...
+    # Subtest: filter status dan gabungan dengan kata kunci
+    ok 3 - filter status dan gabungan dengan kata kunci
+      ---
+      duration_ms: 0.085333
+      ...
+    # Subtest: kata kunci yang tidak cocok menghasilkan daftar kosong
+    ok 4 - kata kunci yang tidak cocok menghasilkan daftar kosong
+      ---
+      duration_ms: 0.080125
+      ...
+    1..4
+ok 21 - Pencarian & filter Data Anggota
+  ---
+  duration_ms: 3.050291
+  type: 'suite'
+  ...
+# Subtest: Pencarian Data Buku (kode, judul, kategori)
+    # Subtest: cari berdasarkan kode buku, judul, dan kategori
+    ok 1 - cari berdasarkan kode buku, judul, dan kategori
+      ---
+      duration_ms: 0.156542
+      ...
+    # Subtest: penulis/penerbit tidak termasuk kriteria pencarian
+    ok 2 - penulis/penerbit tidak termasuk kriteria pencarian
+      ---
+      duration_ms: 0.937083
+      ...
+    # Subtest: kata kunci yang tidak cocok menghasilkan daftar kosong
+    ok 3 - kata kunci yang tidak cocok menghasilkan daftar kosong
+      ---
+      duration_ms: 0.225917
+      ...
+    # Subtest: jumlah eksemplar dihitung dari relasi eksemplar
+    ok 4 - jumlah eksemplar dihitung dari relasi eksemplar
+      ---
+      duration_ms: 1.632458
+      ...
+    # Subtest: usulan kode berikutnya untuk placeholder
+    ok 5 - usulan kode berikutnya untuk placeholder
+      ---
+      duration_ms: 0.711208
+      ...
+    1..5
+ok 22 - Pencarian Data Buku (kode, judul, kategori)
+  ---
+  duration_ms: 4.257834
+  type: 'suite'
+  ...
+# Subtest: Rekap status dashboard
+    # Subtest: rekap booking mengikuti urutan status resmi dan totalnya sama dengan jumlah booking
+    ok 1 - rekap booking mengikuti urutan status resmi dan totalnya sama dengan jumlah booking
+      ---
+      duration_ms: 0.176458
+      ...
+    1..1
+ok 23 - Rekap status dashboard
+  ---
+  duration_ms: 0.238209
+  type: 'suite'
+  ...
+# Subtest: Validasi Form Anggota
+    # Subtest: isian lengkap dan unik valid
+    ok 1 - isian lengkap dan unik valid
+      ---
+      duration_ms: 0.2625
+      ...
+    # Subtest: field wajib
+    ok 2 - field wajib
+      ---
+      duration_ms: 0.137875
+      ...
+    # Subtest: Kode Anggota duplikat ditolak (tidak peka huruf besar/kecil)
+    ok 3 - Kode Anggota duplikat ditolak (tidak peka huruf besar/kecil)
+      ---
+      duration_ms: 0.130291
+      ...
+    # Subtest: kode dengan spasi ditolak
+    ok 4 - kode dengan spasi ditolak
+      ---
+      duration_ms: 0.06275
+      ...
+    # Subtest: anggota boleh dinonaktifkan walau masih punya transaksi berjalan (FR-022)
+    ok 5 - anggota boleh dinonaktifkan walau masih punya transaksi berjalan (FR-022)
+      ---
+      duration_ms: 0.097167
+      ...
+    1..5
+ok 24 - Validasi Form Anggota
+  ---
+  duration_ms: 0.910333
+  type: 'suite'
+  ...
+# Subtest: Validasi Form Buku & Eksemplar
+    # Subtest: isian lengkap valid
+    ok 1 - isian lengkap valid
+      ---
+      duration_ms: 0.832042
+      ...
+    # Subtest: field wajib dan minimal satu eksemplar
+    ok 2 - field wajib dan minimal satu eksemplar
+      ---
+      duration_ms: 0.131791
+      ...
+    # Subtest: Kode Buku duplikat ditolak
+    ok 3 - Kode Buku duplikat ditolak
+      ---
+      duration_ms: 0.170833
+      ...
+    # Subtest: Tahun Terbit harus 4 digit dan tidak melebihi tahun demo
+    ok 4 - Tahun Terbit harus 4 digit dan tidak melebihi tahun demo
+      ---
+      duration_ms: 0.12025
+      ...
+    # Subtest: Kode Eksemplar duplikat ditolak — terhadap data dan terhadap daftar formulir
+    ok 5 - Kode Eksemplar duplikat ditolak — terhadap data dan terhadap daftar formulir
+      ---
+      duration_ms: 0.124333
+      ...
+    # Subtest: eksemplar baru selain Tersedia ditolak
+    ok 6 - eksemplar baru selain Tersedia ditolak
+      ---
+      duration_ms: 0.058917
+      ...
+    # Subtest: ubah buku yang sudah punya eksemplar tidak wajib menambah eksemplar
+    ok 7 - ubah buku yang sudah punya eksemplar tidak wajib menambah eksemplar
+      ---
+      duration_ms: 0.05925
+      ...
+    1..7
+ok 25 - Validasi Form Buku & Eksemplar
+  ---
+  duration_ms: 1.594666
+  type: 'suite'
+  ...
+# Subtest: Store pratinjau (salinan reaktif)
+    # Subtest: store dimulai dari salinan data mock, bukan objek yang sama
+    ok 1 - store dimulai dari salinan data mock, bukan objek yang sama
+      ---
+      duration_ms: 2.052125
+      ...
+    # Subtest: tambah anggota tidak mengubah data awal dan tetap konsisten
+    ok 2 - tambah anggota tidak mengubah data awal dan tetap konsisten
+      ---
+      duration_ms: 4.336
+      ...
+    # Subtest: tambah anggota dengan kode duplikat ditolak tanpa mengubah data
+    ok 3 - tambah anggota dengan kode duplikat ditolak tanpa mengubah data
+      ---
+      duration_ms: 1.499959
+      ...
+    # Subtest: ubah anggota menyinkronkan nama dan status akun login
+    ok 4 - ubah anggota menyinkronkan nama dan status akun login
+      ---
+      duration_ms: 1.694042
+      ...
+    # Subtest: menonaktifkan anggota tidak membatalkan transaksi berjalan dan data tetap konsisten
+    ok 5 - menonaktifkan anggota tidak membatalkan transaksi berjalan dan data tetap konsisten
+      ---
+      duration_ms: 2.128
+      ...
+    # Subtest: tambah buku beserta eksemplar Tersedia; jumlah eksemplar ikut bertambah
+    ok 6 - tambah buku beserta eksemplar Tersedia; jumlah eksemplar ikut bertambah
+      ---
+      duration_ms: 4.058625
+      ...
+    # Subtest: ubah buku menambah eksemplar tanpa mengubah status eksemplar lama
+    ok 7 - ubah buku menambah eksemplar tanpa mengubah status eksemplar lama
+      ---
+      duration_ms: 3.86925
+      ...
+    # Subtest: pesan satu kali: diambil sekali lalu kosong
+    ok 8 - pesan satu kali: diambil sekali lalu kosong
+      ---
+      duration_ms: 3.387834
+      ...
+    1..8
+ok 26 - Store pratinjau (salinan reaktif)
+  ---
+  duration_ms: 23.330875
+  type: 'suite'
+  ...
+# Subtest: Validator konsistensi
+    # Subtest: dataset utama konsisten (tanpa pelanggaran)
+    ok 1 - dataset utama konsisten (tanpa pelanggaran)
+      ---
+      duration_ms: 3.949833
+      ...
+    # Subtest: data awal dibekukan agar tidak berubah tanpa sengaja
+    ok 2 - data awal dibekukan agar tidak berubah tanpa sengaja
+      ---
+      duration_ms: 0.254209
+      ...
+    # Subtest: menangkap: kode anggota duplikat
+    ok 3 - menangkap: kode anggota duplikat
+      ---
+      duration_ms: 2.853333
+      ...
+    # Subtest: menangkap: eksemplar menunjuk buku yang tidak ada
+    ok 4 - menangkap: eksemplar menunjuk buku yang tidak ada
+      ---
+      duration_ms: 0.334834
+      ...
+    # Subtest: menangkap: peminjaman menunjuk anggota yang tidak ada
+    ok 5 - menangkap: peminjaman menunjuk anggota yang tidak ada
+      ---
+      duration_ms: 0.320959
+      ...
+    # Subtest: menangkap: pengembalian menunjuk peminjaman yang tidak ada
+    ok 6 - menangkap: pengembalian menunjuk peminjaman yang tidak ada
+      ---
+      duration_ms: 0.190875
+      ...
+    # Subtest: menangkap: booking menunjuk eksemplar yang tidak ada
+    ok 7 - menangkap: booking menunjuk eksemplar yang tidak ada
+      ---
+      duration_ms: 0.182792
+      ...
+    # Subtest: menangkap: dua peminjaman Aktif pada eksemplar yang sama
+    ok 8 - menangkap: dua peminjaman Aktif pada eksemplar yang sama
+      ---
+      duration_ms: 9.76
+      ...
+    # Subtest: menangkap: peminjaman Aktif memiliki pengembalian
+    ok 9 - menangkap: peminjaman Aktif memiliki pengembalian
+      ---
+      duration_ms: 6.870292
+      ...
+    # Subtest: menangkap: peminjaman Selesai tanpa pengembalian
+    ok 10 - menangkap: peminjaman Selesai tanpa pengembalian
+      ---
+      duration_ms: 2.363875
+      ...
+    # Subtest: menangkap: status eksemplar tidak sesuai transaksi
+    ok 11 - menangkap: status eksemplar tidak sesuai transaksi
+      ---
+      duration_ms: 0.308375
+      ...
+    # Subtest: menangkap: booking Disetujui tetapi eksemplar Tersedia
+    ok 12 - menangkap: booking Disetujui tetapi eksemplar Tersedia
+      ---
+      duration_ms: 0.197083
+      ...
+    # Subtest: menangkap: booking Direalisasikan tanpa peminjaman
+    ok 13 - menangkap: booking Direalisasikan tanpa peminjaman
+      ---
+      duration_ms: 0.249083
+      ...
+    # Subtest: menangkap: realisasi ke peminjaman anggota lain
+    ok 14 - menangkap: realisasi ke peminjaman anggota lain
+      ---
+      duration_ms: 0.184041
+      ...
+    # Subtest: menangkap: booking Ditolak tanpa alasan
+    ok 15 - menangkap: booking Ditolak tanpa alasan
+      ---
+      duration_ms: 0.254125
+      ...
+    # Subtest: menangkap: status di luar kosakata (Menunggu)
+    ok 16 - menangkap: status di luar kosakata (Menunggu)
+      ---
+      duration_ms: 0.181
+      ...
+    # Subtest: menangkap: eksemplar dipesan sekaligus dipinjam
+    ok 17 - menangkap: eksemplar dipesan sekaligus dipinjam
+      ---
+      duration_ms: 0.218417
+      ...
+    # Subtest: menangkap: tanggal transaksi melewati tanggal demo
+    ok 18 - menangkap: tanggal transaksi melewati tanggal demo
+      ---
+      duration_ms: 0.355333
+      ...
+    # Subtest: menangkap: tanggal tidak valid
+    ok 19 - menangkap: tanggal tidak valid
+      ---
+      duration_ms: 0.233042
+      ...
+    # Subtest: menangkap: dikembalikan sebelum dipinjam
+    ok 20 - menangkap: dikembalikan sebelum dipinjam
+      ---
+      duration_ms: 0.225625
+      ...
+    # Subtest: menangkap: buku tanpa eksemplar
+    ok 21 - menangkap: buku tanpa eksemplar
+      ---
+      duration_ms: 0.172542
+      ...
+    1..21
+ok 27 - Validator konsistensi
+  ---
+  duration_ms: 31.21075
+  type: 'suite'
+  ...
+# Subtest: 1. Identitas unik
+    # Subtest: Kode Anggota, Kode Buku, Kode Eksemplar unik
+    ok 1 - Kode Anggota, Kode Buku, Kode Eksemplar unik
+      ---
+      duration_ms: 0.097791
+      ...
+    # Subtest: ID peminjaman, pengembalian, booking, dan pengguna unik
+    ok 2 - ID peminjaman, pengembalian, booking, dan pengguna unik
+      ---
+      duration_ms: 0.047209
+      ...
+    1..2
+ok 28 - 1. Identitas unik
+  ---
+  duration_ms: 0.197125
+  type: 'suite'
+  ...
+# Subtest: 2. Relasi antar data
+    # Subtest: setiap eksemplar terhubung ke buku yang valid; setiap buku punya ≥ 1 eksemplar
+    ok 1 - setiap eksemplar terhubung ke buku yang valid; setiap buku punya ≥ 1 eksemplar
+      ---
+      duration_ms: 0.217542
+      ...
+    # Subtest: detail peminjaman dan booking selalu menemukan anggota, eksemplar, dan buku
+    ok 2 - detail peminjaman dan booking selalu menemukan anggota, eksemplar, dan buku
+      ---
+      duration_ms: 0.470625
+      ...
+    # Subtest: setiap pengembalian menunjuk tepat satu peminjaman (1 → 0..1)
+    ok 3 - setiap pengembalian menunjuk tepat satu peminjaman (1 → 0..1)
+      ---
+      duration_ms: 0.068875
+      ...
+    # Subtest: contoh dari Object Diagram dipertahankan
+    ok 4 - contoh dari Object Diagram dipertahankan
+      ---
+      duration_ms: 0.073875
+      ...
+    1..4
+ok 29 - 2. Relasi antar data
+  ---
+  duration_ms: 0.967291
+  type: 'suite'
+  ...
+# Subtest: 3. Status eksemplar dan peminjaman
+    # Subtest: status eksemplar sama dengan status yang diturunkan dari transaksi saat ini
+    ok 1 - status eksemplar sama dengan status yang diturunkan dari transaksi saat ini
+      ---
+      duration_ms: 0.138542
+      ...
+    # Subtest: tidak ada dua peminjaman Aktif pada eksemplar yang sama
+    ok 2 - tidak ada dua peminjaman Aktif pada eksemplar yang sama
+      ---
+      duration_ms: 0.05325
+      ...
+    # Subtest: peminjaman Aktif tidak punya tanggal kembali; Selesai punya
+    ok 3 - peminjaman Aktif tidak punya tanggal kembali; Selesai punya
+      ---
+      duration_ms: 0.123125
+      ...
+    # Subtest: eksemplar Dipinjam ⇔ tepat satu peminjaman Aktif
+    ok 4 - eksemplar Dipinjam ⇔ tepat satu peminjaman Aktif
+      ---
+      duration_ms: 0.077542
+      ...
+    1..4
+ok 30 - 3. Status eksemplar dan peminjaman
+  ---
+  duration_ms: 0.463042
+  type: 'suite'
+  ...
+# Subtest: 4. Booking dan realisasi
+    # Subtest: booking Disetujui yang belum direalisasikan memakai eksemplar Dipesan
+    ok 1 - booking Disetujui yang belum direalisasikan memakai eksemplar Dipesan
+      ---
+      duration_ms: 0.175584
+      ...
+    # Subtest: booking Direalisasikan terhubung ke peminjaman anggota & eksemplar yang sama
+    ok 2 - booking Direalisasikan terhubung ke peminjaman anggota & eksemplar yang sama
+      ---
+      duration_ms: 4.972959
+      ...
+    # Subtest: booking baru berstatus Diajukan — tidak ada status "Menunggu"
+    ok 3 - booking baru berstatus Diajukan — tidak ada status "Menunggu"
+      ---
+      duration_ms: 0.124334
+      ...
+    # Subtest: alasan penolakan hanya pada booking Ditolak
+    ok 4 - alasan penolakan hanya pada booking Ditolak
+      ---
+      duration_ms: 0.061625
+      ...
+    1..4
+ok 31 - 4. Booking dan realisasi
+  ---
+  duration_ms: 5.431125
+  type: 'suite'
+  ...
+# Subtest: 5. Ringkasan dashboard dihitung dari dataset
+    # Subtest: ringkasan Admin sama dengan hitungan langsung dari tabel
+    ok 1 - ringkasan Admin sama dengan hitungan langsung dari tabel
+      ---
+      duration_ms: 0.197333
+      ...
+    # Subtest: ringkasan berubah bila data berubah (bukan angka tetap)
+    ok 2 - ringkasan berubah bila data berubah (bukan angka tetap)
+      ---
+      duration_ms: 0.174208
+      ...
+    # Subtest: nilai ringkasan Admin pada tanggal demo
+    ok 3 - nilai ringkasan Admin pada tanggal demo
+      ---
+      duration_ms: 1.201417
+      ...
+    1..3
+ok 32 - 5. Ringkasan dashboard dihitung dari dataset
+  ---
+  duration_ms: 1.740209
+  type: 'suite'
+  ...
+# Subtest: 6. Riwayat milik anggota demo
+    # Subtest: akun pratinjau berasal dari dataset (Admin Rina Wulandari, Anggota AG-001 Nadia Rahmawati)
+    ok 1 - akun pratinjau berasal dari dataset (Admin Rina Wulandari, Anggota AG-001 Nadia Rahmawati)
+      ---
+      duration_ms: 0.276583
+      ...
+    # Subtest: AG-001 punya peminjaman Aktif dan Selesai, hanya miliknya sendiri
+    ok 2 - AG-001 punya peminjaman Aktif dan Selesai, hanya miliknya sendiri
+      ---
+      duration_ms: 0.089042
+      ...
+    # Subtest: AG-001 punya booking dengan beberapa status, hanya miliknya sendiri
+    ok 3 - AG-001 punya booking dengan beberapa status, hanya miliknya sendiri
+      ---
+      duration_ms: 0.066167
+      ...
+    # Subtest: ringkasan Dashboard Anggota AG-001
+    ok 4 - ringkasan Dashboard Anggota AG-001
+      ---
+      duration_ms: 0.082625
+      ...
+    # Subtest: anggota tanpa transaksi menghasilkan daftar kosong (kondisi tabel kosong)
+    ok 5 - anggota tanpa transaksi menghasilkan daftar kosong (kondisi tabel kosong)
+      ---
+      duration_ms: 0.077583
+      ...
+    1..5
+ok 33 - 6. Riwayat milik anggota demo
+  ---
+  duration_ms: 0.822916
+  type: 'suite'
+  ...
+# Subtest: 7. Tanggal transaksi
+    # Subtest: semua tanggal kejadian valid dan tidak melewati tanggal demo
+    ok 1 - semua tanggal kejadian valid dan tidak melewati tanggal demo
+      ---
+      duration_ms: 0.134833
+      ...
+    # Subtest: urutan tanggal masuk akal
+    ok 2 - urutan tanggal masuk akal
+      ---
+      duration_ms: 0.175375
+      ...
+    # Subtest: peminjaman Aktif belum melewati jatuh tempo (tidak ada keterlambatan/denda di prototipe)
+    ok 3 - peminjaman Aktif belum melewati jatuh tempo (tidak ada keterlambatan/denda di prototipe)
+      ---
+      duration_ms: 0.16675
+      ...
+    # Subtest: durasi pinjam bervariasi — tidak ada durasi baku (TBD-05)
+    ok 4 - durasi pinjam bervariasi — tidak ada durasi baku (TBD-05)
+      ---
+      duration_ms: 0.275791
+      ...
+    1..4
+ok 34 - 7. Tanggal transaksi
+  ---
+  duration_ms: 0.87625
+  type: 'suite'
+  ...
+# Subtest: Cakupan data demonstrasi
+    # Subtest: setiap status resmi muncul minimal sekali
+    ok 1 - setiap status resmi muncul minimal sekali
+      ---
+      duration_ms: 0.237208
+      ...
+    # Subtest: ada buku dengan satu eksemplar dan dengan beberapa eksemplar
+    ok 2 - ada buku dengan satu eksemplar dan dengan beberapa eksemplar
+      ---
+      duration_ms: 0.102875
+      ...
+    # Subtest: ada buku tanpa eksemplar Tersedia (seluruhnya Dipinjam/Dipesan)
+    ok 3 - ada buku tanpa eksemplar Tersedia (seluruhnya Dipinjam/Dipesan)
+      ---
+      duration_ms: 0.126833
+      ...
+    1..3
+ok 35 - Cakupan data demonstrasi
+  ---
+  duration_ms: 0.52525
+  type: 'suite'
+  ...
+# Subtest: Privasi aset frontend (Phase 8B)
+    # Subtest: kode frontend tidak memuat data Anggota, akun, atau transaksi mock
+    ok 1 - kode frontend tidak memuat data Anggota, akun, atau transaksi mock
+      ---
+      duration_ms: 18.12425
+      ...
+    # Subtest: frontend tidak mengimpor fixture pengujian atau store mock
+    ok 2 - frontend tidak mengimpor fixture pengujian atau store mock
+      ---
+      duration_ms: 6.382625
+      ...
+    # Subtest: build produksi (bila ada) tidak memuat data seed dan tidak menyimpan artefak usang
+    ok 3 - build produksi (bila ada) tidak memuat data seed dan tidak menyimpan artefak usang
+      ---
+      duration_ms: 29.016792
+      ...
+    1..3
+ok 36 - Privasi aset frontend (Phase 8B)
+  ---
+  duration_ms: 54.6755
+  type: 'suite'
+  ...
+# Subtest: Aksi tulis belum terhubung database (Phase 8B)
+    # Subtest: setiap aksi tulis ditolak dengan GalatValidasi berpesan eksplisit
+    ok 1 - setiap aksi tulis ditolak dengan GalatValidasi berpesan eksplisit
+      ---
+      duration_ms: 0.169292
+      ...
+    # Subtest: composable data halaman hanya membaca prop server dan mengekspor aksi penolak
+    ok 2 - composable data halaman hanya membaca prop server dan mengekspor aksi penolak
+      ---
+      duration_ms: 0.173958
+      ...
+    # Subtest: halaman tidak lagi mengaku menyimpan: tidak ada fungsi tulis yang melewati aksiTertunda
+    ok 3 - halaman tidak lagi mengaku menyimpan: tidak ada fungsi tulis yang melewati aksiTertunda
+      ---
+      duration_ms: 1.733291
+      ...
+    1..3
+ok 37 - Aksi tulis belum terhubung database (Phase 8B)
+  ---
+  duration_ms: 2.27075
+  type: 'suite'
+  ...
+# Subtest: Data seed MySQL (Phase 7A)
+    # Subtest: memuat entitas yang sama dengan mock
+    ok 1 - memuat entitas yang sama dengan mock
+      ---
+      duration_ms: 0.799125
+      ...
+    # Subtest: pengguna sama dengan mock tanpa passwordHash/statusAkun
+    ok 2 - pengguna sama dengan mock tanpa passwordHash/statusAkun
+      ---
+      duration_ms: 0.10875
+      ...
+    # Subtest: tidak ada kata sandi maupun hash di data seed
+    ok 3 - tidak ada kata sandi maupun hash di data seed
+      ---
+      duration_ms: 0.177042
+      ...
+    # Subtest: anggota identik dengan mock
+    ok 4 - anggota identik dengan mock
+      ---
+      duration_ms: 0.148292
+      ...
+    # Subtest: buku identik dengan mock
+    ok 5 - buku identik dengan mock
+      ---
+      duration_ms: 0.061958
+      ...
+    # Subtest: eksemplar identik dengan mock
+    ok 6 - eksemplar identik dengan mock
+      ---
+      duration_ms: 0.10775
+      ...
+    # Subtest: peminjaman identik dengan mock
+    ok 7 - peminjaman identik dengan mock
+      ---
+      duration_ms: 0.171958
+      ...
+    # Subtest: pengembalian identik dengan mock
+    ok 8 - pengembalian identik dengan mock
+      ---
+      duration_ms: 0.048583
+      ...
+    # Subtest: booking identik dengan mock
+    ok 9 - booking identik dengan mock
+      ---
+      duration_ms: 0.184708
+      ...
+    1..9
+ok 38 - Data seed MySQL (Phase 7A)
+  ---
+  duration_ms: 2.643084
+  type: 'suite'
+  ...
+# Subtest: Transaksi ke server (Batch 2)
+    # Subtest: composable memanggil router.post sebagai method, mencegah kirim ganda, dan membaca flash setelah commit
+    ok 1 - composable memanggil router.post sebagai method, mencegah kirim ganda, dan membaca flash setelah commit
+      ---
+      duration_ms: 0.698417
+      ...
+    # Subtest: Pages/Admin/Peminjaman.vue: kirim ke rute('peminjaman.store'), tanpa simulasi, konfirmasi memuat
+    ok 2 - Pages/Admin/Peminjaman.vue: kirim ke rute('peminjaman.store'), tanpa simulasi, konfirmasi memuat
+      ---
+      duration_ms: 0.377292
+      ...
+    # Subtest: Pages/Admin/Pengembalian.vue: kirim ke rute('pengembalian.store'), tanpa simulasi, konfirmasi memuat
+    ok 3 - Pages/Admin/Pengembalian.vue: kirim ke rute('pengembalian.store'), tanpa simulasi, konfirmasi memuat
+      ---
+      duration_ms: 0.145417
+      ...
+    # Subtest: Pages/Admin/Booking/Verifikasi.vue: kirim ke rute('booking.setujui', { kodeBooking: idDipilih.value }), tanpa simulasi, konfirmasi memuat
+    ok 4 - Pages/Admin/Booking/Verifikasi.vue: kirim ke rute('booking.setujui', { kodeBooking: idDipilih.value }), tanpa simulasi, konfirmasi memuat
+      ---
+      duration_ms: 0.160833
+      ...
+    # Subtest: Pages/Admin/Booking/Realisasi.vue: kirim ke rute('booking.realisasikan', { kodeBooking: idBooking }), tanpa simulasi, konfirmasi memuat
+    ok 5 - Pages/Admin/Booking/Realisasi.vue: kirim ke rute('booking.realisasikan', { kodeBooking: idBooking }), tanpa simulasi, konfirmasi memuat
+      ---
+      duration_ms: 0.224125
+      ...
+    # Subtest: Pages/Anggota/Booking/Ajukan.vue: kirim ke rute('booking.store'), tanpa simulasi, konfirmasi memuat
+    ok 6 - Pages/Anggota/Booking/Ajukan.vue: kirim ke rute('booking.store'), tanpa simulasi, konfirmasi memuat
+      ---
+      duration_ms: 0.142833
+      ...
+    # Subtest: Pages/Anggota/Booking/Status.vue: kirim ke rute('booking.batalkan', { kodeBooking: idDipilih.value }), tanpa simulasi, konfirmasi memuat
+    ok 7 - Pages/Anggota/Booking/Status.vue: kirim ke rute('booking.batalkan', { kodeBooking: idDipilih.value }), tanpa simulasi, konfirmasi memuat
+      ---
+      duration_ms: 0.125375
+      ...
+    # Subtest: penolakan booking juga ke server dan pemilik booking tidak pernah dikirim dari browser
+    ok 8 - penolakan booking juga ke server dan pemilik booking tidak pernah dikirim dari browser
+      ---
+      duration_ms: 0.250916
+      ...
+    # Subtest: bukti/pesan sukses dibangun dari data server berdasarkan kode transaksi
+    ok 9 - bukti/pesan sukses dibangun dari data server berdasarkan kode transaksi
+      ---
+      duration_ms: 1.396666
+      ...
+    1..9
+ok 39 - Transaksi ke server (Batch 2)
+  ---
+  duration_ms: 4.597666
+  type: 'suite'
+  ...
+# Subtest: Status Kedaluwarsa & Batas Pengambilan (Batch 2)
+    # Subtest: Kedaluwarsa masuk kosakata status booking dengan ikon (tab & badge mengikutinya)
+    ok 1 - Kedaluwarsa masuk kosakata status booking dengan ikon (tab & badge mengikutinya)
+      ---
+      duration_ms: 0.591792
+      ...
+    # Subtest: Batas Pengambilan ditampilkan dalam WIB dari instant UTC
+    ok 2 - Batas Pengambilan ditampilkan dalam WIB dari instant UTC
+      ---
+      duration_ms: 34.578292
+      ...
+    # Subtest: Batas Pengambilan tampil di Status Booking, Verifikasi, dan Realisasi
+    ok 3 - Batas Pengambilan tampil di Status Booking, Verifikasi, dan Realisasi
+      ---
+      duration_ms: 0.396875
+      ...
+    # Subtest: penolakan realisasi (mis. Kedaluwarsa) tetap terlihat walau booking keluar dari daftar Disetujui
+    ok 4 - penolakan realisasi (mis. Kedaluwarsa) tetap terlihat walau booking keluar dari daftar Disetujui
+      ---
+      duration_ms: 0.1765
+      ...
+    1..4
+ok 40 - Status Kedaluwarsa & Batas Pengambilan (Batch 2)
+  ---
+  duration_ms: 35.897042
+  type: 'suite'
+  ...
+# Subtest: Peminjaman Buku
+    # Subtest: peminjaman valid: record Aktif, eksemplar Dipinjam, pemroses Admin, tanggal hari ini
+    ok 1 - peminjaman valid: record Aktif, eksemplar Dipinjam, pemroses Admin, tanggal hari ini
+      ---
+      duration_ms: 11.53225
+      ...
+    # Subtest: dashboard ikut berubah setelah peminjaman
+    ok 2 - dashboard ikut berubah setelah peminjaman
+      ---
+      duration_ms: 1.3055
+      ...
+    # Subtest: anggota Nonaktif ditolak (BR-01)
+    ok 3 - anggota Nonaktif ditolak (BR-01)
+      ---
+      duration_ms: 0.906958
+      ...
+    # Subtest: anggota tidak terdaftar ditolak
+    ok 4 - anggota tidak terdaftar ditolak
+      ---
+      duration_ms: 0.78425
+      ...
+    # Subtest: eksemplar Dipinjam ditolak (tidak ada peminjaman Aktif ganda, FR-025)
+    ok 5 - eksemplar Dipinjam ditolak (tidak ada peminjaman Aktif ganda, FR-025)
+      ---
+      duration_ms: 0.743
+      ...
+    # Subtest: eksemplar Dipesan ditolak — hanya melalui realisasi booking (BR-07)
+    ok 6 - eksemplar Dipesan ditolak — hanya melalui realisasi booking (BR-07)
+      ---
+      duration_ms: 0.667417
+      ...
+    # Subtest: eksemplar milik buku lain ditolak
+    ok 7 - eksemplar milik buku lain ditolak
+      ---
+      duration_ms: 0.729792
+      ...
+    # Subtest: jatuh tempo wajib, valid, dan setelah tanggal pinjam (tanpa durasi baku)
+    ok 8 - jatuh tempo wajib, valid, dan setelah tanggal pinjam (tanpa durasi baku)
+      ---
+      duration_ms: 2.895833
+      ...
+    # Subtest: eksemplar dengan booking Diajukan tetap boleh dipinjam langsung (hanya Dipesan yang dilindungi)
+    ok 9 - eksemplar dengan booking Diajukan tetap boleh dipinjam langsung (hanya Dipesan yang dilindungi)
+      ---
+      duration_ms: 1.889959
+      ...
+    # Subtest: buku tanpa eksemplar Tersedia → "Buku tidak tersedia" (A04)
+    ok 10 - buku tanpa eksemplar Tersedia → "Buku tidak tersedia" (A04)
+      ---
+      duration_ms: 0.729333
+      ...
+    # Subtest: semua galat field dikumpulkan sekaligus
+    ok 11 - semua galat field dikumpulkan sekaligus
+      ---
+      duration_ms: 0.2675
+      ...
+    1..11
+ok 41 - Peminjaman Buku
+  ---
+  duration_ms: 23.245417
+  type: 'suite'
+  ...
+# Subtest: Pengembalian Buku
+    # Subtest: pengembalian valid: KB baru, peminjaman Selesai, eksemplar Tersedia
+    ok 1 - pengembalian valid: KB baru, peminjaman Selesai, eksemplar Tersedia
+      ---
+      duration_ms: 1.194041
+      ...
+    # Subtest: pengembalian ganda ditolak (FR-027)
+    ok 2 - pengembalian ganda ditolak (FR-027)
+      ---
+      duration_ms: 1.150292
+      ...
+    # Subtest: transaksi yang sudah Selesai sejak awal ditolak
+    ok 3 - transaksi yang sudah Selesai sejak awal ditolak
+      ---
+      duration_ms: 0.623458
+      ...
+    # Subtest: transaksi tidak ditemukan ditolak
+    ok 4 - transaksi tidak ditemukan ditolak
+      ---
+      duration_ms: 0.659375
+      ...
+    # Subtest: peminjaman hasil realisasi booking dapat dikembalikan; booking tetap Direalisasikan
+    ok 5 - peminjaman hasil realisasi booking dapat dikembalikan; booking tetap Direalisasikan
+      ---
+      duration_ms: 0.928125
+      ...
+    # Subtest: dashboard & riwayat anggota ikut berubah
+    ok 6 - dashboard & riwayat anggota ikut berubah
+      ---
+      duration_ms: 0.650167
+      ...
+    1..6
+ok 42 - Pengembalian Buku
+  ---
+  duration_ms: 5.316333
+  type: 'suite'
+  ...
+# Subtest: Verifikasi Booking
+    # Subtest: setujui: Disetujui, eksemplar Dipesan, waktu & pemutus tercatat
+    ok 1 - setujui: Disetujui, eksemplar Dipesan, waktu & pemutus tercatat
+      ---
+      duration_ms: 1.071416
+      ...
+    # Subtest: setujui ditolak bila booking bukan Diajukan
+    ok 2 - setujui ditolak bila booking bukan Diajukan
+      ---
+      duration_ms: 1.554834
+      ...
+    # Subtest: setujui ditolak bila eksemplar tidak tersedia (guard eksemplarTersedia)
+    ok 3 - setujui ditolak bila eksemplar tidak tersedia (guard eksemplarTersedia)
+      ---
+      duration_ms: 1.123
+      ...
+    # Subtest: tolak: wajib alasan; Ditolak, alasan & keputusan tercatat, eksemplar tetap Tersedia
+    ok 4 - tolak: wajib alasan; Ditolak, alasan & keputusan tercatat, eksemplar tetap Tersedia
+      ---
+      duration_ms: 1.278708
+      ...
+    # Subtest: tolak ditolak bila booking bukan Diajukan
+    ok 5 - tolak ditolak bila booking bukan Diajukan
+      ---
+      duration_ms: 0.576541
+      ...
+    # Subtest: booking dengan eksemplar tidak tersedia tetap dapat ditolak
+    ok 6 - booking dengan eksemplar tidak tersedia tetap dapat ditolak
+      ---
+      duration_ms: 1.267042
+      ...
+    1..6
+ok 43 - Verifikasi Booking
+  ---
+  duration_ms: 6.975667
+  type: 'suite'
+  ...
+# Subtest: Realisasi Booking
+    # Subtest: realisasi: peminjaman Aktif baru, booking Direalisasikan & terhubung, eksemplar Dipinjam
+    ok 1 - realisasi: peminjaman Aktif baru, booking Direalisasikan & terhubung, eksemplar Dipinjam
+      ---
+      duration_ms: 1.012666
+      ...
+    # Subtest: realisasi ganda dicegah
+    ok 2 - realisasi ganda dicegah
+      ---
+      duration_ms: 0.989833
+      ...
+    # Subtest: booking Diajukan/Ditolak tidak dapat direalisasikan
+    ok 3 - booking Diajukan/Ditolak tidak dapat direalisasikan
+      ---
+      duration_ms: 1.262083
+      ...
+    # Subtest: anggota Nonaktif tidak dapat merealisasikan booking (FR-026)
+    ok 4 - anggota Nonaktif tidak dapat merealisasikan booking (FR-026)
+      ---
+      duration_ms: 2.038583
+      ...
+    # Subtest: jatuh tempo wajib saat realisasi
+    ok 5 - jatuh tempo wajib saat realisasi
+      ---
+      duration_ms: 0.609166
+      ...
+    # Subtest: alur penuh: ajukan → setujui → realisasikan → kembalikan
+    ok 6 - alur penuh: ajukan → setujui → realisasikan → kembalikan
+      ---
+      duration_ms: 1.570333
+      ...
+    1..6
+ok 44 - Realisasi Booking
+  ---
+  duration_ms: 7.587791
+  type: 'suite'
+  ...
+# Subtest: Atomisitas & rollback
+    # Subtest: perubahan yang membuat data tidak konsisten dibatalkan seluruhnya
+    ok 1 - perubahan yang membuat data tidak konsisten dibatalkan seluruhnya
+      ---
+      duration_ms: 0.991333
+      ...
+    # Subtest: galat di tengah perubahan tidak meninggalkan perubahan sebagian
+    ok 2 - galat di tengah perubahan tidak meninggalkan perubahan sebagian
+      ---
+      duration_ms: 0.81625
+      ...
+    # Subtest: data awal (DATA_MOCK) tidak pernah berubah oleh transaksi
+    ok 3 - data awal (DATA_MOCK) tidak pernah berubah oleh transaksi
+      ---
+      duration_ms: 0.643209
+      ...
+    1..3
+ok 45 - Atomisitas & rollback
+  ---
+  duration_ms: 2.499875
+  type: 'suite'
+  ...
+# Subtest: Kelola Laporan
+    # Subtest: validasi filter: jenis wajib; periode akhir tidak sebelum awal
+    ok 1 - validasi filter: jenis wajib; periode akhir tidak sebelum awal
+      ---
+      duration_ms: 0.289625
+      ...
+    # Subtest: Daftar Buku & Daftar Anggota sesuai dataset
+    ok 2 - Daftar Buku & Daftar Anggota sesuai dataset
+      ---
+      duration_ms: 0.495166
+      ...
+    # Subtest: Peminjaman difilter berdasarkan Tanggal Pinjam
+    ok 3 - Peminjaman difilter berdasarkan Tanggal Pinjam
+      ---
+      duration_ms: 0.459
+      ...
+    # Subtest: Pengembalian difilter berdasarkan Tanggal Kembali, bukan tanggal pinjam
+    ok 4 - Pengembalian difilter berdasarkan Tanggal Kembali, bukan tanggal pinjam
+      ---
+      duration_ms: 0.274459
+      ...
+    # Subtest: periode tanpa transaksi menghasilkan laporan kosong
+    ok 5 - periode tanpa transaksi menghasilkan laporan kosong
+      ---
+      duration_ms: 0.191917
+      ...
+    # Subtest: laporan mengikuti data sesi (bukan data terpisah)
+    ok 6 - laporan mengikuti data sesi (bukan data terpisah)
+      ---
+      duration_ms: 0.975083
+      ...
+    1..6
+ok 46 - Kelola Laporan
+  ---
+  duration_ms: 2.750916
+  type: 'suite'
+  ...
+1..46
+# tests 245
+# suites 46
+# pass 245
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 510.61725
+exit=0

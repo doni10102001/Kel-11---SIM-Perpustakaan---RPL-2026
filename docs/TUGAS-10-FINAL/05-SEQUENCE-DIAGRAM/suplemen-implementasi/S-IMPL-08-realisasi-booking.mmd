@@ -1,0 +1,34 @@
+---
+title: "S-IMPL-08 — Realisasi Booking (BookingAdminController::realisasikan, LayananBooking::realisasikan)"
+---
+sequenceDiagram
+    autonumber
+    actor A as Admin
+    participant V as Vue 3 + Inertia<br/>Admin/Booking/Realisasi.vue
+    participant R as RealisasiBookingRequest<br/>(Gate kelola-transaksi)
+    participant C as BookingAdminController
+    participant S as LayananBooking
+    participant K as LayananKedaluwarsaBooking
+    participant DB as MySQL 8.4
+    A->>V: Pilih booking Disetujui, isi Tanggal Jatuh Tempo → konfirmasi
+    V->>C: POST /admin/booking/{kode}/realisasi
+    C->>R: authorize() + rules()
+    C->>S: realisasikan(kode, jatuhTempo, admin)
+    rect rgb(235, 242, 255)
+        Note over S,DB: DB::transaction — kunci members → bookings
+        S->>DB: SELECT … FOR UPDATE (members, bookings)
+        alt expires_at ≤ sekarang (penjadwal belum berjalan)
+            S->>K: terapkanTerkunci() → Kedaluwarsa, lepas eksemplar, audit
+            K->>DB: UPDATE bookings, book_copies, INSERT audit_logs
+            S->>DB: COMMIT
+            S-->>V: galat validasi — "Booking sudah kedaluwarsa…"
+        else Belum lewat batas
+            S->>DB: SELECT … FOR UPDATE (book_copies) — harus Dipesan untuk booking ini
+            S->>DB: INSERT loans (Aktif, booking_id, staff_id, due_date)
+            S->>DB: UPDATE bookings → Direalisasikan
+            S->>DB: UPDATE book_copies → Dipinjam
+            S->>DB: INSERT audit_logs peminjaman.dibuat + booking.direalisasikan
+            S->>DB: COMMIT
+            C-->>V: 302 + bukti "BP-… direalisasikan menjadi PJ-…"
+        end
+    end

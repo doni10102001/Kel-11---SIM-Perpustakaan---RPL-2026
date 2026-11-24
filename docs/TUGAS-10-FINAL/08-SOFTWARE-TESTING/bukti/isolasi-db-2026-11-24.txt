@@ -1,0 +1,14 @@
+# Isolasi database — 24 November 2026
+# Jumlah baris per tabel diambil read-only (php artisan tinker, COUNT) sebelum PHPUnit dan setelah Browser QA.
+# mysql = sim_perpustakaan_db (development), mysql_testing = sim_perpustakaan_test (uji).
+
+SEBELUM (sebelum PHPUnit):
+{"mysql":{"users":12,"members":11,"books":10,"book_copies":19,"bookings":8,"loans":12,"returns":6,"audit_logs":9},"mysql_testing":{"users":0,"members":0,"books":0,"book_copies":0,"bookings":0,"loans":0,"returns":0,"audit_logs":0}}
+
+
+SESUDAH (setelah PHPUnit, Node, build, Browser QA):
+{"mysql":{"users":12,"members":11,"books":10,"book_copies":19,"bookings":8,"loans":12,"returns":6,"audit_logs":9},"mysql_testing":{"users":0,"members":0,"books":0,"book_copies":0,"bookings":0,"loans":0,"returns":0,"audit_logs":0}}
+
+
+HASIL: identik. DB development tidak berubah; DB uji kembali 0 baris.
+Skenario E2E (dijalankan setelahnya) memverifikasi sendiri: devIdentik=true, ujiAkhir semua 0.

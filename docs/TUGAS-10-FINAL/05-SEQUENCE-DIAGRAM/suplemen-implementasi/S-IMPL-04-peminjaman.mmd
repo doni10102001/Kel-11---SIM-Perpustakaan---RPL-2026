@@ -1,0 +1,38 @@
+---
+title: "S-IMPL-04 — Peminjaman Langsung (PeminjamanController::store, LayananPeminjaman::pinjam)"
+---
+sequenceDiagram
+    autonumber
+    actor A as Admin
+    participant V as Vue 3 + Inertia<br/>Admin/Peminjaman.vue
+    participant R as CatatPeminjamanRequest<br/>(Gate kelola-transaksi)
+    participant C as PeminjamanController
+    participant S as LayananPeminjaman
+    participant O as Eloquent<br/>Member, BookCopy, Loan
+    participant DB as MySQL 8.4
+    A->>V: Pilih Anggota, Buku, Kode Eksemplar, Tanggal Jatuh Tempo → konfirmasi
+    V->>C: POST /admin/peminjaman
+    C->>R: authorize() + rules() (jatuh tempo setelah hari ini)
+    C->>S: pinjam(isian, admin)
+    S->>S: rekonsiliasiEksemplar() — lepas reservasi yang sudah lewat 48 jam
+    rect rgb(235, 242, 255)
+        Note over S,DB: DB::transaction (maks. 3 percobaan bila deadlock)
+        S->>O: Member where member_code … lockForUpdate()
+        O->>DB: SELECT … FOR UPDATE (members)
+        alt Anggota tidak ada / Nonaktif
+            S-->>V: galat validasi — "Anggota tidak valid"
+        end
+        S->>O: BookCopy where copy_code … lockForUpdate()
+        O->>DB: SELECT … FOR UPDATE (book_copies)
+        alt Eksemplar Dipinjam / Dipesan / punya booking Disetujui
+            S-->>V: galat validasi — "Buku tidak tersedia"
+        end
+        S->>O: Loan::save() status Aktif, staff_id, due_date
+        O->>DB: INSERT loans (UNIQUE active_copy_id)
+        S->>O: BookCopy status → Dipinjam
+        O->>DB: UPDATE book_copies
+        S->>DB: INSERT audit_logs peminjaman.dibuat
+        S->>DB: COMMIT
+    end
+    C-->>V: 302 /admin/peminjaman + flash kode PJ-…
+    V-->>A: Bukti Peminjaman dari data MySQL terbaru

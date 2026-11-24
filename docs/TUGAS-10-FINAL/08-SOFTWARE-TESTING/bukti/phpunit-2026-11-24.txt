@@ -1,0 +1,5 @@
+# PHPUnit — eksekusi ulang setelah remediasi keamanan skrip QA
+# Tanggal mulai: 2026-11-24 11:56:32 WIB
+# Perintah: php artisan test   (PHP 8.4.27, MySQL 8.4.4 lokal, DB uji sim_perpustakaan_test)
+# Keluaran runner (format ringkas JSON dari Laravel test runner):
+{"tool":"phpunit","result":"passed","tests":270,"passed":270,"assertions":3466,"duration_ms":43162}

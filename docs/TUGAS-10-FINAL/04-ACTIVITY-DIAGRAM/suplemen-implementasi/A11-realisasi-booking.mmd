@@ -1,0 +1,28 @@
+---
+title: "A11 — Realisasi Booking menjadi Peminjaman (Suplemen Implementasi; LayananBooking::realisasikan)"
+---
+flowchart TD
+    S((Mulai)) --> A1[Anggota datang mengambil buku fisik]
+    A1 --> A2[Admin membuka Realisasi Booking dan memilih booking Disetujui]
+    A2 --> A3[Admin mengisi Tanggal Jatuh Tempo]
+    A3 --> D0{Tanggal jatuh tempo valid?}
+    D0 -- Tidak --> G0[Tampilkan galat validasi] --> A3
+    D0 -- Ya --> B1["Mulai transaksi; kunci members → bookings (FOR UPDATE)"]
+    B1 --> D1{"Sudah lewat Batas Pengambilan (expires_at ≤ sekarang)?"}
+    D1 -- Ya --> K1["Booking → Kedaluwarsa; eksemplar dilepas → Tersedia; audit booking.kedaluwarsa"]
+    K1 --> K2["Commit, lalu tolak realisasi: booking sudah kedaluwarsa"] --> E((Selesai))
+    D1 -- Tidak --> D2{Status booking Disetujui?}
+    D2 -- Tidak --> X[Tolak dan rollback; tampilkan pesan galat] --> E
+    D2 -- Ya --> D3{Anggota Aktif?}
+    D3 -- Tidak --> X
+    D3 -- Ya --> B2[Kunci book_copies]
+    B2 --> D4{"Eksemplar Dipesan untuk booking ini dan tanpa peminjaman Aktif?"}
+    D4 -- Tidak --> X
+    D4 -- Ya --> B3["Buat Loan: status Aktif, booking_id, staff_id, loaned_at, due_date"]
+    B3 --> D5{"UNIQUE booking_id / active_copy_id dilanggar?"}
+    D5 -- Ya --> X
+    D5 -- Tidak --> B4[Booking → Direalisasikan]
+    B4 --> B5[Eksemplar → Dipinjam]
+    B5 --> B6[Catat audit peminjaman.dibuat dan booking.direalisasikan]
+    B6 --> B7[Commit; tampilkan bukti realisasi berisi kode booking dan kode peminjaman]
+    B7 --> E

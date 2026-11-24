@@ -1,0 +1,23 @@
+---
+title: "A12 — Kedaluwarsa Booking Otomatis (Suplemen Implementasi; bookings:expire tiap 5 menit)"
+---
+flowchart TD
+    S((Mulai)) --> P0["Laravel Scheduler memicu bookings:expire (tiap 5 menit, withoutOverlapping)"]
+    P0 --> P1["Ambil batch ID booking: status Disetujui dan expires_at ≤ sekarang (urut expires_at, id)"]
+    P1 --> D0{Ada booking?}
+    D0 -- Tidak --> R[Laporkan jumlah diproses / dilewati / gagal] --> E((Selesai))
+    D0 -- Ya --> L0[Untuk setiap booking dalam batch]
+    L0 --> T1["Mulai transaksi; kunci members → bookings → book_copies"]
+    T1 --> D1{"Masih Disetujui dan masih lewat batas?"}
+    D1 -- Tidak --> SK[Lewati — idempoten] --> NX
+    D1 -- Ya --> T2["Booking → Kedaluwarsa; expired_at = waktu pemrosesan"]
+    T2 --> D2{"Eksemplar Dipesan dan tidak dimiliki transaksi sah lain?"}
+    D2 -- Ya --> T3[Eksemplar → Tersedia]
+    D2 -- Tidak --> T4[Eksemplar tidak diubah]
+    T3 --> T5["Audit booking.kedaluwarsa (actor_id = null / sistem)"]
+    T4 --> T5
+    T5 --> T6[Commit]
+    T6 --> NX{Booking berikutnya?}
+    NX -- Ya --> L0
+    NX -- "Tidak (batch habis)" --> P1
+    T1 -. "galat satu booking" .-> F["Catat log peringatan tanpa data pribadi; lanjutkan booking lain"] --> NX

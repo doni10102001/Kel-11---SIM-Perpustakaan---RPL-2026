@@ -1,0 +1,35 @@
+---
+title: "A10 — Verifikasi Booking (Suplemen Implementasi; LayananBooking::setujui / tolakBooking)"
+---
+flowchart TD
+    S((Mulai)) --> A1[Admin membuka menu Verifikasi Booking]
+    A1 --> A2[Sistem menampilkan booking berstatus Diajukan]
+    A2 --> A3[Admin memilih booking dan melihat detail]
+    A3 --> D0{Keputusan Admin?}
+
+    D0 -- Setujui --> B0[Sistem melepas reservasi lama yang sudah lewat batas pada eksemplar tersebut]
+    B0 --> B1["Mulai transaksi DB; kunci baris members → bookings → book_copies (FOR UPDATE)"]
+    B1 --> D1{Status booking masih Diajukan?}
+    D1 -- Tidak --> X1[Tolak: hanya booking Diajukan yang dapat disetujui] --> R1[Rollback, tampilkan pesan galat]
+    D1 -- Ya --> D2{Anggota berstatus Aktif?}
+    D2 -- Tidak --> X2[Tolak: anggota Nonaktif] --> R1
+    D2 -- Ya --> D3{"Eksemplar Tersedia dan tidak dimiliki peminjaman Aktif / booking Disetujui lain?"}
+    D3 -- Tidak --> X3[Tolak: eksemplar tidak tersedia, booking hanya dapat ditolak] --> R1
+    D3 -- Ya --> B2["Booking → Disetujui; decided_at = sekarang; expires_at = decided_at + 48 jam; staff_id = Admin"]
+    B2 --> B3[Eksemplar → Dipesan]
+    B3 --> B4[Catat audit booking.disetujui]
+    B4 --> B5[Commit; tampilkan pesan sukses dan Batas Pengambilan WIB]
+
+    D0 -- Tolak --> T1[Admin mengisi Alasan Penolakan]
+    T1 --> T2{Alasan valid?}
+    T2 -- Tidak --> T3[Tampilkan galat validasi] --> T1
+    T2 -- Ya --> T4["Mulai transaksi; kunci members → bookings"]
+    T4 --> D4{Status booking masih Diajukan?}
+    D4 -- Tidak --> X4[Tolak perubahan] --> R1
+    D4 -- Ya --> T5["Booking → Ditolak; simpan alasan, decided_at, staff_id (eksemplar tidak berubah)"]
+    T5 --> T6["Catat audit booking.ditolak (hanya panjang alasan)"]
+    T6 --> T7[Commit; tampilkan pesan sukses]
+
+    B5 --> E((Selesai))
+    T7 --> E
+    R1 --> E

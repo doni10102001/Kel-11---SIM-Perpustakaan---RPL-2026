@@ -1,0 +1,59 @@
+# Browser QA (scripts/qa-browser-journey.mjs) — eksekusi ulang Tugas 10
+# Tanggal mulai: 2026-11-21 20:05:51 WIB
+# Perintah: node --experimental-websocket scripts/qa-browser-journey.mjs (Chrome headless, DB uji)
+=== MEMULAI FINAL BROWSER QA — SIM PERPUSTAKAAN ===
+
+1. Mempersiapkan database sim_perpustakaan_test...
+
+ INFO Seeding database.
+
+ Database\Seeders\DemoPerpustakaanSeeder .. RUNNING
+ users dibuat: 11, sudah ada (tidak diubah): 0
+ members dibuat: 10, sudah ada (tidak diubah): 0
+ books dibuat: 10, sudah ada (tidak diubah): 0
+ book_copies dibuat: 18, sudah ada (tidak diubah): 0
+ bookings dibuat: 8, sudah ada (tidak diubah): 0
+ loans dibuat: 10, sudah ada (tidak diubah): 0
+ returns dibuat: 5, sudah ada (tidak diubah): 0
+ Database\Seeders\DemoPerpustakaanSeeder .. 2,759 ms DONE
+
+[PASS] Seed Demo Data di sim_perpustakaan_test — Data awal demo termuat di database pengujian
+Baseline database development: {"users":12,"members":11,"books":10,"copies":19,"loans":12,"bookings":8,"returns":6}
+2. Memulai server PHP pada port 8032 (koneksi mysql_testing)...
+[PASS] Server PHP Uji Aktif — Port 8032 terhubung ke sim_perpustakaan_test
+[PASS] Chrome Headless CDP Aktif — DevTools Port 9360
+
+--- SKENARIO 1: JOURNEY LENGKAP ADMIN ---
+[PASS] Admin Login — Berhasil login dan diarahkan ke /admin/dashboard
+[PASS] Admin Dashboard — Agregat & Render — Judul: Dashboard, Kartu terdeteksi: 0
+[PASS] Admin — Tambah Anggota & Akses Login — Anggota AG-999 dengan akun siti.qa berhasil disimpan
+[PASS] Admin — Tambah Buku & 2 Eksemplar — BK-999 dan eksemplar berhasil dibuat atomik
+[PASS] Admin — Peminjaman Langsung — Peminjaman eksemplar BK-999 untuk AG-999 berhasil dicatat
+[PASS] Admin — Verifikasi Booking (Setujui) — Persetujuan booking mereservasi eksemplar dan menetapkan batas 48 jam
+[PASS] Admin Laporan — Validasi Server Rentang Tanggal — Ditolak server dengan pesan kesalahan per-field
+[PASS] Admin Laporan — Tampilkan & Cetak — Tabel data terisi dari MySQL dan tombol Cetak memanggil window.print()
+[PASS] Admin — Logout — Sesi admin berakhir, kembali ke /login
+
+--- SKENARIO 2: JOURNEY ANGGOTA ---
+[PASS] Anggota Login Awal — Login berhasil diarahkan ke /anggota/kata-sandi
+2.2 Menjalankan alur Wajib Ganti Kata Sandi...
+[PASS] Anggota — Ganti Kata Sandi Wajib — Kata sandi awal diganti, diarahkan ke /anggota/dashboard
+[PASS] Anggota Dashboard — Isolasi Sesi — Hanya data anggota sesi yang tampil
+[PASS] Anggota — Pencarian Katalog Server-Side — Pencarian kata kunci menemukan buku BK-999
+[PASS] Anggota — Pengajuan Booking — Booking diajukan dengan status Diajukan
+[PASS] Anggota — History Peminjaman — Riwayat hanya milik anggota aktif
+[PASS] Keamanan — Proteksi Otorisasi Rute Admin — Anggota dilarang mengakses /admin/dashboard (403/Forbidden)
+[PASS] Anggota — Logout — Sesi anggota berakhir, kembali ke /login
+
+3. Membersihkan database sim_perpustakaan_test...
+[PASS] Pembersihan sim_perpustakaan_test — Database uji bersih kembali
+
+--- SKENARIO 3: SIKLUS KEDALUWARSA BOOKING 48 JAM ---
+[PASS] Booking Expiration Test Suite — 11/11 butir kedaluwarsa 48 jam & idempotent lulus
+[PASS] Integritas Database Development (sim_perpustakaan_db) — Identik 100% (tidak tersentuh)
+
+=== HASIL FINAL BROWSER QA ===
+Total Cek: 23 | Lolos: 23 | Gagal: 0
+Status Akhir: SEMUA SKENARIO QA LOLOS
+
+exit=0

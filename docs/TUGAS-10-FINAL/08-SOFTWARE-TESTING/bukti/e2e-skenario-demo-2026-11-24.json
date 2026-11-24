@@ -1,0 +1,372 @@
+{
+  "mulai": "2026-11-24T04:59:10.874Z",
+  "langkah": [
+    {
+      "nama": "Seed data demo ke sim_perpustakaan_test",
+      "status": "PASS",
+      "detail": "{\"users\":11,\"members\":10,\"books\":10,\"book_copies\":18,\"bookings\":8,\"loans\":10,\"returns\":5,\"audit_logs\":0}"
+    },
+    {
+      "nama": "Admin masuk",
+      "status": "PASS",
+      "detail": "/admin/dashboard"
+    },
+    {
+      "nama": "Dashboard Admin menampilkan kartu ringkasan",
+      "status": "PASS",
+      "detail": "5 kartu"
+    },
+    {
+      "nama": "Anggota AG-901 tersimpan di MySQL dengan akun login",
+      "status": "PASS",
+      "detail": "{\"status\":\"Aktif\",\"role\":\"anggota\",\"wajib_ganti\":1}"
+    },
+    {
+      "nama": "Formulir buku memuat 2 eksemplar",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "nama": "Buku BK-901 + 2 eksemplar Tersedia tersimpan",
+      "status": "PASS",
+      "detail": "{\"buku\":1,\"eksemplar\":{\"EK-901\":\"Tersedia\",\"EK-902\":\"Tersedia\"}}"
+    },
+    {
+      "nama": "Admin keluar",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "nama": "Anggota baru diarahkan ke Ubah Kata Sandi",
+      "status": "PASS",
+      "detail": "/anggota/kata-sandi"
+    },
+    {
+      "nama": "Kata sandi diganti → Dashboard Anggota",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "nama": "Pencarian katalog menemukan BK-901",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "nama": "Panel Detail Buku terbuka",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "nama": "Booking tersimpan berstatus Diajukan (eksemplar tetap Tersedia)",
+      "status": "PASS",
+      "detail": "{\"booking_code\":\"BP-10958\",\"status\":\"Diajukan\",\"status_eksemplar\":\"Tersedia\"}"
+    },
+    {
+      "nama": "Anggota keluar",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "nama": "Booking baru tampil di Verifikasi Booking",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "nama": "Booking Disetujui, batas pengambilan 48 jam, eksemplar Dipesan",
+      "status": "PASS",
+      "detail": "{\"status\":\"Disetujui\",\"jam_batas\":48,\"eksemplar\":\"Dipesan\"}"
+    },
+    {
+      "nama": "Realisasi: peminjaman Aktif, booking Direalisasikan, eksemplar Dipinjam",
+      "status": "PASS",
+      "detail": "{\"loan_code\":\"PJ-14827\",\"status\":\"Aktif\",\"due_date\":\"2026-11-28\",\"status_booking\":\"Direalisasikan\",\"eksemplar\":\"Dipinjam\"}"
+    },
+    {
+      "nama": "Pengembalian: peminjaman Selesai, eksemplar Tersedia",
+      "status": "PASS",
+      "detail": "{\"pinjam\":\"Selesai\",\"kembali\":\"KB-9443\",\"eksemplar\":\"Tersedia\"}"
+    },
+    {
+      "nama": "Laporan Peminjaman memuat transaksi demo",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "nama": "Admin keluar (2)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "nama": "History Anggota memuat peminjaman Selesai",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "nama": "Anggota ditolak di /admin/dashboard",
+      "status": "PASS",
+      "detail": "403 Anda tidak memiliki akses ke halaman ini."
+    },
+    {
+      "nama": "Tidak ada JavaScript error / respons 5xx",
+      "status": "PASS",
+      "detail": "{\"js\":0,\"http5xx\":0}"
+    }
+  ],
+  "screenshot": [
+    {
+      "berkas": "00-login.png",
+      "judul": "Halaman Masuk",
+      "url": "/login",
+      "tinggi": 900
+    },
+    {
+      "berkas": "admin/01-dashboard.png",
+      "judul": "Dashboard Admin (agregasi SQL)",
+      "url": "/admin/dashboard",
+      "tinggi": 1729
+    },
+    {
+      "berkas": "admin/02-data-anggota.png",
+      "judul": "Data Anggota",
+      "url": "/admin/anggota",
+      "tinggi": 1016
+    },
+    {
+      "berkas": "admin/03-tambah-anggota.png",
+      "judul": "Tambah Anggota (dengan Akses Login; kata sandi belum diisi)",
+      "url": "/admin/anggota/tambah",
+      "tinggi": 1104
+    },
+    {
+      "berkas": "admin/04-anggota-tersimpan.png",
+      "judul": "Data Anggota setelah penyimpanan (pesan sukses)",
+      "url": "/admin/anggota",
+      "tinggi": 1175
+    },
+    {
+      "berkas": "admin/05-ubah-anggota.png",
+      "judul": "Ubah Anggota (AG-001)",
+      "url": "/admin/anggota/AG-001/ubah",
+      "tinggi": 1091
+    },
+    {
+      "berkas": "admin/06-data-buku.png",
+      "judul": "Data Buku & Eksemplar",
+      "url": "/admin/buku",
+      "tinggi": 1105
+    },
+    {
+      "berkas": "admin/07-tambah-buku.png",
+      "judul": "Tambah Buku dengan 2 eksemplar",
+      "url": "/admin/buku/tambah",
+      "tinggi": 1335
+    },
+    {
+      "berkas": "admin/08-buku-tersimpan.png",
+      "judul": "Data Buku setelah penyimpanan (pesan sukses)",
+      "url": "/admin/buku",
+      "tinggi": 1274
+    },
+    {
+      "berkas": "admin/09-ubah-buku.png",
+      "judul": "Ubah Buku (BK-901)",
+      "url": "/admin/buku/BK-901/ubah",
+      "tinggi": 1342
+    },
+    {
+      "berkas": "admin/10-peminjaman.png",
+      "judul": "Peminjaman Buku (formulir peminjaman langsung)",
+      "url": "/admin/peminjaman",
+      "tinggi": 900
+    },
+    {
+      "berkas": "anggota/01-wajib-ubah-kata-sandi.png",
+      "judul": "Ubah Kata Sandi (wajib saat login pertama)",
+      "url": "/anggota/kata-sandi",
+      "tinggi": 900
+    },
+    {
+      "berkas": "anggota/02-dashboard.png",
+      "judul": "Dashboard Anggota",
+      "url": "/anggota/dashboard",
+      "tinggi": 1140
+    },
+    {
+      "berkas": "anggota/03-cari-buku.png",
+      "judul": "Cari Buku (hasil pencarian \"Basis Data\")",
+      "url": "/anggota/cari-buku?q=Basis%20Data",
+      "tinggi": 900
+    },
+    {
+      "berkas": "anggota/04-detail-buku.png",
+      "judul": "Detail Buku & daftar eksemplar",
+      "url": "/anggota/cari-buku?q=Basis%20Data",
+      "tinggi": 900
+    },
+    {
+      "berkas": "anggota/05-ajukan-booking.png",
+      "judul": "Ajukan Booking (EK-901 dipilih)",
+      "url": "/anggota/booking/ajukan?buku=BK-901",
+      "tinggi": 900
+    },
+    {
+      "berkas": "anggota/06-booking-diajukan.png",
+      "judul": "Konfirmasi booking BP-10958 diajukan",
+      "url": "/anggota/booking/ajukan",
+      "tinggi": 1151
+    },
+    {
+      "berkas": "anggota/07-status-booking.png",
+      "judul": "Status Booking (Diajukan)",
+      "url": "/anggota/booking/status",
+      "tinggi": 900
+    },
+    {
+      "berkas": "admin/11-verifikasi-booking.png",
+      "judul": "Verifikasi Booking (tab Diajukan)",
+      "url": "/admin/booking/verifikasi",
+      "tinggi": 900
+    },
+    {
+      "berkas": "admin/12-detail-booking.png",
+      "judul": "Panel Detail Booking",
+      "url": "/admin/booking/verifikasi",
+      "tinggi": 900
+    },
+    {
+      "berkas": "admin/13-booking-disetujui.png",
+      "judul": "Verifikasi Booking setelah persetujuan",
+      "url": "/admin/booking/verifikasi",
+      "tinggi": 900
+    },
+    {
+      "berkas": "admin/14-realisasi-booking.png",
+      "judul": "Realisasi Booking (jatuh tempo 28 Nov 2026)",
+      "url": "/admin/booking/realisasi?booking=BP-10958",
+      "tinggi": 1293
+    },
+    {
+      "berkas": "admin/15-bukti-realisasi.png",
+      "judul": "Bukti realisasi BP-10958 → PJ-14827",
+      "url": "/admin/booking/realisasi",
+      "tinggi": 1180
+    },
+    {
+      "berkas": "admin/16-pengembalian.png",
+      "judul": "Pengembalian Buku (pencarian PJ-14827)",
+      "url": "/admin/pengembalian",
+      "tinggi": 900
+    },
+    {
+      "berkas": "admin/17-pengembalian-berhasil.png",
+      "judul": "Pengembalian KB-9443 berhasil diproses",
+      "url": "/admin/pengembalian",
+      "tinggi": 900
+    },
+    {
+      "berkas": "admin/18-laporan-peminjaman.png",
+      "judul": "Laporan Peminjaman (1–30 Nov 2026)",
+      "url": "/admin/laporan?akhir=2026-11-30&awal=2026-11-01&jenis=peminjaman",
+      "tinggi": 1201
+    },
+    {
+      "berkas": "admin/19-laporan-pengembalian.png",
+      "judul": "Laporan Pengembalian (1–30 Nov 2026)",
+      "url": "/admin/laporan?akhir=2026-11-30&awal=2026-11-01&jenis=pengembalian",
+      "tinggi": 1023
+    },
+    {
+      "berkas": "admin/20-dashboard-setelah-transaksi.png",
+      "judul": "Dashboard Admin setelah skenario demo",
+      "url": "/admin/dashboard",
+      "tinggi": 1729
+    },
+    {
+      "berkas": "anggota/08-history-peminjaman.png",
+      "judul": "History Peminjaman (status Selesai)",
+      "url": "/anggota/history",
+      "tinggi": 900
+    },
+    {
+      "berkas": "anggota/09-status-booking-akhir.png",
+      "judul": "Status Booking (Direalisasikan)",
+      "url": "/anggota/booking/status",
+      "tinggi": 900
+    },
+    {
+      "berkas": "keamanan/01-anggota-akses-admin-ditolak.png",
+      "judul": "Anggota membuka /admin/dashboard → ditolak",
+      "url": "/admin/dashboard",
+      "tinggi": 900
+    }
+  ],
+  "devAwal": {
+    "users": 12,
+    "members": 11,
+    "books": 10,
+    "book_copies": 19,
+    "bookings": 8,
+    "loans": 12,
+    "returns": 6,
+    "audit_logs": 9
+  },
+  "ujiSetelahSeed": {
+    "users": 11,
+    "members": 10,
+    "books": 10,
+    "book_copies": 18,
+    "bookings": 8,
+    "loans": 10,
+    "returns": 5,
+    "audit_logs": 0
+  },
+  "labelKataSandi": [
+    "Kata Sandi Saat Ini",
+    "Kata Sandi Baru",
+    "Konfirmasi Kata Sandi Baru"
+  ],
+  "opsiEksemplar": [
+    {
+      "v": "",
+      "t": "Pilih eksemplar",
+      "d": true
+    },
+    {
+      "v": "EK-901",
+      "t": "EK-901 — Tersedia",
+      "d": false
+    },
+    {
+      "v": "EK-902",
+      "t": "EK-902 — Tersedia",
+      "d": false
+    }
+  ],
+  "kodeBooking": "BP-10958",
+  "kodePeminjaman": "PJ-14827",
+  "kodePengembalian": "KB-9443",
+  "galatJs": [],
+  "respons5xx": [],
+  "ujiAkhir": {
+    "users": 0,
+    "members": 0,
+    "books": 0,
+    "book_copies": 0,
+    "bookings": 0,
+    "loans": 0,
+    "returns": 0,
+    "audit_logs": 0
+  },
+  "devAkhir": {
+    "users": 12,
+    "members": 11,
+    "books": 10,
+    "book_copies": 19,
+    "bookings": 8,
+    "loans": 12,
+    "returns": 6,
+    "audit_logs": 9
+  },
+  "devIdentik": true,
+  "selesai": "2026-11-24T05:00:16.090Z"
+}
