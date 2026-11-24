@@ -94,7 +94,7 @@ Fungsi pada 8 cek tanpa assertion **dibuktikan di tempat lain**, yaitu oleh PHPU
 - **Format ekspor** PDF/Excel/CSV ditunda (TBD-07); hanya cetak lewat browser.
 - **Nonfungsional belum diuji:** beban 25 sesi (NFR-018), tampilan 360 px lintas browser Firefox/Edge (NFR-017/021), HTTPS (NFR-011), backup-restore (NFR-016). Tidak ada lingkungan produksi.
 - **UAT** dengan perwakilan pengguna (SRS §6.5) belum dilakukan.
-- **Keamanan repositori:** kredensial hardcoded di `scripts/qa-browser-journey.mjs` sudah dihapus (commit lokal `b06049b`, 24 Nov, belum di-push). Nilai lama **masih ada di riwayat Git** (commit `5f7a030`, sudah di GitHub) dan **masih aktif**. Kedua kredensial wajib dirotasi oleh pemilik; lihat [`docs/keamanan/ROTASI_KREDENSIAL_QA.md`](../../keamanan/ROTASI_KREDENSIAL_QA.md) dan [FINAL_SUBMISSION_CHECKLIST](../FINAL_SUBMISSION_CHECKLIST.md#d-keamanan).
+- **Keamanan repositori:** kredensial hardcoded di `scripts/qa-browser-journey.mjs` sudah dihapus (commit `b06049b`). Nilai lama tetap tercatat di riwayat Git (commit `5f7a030`). K-1 (MySQL uji) sudah dirotasi pada 24 Nov 2026; K-2 (Admin development) **belum dirotasi** dan masih berlaku. Pengujian 24 Nov dijalankan sebelum rotasi K-1; regression test setelah rotasi menunggu K-2. Lihat [`docs/keamanan/ROTASI_KREDENSIAL_QA.md`](../../keamanan/ROTASI_KREDENSIAL_QA.md) dan [FINAL_SUBMISSION_CHECKLIST](../FINAL_SUBMISSION_CHECKLIST.md#d-keamanan).
 
 ## F. Bukti
 

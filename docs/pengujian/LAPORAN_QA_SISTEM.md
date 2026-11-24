@@ -21,7 +21,7 @@ Sistem Informasi Manajemen Perpustakaan (SIM Perpustakaan)
   1. *Unit*: Waktu perpustakaan, model Eloquent, enum status.
   2. *Database Skema & Invarian*: Foreign keys, check constraints, composite unique constraints, audit log schema.
   3. *Autentikasi & Sesi*: Login throttling, sesi per peran, proteksi CSRF, redirect login, regenerasi sesi.
-  4. *Kredensial*: Password hashing (Argon2id/Bcrypt), wajib ganti kata sandi (`must_change_password`), reset kata sandi oleh Admin.
+  4. *Kredensial*: Password hashing (bcrypt), wajib ganti kata sandi (`must_change_password`), reset kata sandi oleh Admin.
   5. *CRUD Master Data*: Anggota CRUD, Buku & Eksemplar atomic CRUD, pencarian buku server-side dengan pagination.
   6. *Transaksi Terisolasi*:
      - Peminjaman langsung & pengembalian buku (termasuk pengembalian oleh anggota Nonaktif).
@@ -45,6 +45,14 @@ Sistem Informasi Manajemen Perpustakaan (SIM Perpustakaan)
 ---
 
 ### 1.3 End-to-End Browser QA (Headless Chrome via CDP)
+
+> **Catatan koreksi (24 Nov 2026):** angka 23/23 adalah jumlah cek yang tercatat oleh `scripts/qa-browser-journey.mjs`, bukan jumlah langkah yang diverifikasi penuh. Pemeriksaan kode menunjukkan:
+>
+> - Hanya 7 cek memiliki assertion eksplisit.
+> - 8 cek hanya mengklik tanpa memeriksa hasil, termasuk "kartu ringkasan" yang tercatat 0 kartu.
+> - Langkah **Pengembalian** (Admin no. 6) dan **pembatalan booking** (Anggota no. 6) bersifat kondisional dan tidak pernah dijalankan.
+>
+> Daftar di bawah dipertahankan sebagai catatan asli. Hasil yang terverifikasi ada di [laporan pengujian Tugas 10](../TUGAS-10-FINAL/08-SOFTWARE-TESTING/SOFTWARE_TESTING_REPORT.md) §D.4 dan pada E2E demo 22/22.
 - **Total Skenario Uji**: 23 verifikasi terotomatisasi
 - **Status**: 100% Passed (0 Failed, 0 Error)
 - **Perjalanan Pengguna Teruji**:

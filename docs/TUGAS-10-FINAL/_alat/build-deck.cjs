@@ -208,7 +208,7 @@ const tek = [
     ['Bootstrap 5.3.8', 'UI responsif; Inter & Bootstrap Icons dibundel lokal', C.accent1],
     ['MySQL 8.4 LTS', 'InnoDB, FK RESTRICT, CHECK, UNIQUE, SELECT … FOR UPDATE', '00758F'],
     ['Vite 8 · Node 20', 'Build aset frontend dan test runner Node', C.accent3],
-    ['Google Stitch', 'Mockup UI/UX (pengganti Figma; perlu persetujuan dosen)', '4285F4'],
+    ['Google Stitch', 'Mockup UI/UX (alternatif Figma, diizinkan dosen)', '4285F4'],
     ['GitHub · PHPUnit', 'Version control (PR #1–#5) dan pengujian otomatis (PHPUnit 12)', C.text1],
 ];
 tek.forEach(([h, d, col], i) => {
@@ -287,7 +287,7 @@ s.addNotes('Bedakan dengan tegas: yang berjalan hanya lingkungan lokal di laptop
 // 13 — UI/UX STITCH
 pres.addSection({ title: 'Desain & Implementasi' });
 s = pres.addSlide({ masterName: 'KONTEN', sectionTitle: 'Desain & Implementasi' });
-judul(s, 'UI/UX — Google Stitch (Pengganti Figma)');
+judul(s, 'Hasil Desain UI/UX — Google Stitch');
 tb(s, 'Proyek Stitch', { x: 0.6, y: 1.4, w: 5.3, h: 0.4, fontSize: 17, bold: true, color: C.text2 });
 tb(s, 'stitch.google.com/projects/12475154501831437105', { x: 0.6, y: 1.82, w: 5.3, h: 0.35, fontSize: 13, color: C.accent1, hyperlink: { url: 'https://stitch.google.com/projects/12475154501831437105' } });
 tb(s, 'Alur yang tercatat di Git:', { x: 0.6, y: 2.4, w: 5.3, h: 0.35, fontSize: 15, bold: true, color: C.text2 });
@@ -296,12 +296,12 @@ tb(s, 'Alur yang tercatat di Git:', { x: 0.6, y: 2.4, w: 5.3, h: 0.35, fontSize:
     tb(s, t, { x: 1.15, y: 2.85 + i * 0.75, w: 4.75, h: 0.65, fontSize: 14 });
 });
 kartu(s, 0.6, 5.2, 5.3, 1.5, 'FFF7E6', 'catatan stitch');
-tb(s, 'Instruksi dosen Tugas 9: Figma, “bukan dengan AI”. Stitch adalah alat berbasis AI, jadi wajib ada persetujuan dosen. Belum tersedia: ekspor layar Stitch dan akses tautan tanpa login.', { x: 0.85, y: 5.33, w: 4.85, h: 1.3, fontSize: 12, color: '78350F' });
+tb(s, 'Dosen mengizinkan Google Stitch sebagai alternatif Figma (menurut pemilik proyek, 24 Nov 2026). Belum tersedia: ekspor layar Stitch dan akses tautan tanpa login.', { x: 0.85, y: 5.33, w: 4.85, h: 1.3, fontSize: 12, color: '78350F' });
 bingkai(s, 'ref-admin-dashboard.png', 6.35, 1.45, 6.35, 2.75, 'Screenshot acuan Dashboard Admin');
 bingkai(s, 'ref-cari-buku.png', 6.35, 4.35, 3.1, 1.95, 'Screenshot acuan Cari Buku');
 bingkai(s, 'ref-verifikasi.png', 9.6, 4.35, 3.1, 1.95, 'Screenshot acuan Verifikasi Booking');
 tb(s, 'Screenshot acuan yang diunggah ke Stitch (prototipe aplikasi, 7 Nov) — bukan ekspor Stitch', { x: 6.35, y: 6.4, w: 6.35, h: 0.4, fontSize: 11, color: C.accent5, align: 'center' });
-s.addNotes('Sampaikan dengan jujur: tim memakai Google Stitch, bukan Figma. Materi dosen Pertemuan 9 halaman 17 meminta Figma dan menyebut bukan dengan AI, sedangkan Stitch adalah alat desain berbasis AI; karena itu penggunaannya memerlukan persetujuan dosen. Riwayat Git menunjukkan website dibuat lebih dulu lalu screenshot-nya dijadikan acuan mockup Stitch. Gambar di kanan adalah screenshot prototipe, bukan ekspor Stitch. Ekspor dari Stitch dan izin akses tautan masih harus disediakan pemilik proyek.');
+s.addNotes('Sampaikan dengan jujur: tim memakai Google Stitch, bukan Figma. Instruksi awal Pertemuan 9 meminta Figma tanpa AI; dosen kemudian mengizinkan Google Stitch sebagai alternatif Figma, menurut pemilik proyek. Riwayat Git menunjukkan website dibuat lebih dulu lalu screenshot-nya dijadikan acuan mockup Stitch. Gambar di kanan adalah screenshot prototipe, bukan ekspor Stitch. Ekspor dari Stitch dan izin akses tautan masih harus disediakan pemilik proyek.');
 
 // 14 — HASIL IMPLEMENTASI
 s = pres.addSlide({ masterName: 'KONTEN', sectionTitle: 'Desain & Implementasi' });
@@ -409,8 +409,8 @@ agenda.forEach((t, i) => {
     tb(s, t, { x: x + 0.5, y: y - 0.02, w: 2.25, h: 0.5, fontSize: 13, color: C.background1, valign: 'middle' });
 });
 s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.7, y: 5.75, w: 11.95, h: 1.15, rectRadius: 0.1, fill: { color: '3A2A0A' }, line: { color: C.accent3, width: 1 }, objectName: 'status kesiapan' });
-tb(s, 'Status: siap dengan keterbatasan. Aplikasi masih lokal. Menunggu pemilik: rotasi kredensial QA sebelum repositori dibuka, serta ekspor, akses tautan, dan persetujuan dosen atas Google Stitch (alat berbasis AI) sebagai pengganti Figma.', { x: 1.0, y: 5.9, w: 11.4, h: 0.9, fontSize: 14, color: 'FDE68A', valign: 'middle' });
-s.addNotes('Tutup dengan pencapaian, lalu jalankan demo sesuai DEMO_SCENARIO.md. Sampaikan keterbatasan dengan terbuka: belum ada produksi, kredensial QA yang pernah ter-commit harus dirotasi sebelum repositori dibuka, dan bukti desain Stitch masih harus dilengkapi serta disetujui dosen.');
+tb(s, 'Status: siap dengan keterbatasan. Aplikasi masih lokal. Menunggu pemilik: rotasi kata sandi Admin (K-2) sebelum repositori dibagikan, serta ekspor layar dan akses tautan Google Stitch.', { x: 1.0, y: 5.9, w: 11.4, h: 0.9, fontSize: 14, color: 'FDE68A', valign: 'middle' });
+s.addNotes('Tutup dengan pencapaian, lalu jalankan demo sesuai DEMO_SCENARIO.md. Sampaikan keterbatasan dengan terbuka: belum ada produksi, kata sandi MySQL uji sudah dirotasi tetapi kata sandi Admin (K-2) belum sehingga repositori belum boleh dibagikan, dan ekspor desain Stitch masih harus dilengkapi.');
 
 (async () => {
     await pres.writeFile({ fileName: OUT });

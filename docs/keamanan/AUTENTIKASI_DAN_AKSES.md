@@ -112,7 +112,7 @@ Halaman Vue tidak memakai URL `/demo/` secara langsung (dijaga `tests/js/autenti
 
 ## 8. Keterbatasan keamanan yang diketahui
 
-1. ~~**Data mock masih dibundel ke JavaScript publik.**~~ **Diselesaikan Phase 8B** (lihat `docs/phase8/PHASE_8B_INTEGRASI_BACA_DATA.md`). Halaman masih membaca `resources/js/data/mock/` (Phase 8B mengganti dengan data server). Bundel `public/build` dapat diunduh tanpa login dan memuat seluruh data demo (nama, kontak, transaksi semua Anggota). Data ini fiktif dan identik dengan seed, tetapi pola ini tidak boleh dipakai untuk data nyata.
+1. ~~**Data mock masih dibundel ke JavaScript publik.**~~ **Diselesaikan Phase 8B** (lihat `docs/archive/keamanan/INTEGRASI_DATA_SERVER.md`). Halaman masih membaca `resources/js/data/mock/` (Phase 8B mengganti dengan data server). Bundel `public/build` dapat diunduh tanpa login dan memuat seluruh data demo (nama, kontak, transaksi semua Anggota). Data ini fiktif dan identik dengan seed, tetapi pola ini tidak boleh dipakai untuk data nyata.
 2. Aksi transaksi di halaman (pinjam, kembali, booking) masih memodifikasi store mock di browser dan memakai ID Admin mock (`ID_ADMIN_DEMO`) sebagai pemroses; belum ada endpoint server.
 3. Halaman 403 memakai tampilan error bawaan Laravel (belum ditata sesuai desain).
 4. Pembatasan percobaan per (username, IP); belum ada batas global per IP lintas username.

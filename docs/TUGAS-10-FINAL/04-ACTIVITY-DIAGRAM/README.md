@@ -30,4 +30,4 @@ Contoh (A04 Peminjaman Buku):
 
 ![A10 Verifikasi Booking](suplemen-implementasi/A10-verifikasi-booking.png)
 
-Langkah pada suplemen diambil langsung dari urutan pemeriksaan di service (bukan rekaan). Transkripsi teks diagram asli: [`docs/analisis/uml-activity-sequence.md`](../../analisis/uml-activity-sequence.md).
+Langkah pada suplemen diambil langsung dari urutan pemeriksaan di service (bukan rekaan). Transkripsi teks diagram asli (arsip): [`docs/archive/analisis/uml-activity-sequence.md`](../../archive/analisis/uml-activity-sequence.md).
