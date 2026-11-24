@@ -1,0 +1,34 @@
+---
+title: "S-IMPL-01 — Login (SesiController, MasukRequest)"
+---
+sequenceDiagram
+    autonumber
+    actor P as Pengguna (Admin/Anggota)
+    participant V as Vue 3 + Inertia<br/>Pages/Auth/Login.vue
+    participant R as MasukRequest<br/>(validasi + RateLimiter)
+    participant C as SesiController
+    participant O as Eloquent<br/>User
+    participant DB as MySQL 8.4
+    P->>V: Isi identitas pengguna & kata sandi, klik Masuk
+    V->>C: POST /login (header XSRF-TOKEN, middleware guest)
+    C->>R: autentikasi()
+    R->>R: Cek batas 5 percobaan / 60 detik
+    Note over V,R: Galat validasi = ValidationException → redirect back + errors di sesi (Inertia)
+    R->>O: where(username)->first()
+    O->>DB: SELECT … FROM users WHERE username = ?
+    DB-->>O: baris akun / kosong
+    alt Akun tidak ada atau kata sandi salah
+        R->>R: Hash::check (hash pengecoh bila akun tidak ada), RateLimiter::hit
+        R-->>V: galat validasi — pesan gagal generik
+    else Akun / anggota nonaktif
+        R-->>V: galat validasi — pesan alasan tolak masuk
+    else Kredensial valid
+        R->>R: RateLimiter::clear
+        R-->>C: User
+        C->>DB: Auth::login + session()->regenerate() (tabel sessions)
+        C-->>V: 302 ke dashboard sesuai peran
+    Note over V,C: Middleware wajib.ganti.sandi mengalihkan Anggota<br/>dengan must_change_password = 1 ke /anggota/kata-sandi
+        V->>C: GET /admin/dashboard atau /anggota/dashboard (auth, peran:*)
+        C->>DB: Agregasi SQL ringkasan (COUNT / SUM kondisional / GROUP BY)
+        C-->>V: Respons Inertia (props) → render dashboard
+    end

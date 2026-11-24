@@ -11,6 +11,7 @@ import { spawn, execSync } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { randomBytes } from 'node:crypto';
 
 // Pastikan tidak ada proxy environment yang mengintervensi koneksi loopback
 delete process.env.http_proxy;
@@ -25,6 +26,53 @@ const PORT_SERVER = 8032;
 const BASE_URL = `http://127.0.0.1:${PORT_SERVER}`;
 const PORT_DEBUG = 9360;
 const PHP_BIN = '/opt/homebrew/opt/php@8.4/bin/php';
+
+// ------------------------------------------------------------------ Kredensial runtime
+// Tidak ada kata sandi di berkas ini dan tidak ada nilai bawaan.
+// - Akun MySQL KHUSUS database uji wajib diberikan lewat environment:
+//   DB_TEST_USERNAME dan DB_TEST_PASSWORD (DB_TEST_DATABASE opsional, harus berakhiran _test).
+// - Akun Admin dan Anggota QA dibuat ulang di database uji pada setiap eksekusi dengan
+//   kata sandi acak sekali pakai yang hanya ada di memori proses ini dan tidak pernah dicetak.
+// Contoh (zsh), kata sandi diketik tanpa tampil di layar dan tanpa masuk riwayat shell:
+//   read -rs "DB_TEST_PASSWORD?Kata sandi MySQL uji: " && export DB_TEST_PASSWORD
+//   DB_TEST_USERNAME=<akun_mysql_uji> node --experimental-websocket scripts/qa-browser-journey.mjs
+const VARIABEL_WAJIB = ['DB_TEST_USERNAME', 'DB_TEST_PASSWORD'];
+const variabelKurang = VARIABEL_WAJIB.filter((n) => typeof process.env[n] !== 'string' || process.env[n].trim() === '');
+if (variabelKurang.length > 0) {
+    console.error(`FATAL: variabel environment wajib belum diisi: ${variabelKurang.join(', ')}.`);
+    console.error('Berikan kredensial akun MySQL khusus database uji lewat environment (lihat komentar di awal skrip).');
+    console.error('Skrip sengaja tidak memiliki kata sandi bawaan.');
+    process.exit(2);
+}
+
+const DB_UJI = Object.freeze({
+    database: (process.env.DB_TEST_DATABASE ?? '').trim() || 'sim_perpustakaan_test',
+    username: process.env.DB_TEST_USERNAME,
+    password: process.env.DB_TEST_PASSWORD,
+});
+if (!DB_UJI.database.endsWith('_test')) {
+    console.error('FATAL: DB_TEST_DATABASE harus menunjuk database uji (nama berakhiran _test). QA dibatalkan.');
+    process.exit(2);
+}
+if (process.env.DB_USERNAME && process.env.DB_USERNAME === DB_UJI.username) {
+    console.error('FATAL: DB_TEST_USERNAME sama dengan DB_USERNAME development. Gunakan akun MySQL terpisah untuk database uji.');
+    process.exit(2);
+}
+
+// Kata sandi sekali pakai (24 karakter base64url, memenuhi aturan 6–64 karakter).
+const sandiSekaliPakai = () => randomBytes(18).toString('base64url');
+const SANDI_ADMIN_UJI = sandiSekaliPakai();
+const SANDI_AWAL_ANGGOTA_UJI = sandiSekaliPakai();
+const SANDI_BARU_ANGGOTA_UJI = sandiSekaliPakai();
+
+// Environment untuk proses yang menyentuh database uji saja.
+const envUji = (tambahan = {}) => ({
+    ...process.env,
+    DB_TEST_DATABASE: DB_UJI.database,
+    DB_TEST_USERNAME: DB_UJI.username,
+    DB_TEST_PASSWORD: DB_UJI.password,
+    ...tambahan,
+});
 
 const tunggu = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -210,9 +258,12 @@ async function main() {
         foreach (['audit_logs', 'sessions', 'returns', 'loans', 'bookings', 'book_copies', 'books', 'members', 'users'] as \\$t) {
             \\$db->table(\\$t)->delete();
         }
-    "`, { stdio: 'ignore' });
+    "`, { stdio: 'ignore', env: envUji() });
 
-    execSync(`${PHP_BIN} artisan db:seed --class=DemoPerpustakaanSeeder --database=mysql_testing --force`, { stdio: 'inherit' });
+    execSync(`${PHP_BIN} artisan db:seed --class=DemoPerpustakaanSeeder --database=mysql_testing --force`, {
+        stdio: 'inherit',
+        env: envUji({ SEED_ADMIN_PASSWORD: SANDI_ADMIN_UJI }),
+    });
     catat('Seed Demo Data di sim_perpustakaan_test', 'PASS', 'Data awal demo termuat di database pengujian');
 
     // Catat baseline data development untuk memastikan tidak berubah
@@ -233,13 +284,12 @@ async function main() {
     // 3. Start Temporary PHP Server pointing to test DB
     console.log(`2. Memulai server PHP pada port ${PORT_SERVER} (koneksi mysql_testing)...`);
     const serverProcess = spawn(PHP_BIN, ['artisan', 'serve', `--port=${PORT_SERVER}`], {
-        env: {
-            ...process.env,
-            DB_DATABASE: 'sim_perpustakaan_test',
-            DB_USERNAME: 'sim_perpus_test',
-            DB_PASSWORD: 'w2kIYoL7N2Xm9F3g5DzYm3XOASWqktvi',
+        env: envUji({
+            DB_DATABASE: DB_UJI.database,
+            DB_USERNAME: DB_UJI.username,
+            DB_PASSWORD: DB_UJI.password,
             APP_URL: BASE_URL,
-        },
+        }),
         stdio: 'ignore',
     });
 
@@ -271,7 +321,7 @@ async function main() {
         console.log('\n--- SKENARIO 1: JOURNEY LENGKAP ADMIN ---');
 
         // 1.1 Login Admin
-        await login(client, 'admin', '9kuPRERD60VraQPaa1QK', '/admin/dashboard');
+        await login(client, 'admin', SANDI_ADMIN_UJI, '/admin/dashboard');
         catat('Admin Login', 'PASS', 'Berhasil login dan diarahkan ke /admin/dashboard');
 
         // 1.2 Dashboard Admin — Periksa Agregat SQL & Tautan
@@ -323,8 +373,8 @@ async function main() {
                     }
                 };
                 isi('#isian-akses-login input[placeholder*="Contoh"]', 'siti.qa');
-                isi('#isian-akses-login input[autocomplete="new-password"]:not([placeholder*="Ulangi"])', 'SandiKuat123!');
-                isi('#isian-akses-login input[placeholder*="Ulangi"]', 'SandiKuat123!');
+                isi('#isian-akses-login input[autocomplete="new-password"]:not([placeholder*="Ulangi"])', ${JSON.stringify(SANDI_AWAL_ANGGOTA_UJI)});
+                isi('#isian-akses-login input[placeholder*="Ulangi"]', ${JSON.stringify(SANDI_AWAL_ANGGOTA_UJI)});
                 const submitBtn = [...document.querySelectorAll('button')].find(b => b.textContent.includes('Simpan Anggota'));
                 if (submitBtn) submitBtn.click();
                 return true;
@@ -493,7 +543,7 @@ async function main() {
 
         // 2.1 Login Anggota Baru (siti.qa)
         // Akun anggota baru diarahkan ke /anggota/kata-sandi (wajib ganti kata sandi awal)
-        const pathSetelahLogin = await login(client, 'siti.qa', 'SandiKuat123!', '/anggota/');
+        const pathSetelahLogin = await login(client, 'siti.qa', SANDI_AWAL_ANGGOTA_UJI, '/anggota/');
         catat('Anggota Login Awal', 'PASS', `Login berhasil diarahkan ke ${pathSetelahLogin}`);
 
         if (pathSetelahLogin.includes('/anggota/kata-sandi')) {
@@ -507,9 +557,9 @@ async function main() {
                             el.dispatchEvent(new Event('input', { bubbles: true }));
                         }
                     };
-                    isi('input[autocomplete="current-password"]', 'SandiKuat123!');
-                    isi('input[placeholder*="6–64"]', 'SandiBaruSiti123!');
-                    isi('input[placeholder*="Ulangi"]', 'SandiBaruSiti123!');
+                    isi('input[autocomplete="current-password"]', ${JSON.stringify(SANDI_AWAL_ANGGOTA_UJI)});
+                    isi('input[placeholder*="6–64"]', ${JSON.stringify(SANDI_BARU_ANGGOTA_UJI)});
+                    isi('input[placeholder*="Ulangi"]', ${JSON.stringify(SANDI_BARU_ANGGOTA_UJI)});
                     const btn = [...document.querySelectorAll('button')].find(b => b.textContent.includes('Simpan Kata Sandi'));
                     if (btn) btn.click();
                     return true;
@@ -643,14 +693,14 @@ async function main() {
         foreach (['audit_logs', 'sessions', 'returns', 'loans', 'bookings', 'book_copies', 'books', 'members', 'users'] as \\$t) {
             \\$db->table(\\$t)->delete();
         }
-    "`, { stdio: 'ignore' });
+    "`, { stdio: 'ignore', env: envUji() });
     catat('Pembersihan sim_perpustakaan_test', 'PASS', 'Database uji bersih kembali');
 
     // ==========================================================
     // SKENARIO 3: BOOKING EXPIRATION LIFECYCLE
     // ==========================================================
     console.log('\n--- SKENARIO 3: SIKLUS KEDALUWARSA BOOKING 48 JAM ---');
-    const expTestOutput = execSync(`${PHP_BIN} artisan test tests/Feature/Transaksi/KedaluwarsaBookingTest.php`).toString();
+    const expTestOutput = execSync(`${PHP_BIN} artisan test tests/Feature/Transaksi/KedaluwarsaBookingTest.php`, { env: envUji() }).toString();
     const expPassed = expTestOutput.includes('passed');
     catat('Booking Expiration Test Suite', expPassed ? 'PASS' : 'FAIL', '11/11 butir kedaluwarsa 48 jam & idempotent lulus');
 
@@ -660,7 +710,7 @@ async function main() {
         foreach (['audit_logs', 'sessions', 'returns', 'loans', 'bookings', 'book_copies', 'books', 'members', 'users'] as \\$t) {
             \\$db->table(\\$t)->delete();
         }
-    "`, { stdio: 'ignore' });
+    "`, { stdio: 'ignore', env: envUji() });
 
     // 5. Verifikasi database development tidak tersentuh sama sekali
     const devAfter = execSync(`${PHP_BIN} artisan tinker --execute="

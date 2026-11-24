@@ -1,0 +1,34 @@
+---
+title: "S-IMPL-06 — Ajukan Booking (BookingAnggotaController::store, LayananBooking::ajukan)"
+---
+sequenceDiagram
+    autonumber
+    actor G as Anggota
+    participant V as Vue 3 + Inertia<br/>Anggota/Booking/Ajukan.vue
+    participant R as AjukanBookingRequest<br/>(Gate booking-anggota)
+    participant C as BookingAnggotaController
+    participant S as LayananBooking
+    participant O as Eloquent<br/>Member, BookCopy, Booking
+    participant DB as MySQL 8.4
+    G->>V: Pilih Buku & Kode Eksemplar (Tersedia) → konfirmasi
+    V->>C: POST /anggota/booking (throttle 20/menit)
+    C->>R: authorize() + rules()
+    Note over C: Pemilik booking diambil dari sesi (user→member), bukan dari input
+    C->>S: ajukan(member, isian, akun)
+    S->>S: rekonsiliasiEksemplar() (lepas reservasi kedaluwarsa)
+    rect rgb(235, 242, 255)
+        Note over S,DB: DB::transaction
+        S->>DB: SELECT … FOR UPDATE (members) — anggota harus Aktif
+        S->>DB: SELECT … FOR UPDATE (book_copies) — harus Tersedia, tanpa transaksi lain
+        S->>DB: Cek booking Diajukan/Disetujui ganda milik anggota untuk eksemplar ini
+        alt Ditolak aturan
+            S-->>V: galat validasi — pesan "Booking ditolak: …"
+        else Lolos
+            S->>O: Booking::save() status Diajukan, submitted_at
+            O->>DB: INSERT bookings
+            Note over S,DB: Status eksemplar TIDAK diubah saat Diajukan
+            S->>DB: INSERT audit_logs booking.diajukan
+            S->>DB: COMMIT
+        end
+    end
+    C-->>V: 302 + flash "Booking BP-… berhasil diajukan"

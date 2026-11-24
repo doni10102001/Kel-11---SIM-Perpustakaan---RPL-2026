@@ -1,0 +1,58 @@
+# E2E skenario demo Tugas 10 (_alat/capture-hasil-sistem.mjs) — eksekusi ulang SETELAH remediasi kredensial
+# Mulai/selesai (UTC): 2026-11-24T04:59:10.874Z / 2026-11-24T05:00:16.090Z
+# Kredensial MySQL uji dari environment; Admin uji di-seed dengan sandi acak sekali pakai.
+# Screenshot eksekusi ini TIDAK menggantikan screenshot 21 Nov di 09-HASIL-SISTEM (hanya verifikasi ulang).
+[PASS] Seed data demo ke sim_perpustakaan_test — {"users":11,"members":10,"books":10,"book_copies":18,"bookings":8,"loans":10,"returns":5,"audit_logs":0}
+  📷 00-login.png  (/login, h=900)
+[PASS] Admin masuk — /admin/dashboard
+[PASS] Dashboard Admin menampilkan kartu ringkasan — 5 kartu
+  📷 admin/01-dashboard.png  (/admin/dashboard, h=1729)
+  📷 admin/02-data-anggota.png  (/admin/anggota, h=1016)
+  📷 admin/03-tambah-anggota.png  (/admin/anggota/tambah, h=1104)
+[PASS] Anggota AG-901 tersimpan di MySQL dengan akun login — {"status":"Aktif","role":"anggota","wajib_ganti":1}
+  📷 admin/04-anggota-tersimpan.png  (/admin/anggota, h=1175)
+  📷 admin/05-ubah-anggota.png  (/admin/anggota/AG-001/ubah, h=1091)
+  📷 admin/06-data-buku.png  (/admin/buku, h=1105)
+[PASS] Formulir buku memuat 2 eksemplar
+  📷 admin/07-tambah-buku.png  (/admin/buku/tambah, h=1335)
+[PASS] Buku BK-901 + 2 eksemplar Tersedia tersimpan — {"buku":1,"eksemplar":{"EK-901":"Tersedia","EK-902":"Tersedia"}}
+  📷 admin/08-buku-tersimpan.png  (/admin/buku, h=1274)
+  📷 admin/09-ubah-buku.png  (/admin/buku/BK-901/ubah, h=1342)
+  📷 admin/10-peminjaman.png  (/admin/peminjaman, h=900)
+[PASS] Admin keluar
+[PASS] Anggota baru diarahkan ke Ubah Kata Sandi — /anggota/kata-sandi
+  📷 anggota/01-wajib-ubah-kata-sandi.png  (/anggota/kata-sandi, h=900)
+[PASS] Kata sandi diganti → Dashboard Anggota
+  📷 anggota/02-dashboard.png  (/anggota/dashboard, h=1140)
+[PASS] Pencarian katalog menemukan BK-901
+  📷 anggota/03-cari-buku.png  (/anggota/cari-buku?q=Basis%20Data, h=900)
+[PASS] Panel Detail Buku terbuka
+  📷 anggota/04-detail-buku.png  (/anggota/cari-buku?q=Basis%20Data, h=900)
+  📷 anggota/05-ajukan-booking.png  (/anggota/booking/ajukan?buku=BK-901, h=900)
+[PASS] Booking tersimpan berstatus Diajukan (eksemplar tetap Tersedia) — {"booking_code":"BP-10958","status":"Diajukan","status_eksemplar":"Tersedia"}
+  📷 anggota/06-booking-diajukan.png  (/anggota/booking/ajukan, h=1151)
+  📷 anggota/07-status-booking.png  (/anggota/booking/status, h=900)
+[PASS] Anggota keluar
+[PASS] Booking baru tampil di Verifikasi Booking
+  📷 admin/11-verifikasi-booking.png  (/admin/booking/verifikasi, h=900)
+  📷 admin/12-detail-booking.png  (/admin/booking/verifikasi, h=900)
+[PASS] Booking Disetujui, batas pengambilan 48 jam, eksemplar Dipesan — {"status":"Disetujui","jam_batas":48,"eksemplar":"Dipesan"}
+  📷 admin/13-booking-disetujui.png  (/admin/booking/verifikasi, h=900)
+  📷 admin/14-realisasi-booking.png  (/admin/booking/realisasi?booking=BP-10958, h=1293)
+[PASS] Realisasi: peminjaman Aktif, booking Direalisasikan, eksemplar Dipinjam — {"loan_code":"PJ-14827","status":"Aktif","due_date":"2026-11-28","status_booking":"Direalisasikan","eksemplar":"Dipinjam"}
+  📷 admin/15-bukti-realisasi.png  (/admin/booking/realisasi, h=1180)
+  📷 admin/16-pengembalian.png  (/admin/pengembalian, h=900)
+[PASS] Pengembalian: peminjaman Selesai, eksemplar Tersedia — {"pinjam":"Selesai","kembali":"KB-9443","eksemplar":"Tersedia"}
+  📷 admin/17-pengembalian-berhasil.png  (/admin/pengembalian, h=900)
+[PASS] Laporan Peminjaman memuat transaksi demo
+  📷 admin/18-laporan-peminjaman.png  (/admin/laporan?akhir=2026-11-30&awal=2026-11-01&jenis=peminjaman, h=1201)
+  📷 admin/19-laporan-pengembalian.png  (/admin/laporan?akhir=2026-11-30&awal=2026-11-01&jenis=pengembalian, h=1023)
+  📷 admin/20-dashboard-setelah-transaksi.png  (/admin/dashboard, h=1729)
+[PASS] Admin keluar (2)
+[PASS] History Anggota memuat peminjaman Selesai
+  📷 anggota/08-history-peminjaman.png  (/anggota/history, h=900)
+  📷 anggota/09-status-booking-akhir.png  (/anggota/booking/status, h=900)
+[PASS] Anggota ditolak di /admin/dashboard — 403 Anda tidak memiliki akses ke halaman ini.
+  📷 keamanan/01-anggota-akses-admin-ditolak.png  (/admin/dashboard, h=900)
+[PASS] Tidak ada JavaScript error / respons 5xx — {"js":0,"http5xx":0}
+DB uji akhir: {"users":0,"members":0,"books":0,"book_copies":0,"bookings":0,"loans":0,"returns":0,"audit_logs":0} | DB dev identik: true

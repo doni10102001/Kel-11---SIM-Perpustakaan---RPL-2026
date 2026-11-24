@@ -1,0 +1,39 @@
+---
+title: "S-IMPL-03 — Tambah Buku & Eksemplar (BukuController, LayananBuku)"
+---
+sequenceDiagram
+    autonumber
+    actor A as Admin
+    participant V as Vue 3 + Inertia<br/>Admin/Buku/Form.vue
+    participant R as TambahBukuRequest<br/>(Gate kelola-buku)
+    participant C as BukuController
+    participant S as LayananBuku
+    participant O as Eloquent<br/>Book, BookCopy, AuditLog
+    participant DB as MySQL 8.4
+    A->>V: Isi data bibliografi + daftar Kode Eksemplar
+    V->>C: POST /admin/buku (CSRF, throttle 30/menit)
+    C->>R: authorize() + rules()
+    R-->>C: data valid (atau 403 / galat validasi)
+    C->>S: tambah(isian, kodeEksemplar[], admin)
+    alt Tidak ada eksemplar
+        S-->>V: galat validasi — minimal satu eksemplar
+    else ≥ 1 eksemplar
+        rect rgb(235, 242, 255)
+            Note over S,DB: DB::transaction (atomik)
+            S->>O: Book::save()
+            O->>DB: INSERT books
+            S->>O: AuditLog buku.dibuat
+            loop Setiap kode eksemplar
+                S->>O: BookCopy::save() status Tersedia
+                O->>DB: INSERT book_copies
+                S->>O: AuditLog eksemplar.dibuat
+            end
+            alt Kode buku / eksemplar duplikat (1062)
+                DB-->>S: galat unik → ROLLBACK
+                S-->>V: galat validasi — galat duplikat
+            else
+                S->>DB: COMMIT
+            end
+        end
+        C-->>V: 302 /admin/buku + flash sukses
+    end

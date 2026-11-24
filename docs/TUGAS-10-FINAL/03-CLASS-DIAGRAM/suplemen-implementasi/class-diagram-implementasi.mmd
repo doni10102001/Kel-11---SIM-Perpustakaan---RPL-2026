@@ -1,0 +1,137 @@
+---
+title: "Class Diagram Implementasi (Suplemen) — Model Eloquent & Tabel MySQL, commit 80e2f5f"
+---
+classDiagram
+    direction LR
+
+    class User {
+        <<Authenticatable>>
+        +id : bigint PK
+        +username : string UNIQUE
+        +name : string [0..1]
+        +password : hash_string
+        +role : Peran
+        +is_active : bool
+        +must_change_password : bool
+        +isAdmin() bool
+        +isAnggota() bool
+        +bolehMasuk() bool
+        +wajibGantiKataSandi() bool
+    }
+    class Member {
+        +id : bigint PK
+        +user_id : bigint FK [0..1] UNIQUE
+        +member_code : string UNIQUE
+        +name : string
+        +contact : string
+        +status : StatusAnggota
+        +isAktif() bool
+    }
+    class Book {
+        +id : bigint PK
+        +book_code : string UNIQUE
+        +title : string
+        +author : string
+        +publisher : string
+        +publication_year : smallint
+        +category : string
+    }
+    class BookCopy {
+        +id : bigint PK
+        +book_id : bigint FK
+        +copy_code : string UNIQUE
+        +status : StatusEksemplar
+    }
+    class Booking {
+        +id : bigint PK
+        +booking_code : string UNIQUE
+        +member_id : bigint FK
+        +copy_id : bigint FK
+        +status : StatusBooking
+        +submitted_at : datetime UTC
+        +decided_at : datetime [0..1]
+        +expires_at : datetime [0..1]
+        +expired_at : datetime [0..1]
+        +staff_id : bigint FK [0..1]
+        +rejection_reason : string [0..1]
+        +reserved_copy_id : stored UNIQUE
+    }
+    class Loan {
+        +id : bigint PK
+        +loan_code : string UNIQUE
+        +member_id : bigint FK
+        +copy_id : bigint FK
+        +staff_id : bigint FK
+        +booking_id : bigint FK [0..1] UNIQUE
+        +loaned_at : datetime UTC
+        +due_date : date
+        +status : StatusPeminjaman
+        +active_copy_id : stored UNIQUE
+    }
+    class BookReturn {
+        <<tabel returns>>
+        +id : bigint PK
+        +return_code : string UNIQUE
+        +loan_id : bigint FK UNIQUE
+        +staff_id : bigint FK
+        +returned_at : datetime UTC
+    }
+    class AuditLog {
+        +id : bigint PK
+        +actor_id : bigint FK [0..1]
+        +action : string
+        +subject_type : string
+        +subject_id : bigint
+        +metadata : json [0..1]
+        +created_at : datetime
+    }
+
+    class Peran {
+        <<enumeration>>
+        admin
+        anggota
+    }
+    class StatusAnggota {
+        <<enumeration>>
+        Aktif
+        Nonaktif
+    }
+    class StatusEksemplar {
+        <<enumeration>>
+        Tersedia
+        Dipesan
+        Dipinjam
+    }
+    class StatusBooking {
+        <<enumeration>>
+        Diajukan
+        Disetujui
+        Ditolak
+        Dibatalkan
+        Direalisasikan
+        Kedaluwarsa
+    }
+    class StatusPeminjaman {
+        <<enumeration>>
+        Aktif
+        Selesai
+    }
+
+    User "1" -- "0..1" Member : akun login
+    Book "1" *-- "1..*" BookCopy : copies
+    Member "1" -- "0..*" Booking : mengajukan
+    BookCopy "1" -- "0..*" Booking : dibooking
+    Member "1" -- "0..*" Loan : meminjam
+    BookCopy "1" -- "0..*" Loan : dipinjam
+    Booking "1" -- "0..1" Loan : direalisasikan
+    Loan "1" -- "0..1" BookReturn : dikembalikan
+    User "1" -- "0..*" Booking : memutuskan (staff_id)
+    User "1" -- "0..*" Loan : memproses (staff_id)
+    User "1" -- "0..*" BookReturn : memproses (staff_id)
+    User "0..1" -- "0..*" AuditLog : aktor (null = sistem)
+
+    User ..> Peran
+    Member ..> StatusAnggota
+    BookCopy ..> StatusEksemplar
+    Booking ..> StatusBooking
+    Loan ..> StatusPeminjaman

@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="940" viewBox="0 0 1800 940">
+<rect width="1800" height="940" fill="#ffffff"/>
+<defs><marker id="ar" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#334155" stroke-width="1.6"/></marker></defs>
+<text x="900" y="28" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#1f2937" text-anchor="middle" font-weight="bold" dominant-baseline="middle">Deployment Diagram — Lingkungan Pengembangan Lokal AKTUAL (Suplemen, November 2026)</text>
+<polygon points="30,70 48,52 1768,52 1750,70" fill="#e2e8f0" stroke="#334155" stroke-width="1.6"/>
+<polygon points="1750,70 1768,52 1768,752 1750,770" fill="#cbd5e1" stroke="#334155" stroke-width="1.6"/>
+<rect x="30" y="70" width="1720" height="700" fill="#f8fafc" stroke="#334155" stroke-width="1.8"/>
+<text x="44" y="90" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#4b5563" text-anchor="start" font-weight="normal" dominant-baseline="middle">«device»</text>
+<text x="44" y="112" font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold" dominant-baseline="middle">Laptop pengembang — macOS (arm64)</text>
+<polygon points="70,160 84,146 464,146 450,160" fill="#e2e8f0" stroke="#334155" stroke-width="1.6"/>
+<polygon points="450,160 464,146 464,446 450,460" fill="#cbd5e1" stroke="#334155" stroke-width="1.6"/>
+<rect x="70" y="160" width="380" height="300" fill="#ffffff" stroke="#334155" stroke-width="1.8"/>
+<text x="84" y="180" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#4b5563" text-anchor="start" font-weight="normal" dominant-baseline="middle">«executionEnvironment»</text>
+<text x="84" y="202" font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold" dominant-baseline="middle">Google Chrome (peramban)</text>
+<path d="M95,240 H409 L425,256 V360 H95 Z" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+<path d="M409,240 V256 H425" fill="none" stroke="#334155" stroke-width="1.5"/>
+<text x="107" y="258" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#4b5563" text-anchor="start" font-weight="normal" dominant-baseline="middle">«artifact»</text>
+<text x="107" y="280" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="bold" dominant-baseline="middle">SPA Vue 3 + Inertia.js</text>
+<text x="107" y="301" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">Bootstrap 5.3 · Inter · Bootstrap Icons</text>
+<text x="107" y="322" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">(aset dibundel lokal, tanpa CDN)</text>
+<polygon points="560,160 574,146 1194,146 1180,160" fill="#e2e8f0" stroke="#334155" stroke-width="1.6"/>
+<polygon points="1180,160 1194,146 1194,566 1180,580" fill="#cbd5e1" stroke="#334155" stroke-width="1.6"/>
+<rect x="560" y="160" width="620" height="420" fill="#ffffff" stroke="#334155" stroke-width="1.8"/>
+<text x="574" y="180" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#4b5563" text-anchor="start" font-weight="normal" dominant-baseline="middle">«executionEnvironment»</text>
+<text x="574" y="202" font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold" dominant-baseline="middle">PHP 8.4 CLI (Homebrew)</text>
+<path d="M585,240 H839 L855,256 V330 H585 Z" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+<path d="M839,240 V256 H855" fill="none" stroke="#334155" stroke-width="1.5"/>
+<text x="597" y="258" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#4b5563" text-anchor="start" font-weight="normal" dominant-baseline="middle">«process»</text>
+<text x="597" y="280" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="bold" dominant-baseline="middle">php artisan serve</text>
+<text x="597" y="301" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">127.0.0.1 port 8000</text>
+<path d="M585,380 H839 L855,396 V490 H585 Z" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+<path d="M839,380 V396 H855" fill="none" stroke="#334155" stroke-width="1.5"/>
+<text x="597" y="398" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#4b5563" text-anchor="start" font-weight="normal" dominant-baseline="middle">«process»</text>
+<text x="597" y="420" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="bold" dominant-baseline="middle">php artisan schedule:work</text>
+<text x="597" y="441" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">bookings:expire</text>
+<text x="597" y="462" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">tiap 5 menit (withoutOverlapping)</text>
+<path d="M890,240 H1139 L1155,256 V490 H890 Z" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+<path d="M1139,240 V256 H1155" fill="none" stroke="#334155" stroke-width="1.5"/>
+<text x="902" y="258" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#4b5563" text-anchor="start" font-weight="normal" dominant-baseline="middle">«artifact»</text>
+<text x="902" y="280" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="bold" dominant-baseline="middle">Aplikasi Laravel 13</text>
+<text x="902" y="301" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">Routes &amp; Middleware</text>
+<text x="902" y="322" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">(auth, peran, akun.aktif)</text>
+<text x="902" y="343" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">Form Request + Gate</text>
+<text x="902" y="364" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">Controller</text>
+<text x="902" y="385" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">Service (transaksi)</text>
+<text x="902" y="406" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">Eloquent ORM</text>
+<text x="902" y="427" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">Inertia response</text>
+<line x1="855" y1="285" x2="888" y2="285" stroke="#334155" stroke-width="1.8"  marker-end="url(#ar)"/>
+<line x1="855" y1="435" x2="888" y2="435" stroke="#334155" stroke-width="1.8"  marker-end="url(#ar)"/>
+<polygon points="560,610 574,596 1194,596 1180,610" fill="#e2e8f0" stroke="#334155" stroke-width="1.6"/>
+<polygon points="1180,610 1194,596 1194,736 1180,750" fill="#cbd5e1" stroke="#334155" stroke-width="1.6"/>
+<rect x="560" y="610" width="620" height="140" fill="#ffffff" stroke="#334155" stroke-width="1.8"/>
+<text x="574" y="630" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#4b5563" text-anchor="start" font-weight="normal" dominant-baseline="middle">«executionEnvironment»</text>
+<text x="574" y="652" font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold" dominant-baseline="middle">Node.js 20</text>
+<path d="M585,672 H1139 L1155,688 V732 H585 Z" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+<path d="M1139,672 V688 H1155" fill="none" stroke="#334155" stroke-width="1.5"/>
+<text x="597" y="690" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#4b5563" text-anchor="start" font-weight="normal" dominant-baseline="middle">«process»</text>
+<text x="597" y="712" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="bold" dominant-baseline="middle">Vite 8 — npm run dev (HMR) atau npm run build → public/build</text>
+<polygon points="1290,160 1304,146 1734,146 1720,160" fill="#e2e8f0" stroke="#334155" stroke-width="1.6"/>
+<polygon points="1720,160 1734,146 1734,566 1720,580" fill="#cbd5e1" stroke="#334155" stroke-width="1.6"/>
+<rect x="1290" y="160" width="430" height="420" fill="#ffffff" stroke="#334155" stroke-width="1.8"/>
+<text x="1304" y="180" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#4b5563" text-anchor="start" font-weight="normal" dominant-baseline="middle">«executionEnvironment»</text>
+<text x="1304" y="202" font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold" dominant-baseline="middle">MySQL 8.4 LTS (127.0.0.1:3306)</text>
+<path d="M1320,240 H1674 L1690,256 V360 H1320 Z" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+<path d="M1674,240 V256 H1690" fill="none" stroke="#334155" stroke-width="1.5"/>
+<text x="1332" y="258" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#4b5563" text-anchor="start" font-weight="normal" dominant-baseline="middle">«schema»</text>
+<text x="1332" y="280" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="bold" dominant-baseline="middle">sim_perpustakaan_db</text>
+<text x="1332" y="301" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">data development / demo</text>
+<text x="1332" y="322" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">InnoDB · utf8mb4 · waktu UTC</text>
+<path d="M1320,420 H1674 L1690,436 V540 H1320 Z" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+<path d="M1674,420 V436 H1690" fill="none" stroke="#334155" stroke-width="1.5"/>
+<text x="1332" y="438" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#4b5563" text-anchor="start" font-weight="normal" dominant-baseline="middle">«schema»</text>
+<text x="1332" y="460" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="bold" dominant-baseline="middle">sim_perpustakaan_test</text>
+<text x="1332" y="481" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">khusus pengujian otomatis</text>
+<text x="1332" y="502" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#1f2937" text-anchor="start" font-weight="normal" dominant-baseline="middle">(PHPUnit &amp; Browser QA)</text>
+<line x1="425" y1="285" x2="583" y2="285" stroke="#334155" stroke-width="1.8"  marker-end="url(#ar)"/>
+<rect x="462" y="208" width="86" height="20" fill="#ffffff" opacity="0.95"/>
+<rect x="458.2" y="227" width="93.6" height="20" fill="#ffffff" opacity="0.95"/>
+<rect x="458.2" y="246" width="93.6" height="20" fill="#ffffff" opacity="0.95"/>
+<text x="505" y="218" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#4b5563" text-anchor="middle" font-weight="normal" dominant-baseline="middle">HTTP lokal</text>
+<text x="505" y="237" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#4b5563" text-anchor="middle" font-weight="normal" dominant-baseline="middle">Inertia XHR</text>
+<text x="505" y="256" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#4b5563" text-anchor="middle" font-weight="normal" dominant-baseline="middle">sesi · CSRF</text>
+<line x1="260" y1="362" x2="580" y2="700" stroke="#334155" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#ar)"/>
+<rect x="313.2" y="550" width="93.6" height="20" fill="#ffffff" opacity="0.95"/>
+<text x="360" y="560" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#4b5563" text-anchor="middle" font-weight="normal" dominant-baseline="middle">aset JS/CSS</text>
+<line x1="1155" y1="300" x2="1318" y2="300" stroke="#334155" stroke-width="1.8"  marker-end="url(#ar)"/>
+<rect x="1197.8" y="222" width="78.39999999999999" height="20" fill="#ffffff" opacity="0.95"/>
+<rect x="1197.8" y="241" width="78.39999999999999" height="20" fill="#ffffff" opacity="0.95"/>
+<rect x="1194" y="260" width="86" height="20" fill="#ffffff" opacity="0.95"/>
+<text x="1237" y="232" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#4b5563" text-anchor="middle" font-weight="normal" dominant-baseline="middle">PDO MySQL</text>
+<text x="1237" y="251" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#4b5563" text-anchor="middle" font-weight="normal" dominant-baseline="middle">transaksi</text>
+<text x="1237" y="270" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#4b5563" text-anchor="middle" font-weight="normal" dominant-baseline="middle">FOR UPDATE</text>
+<line x1="1155" y1="470" x2="1318" y2="480" stroke="#334155" stroke-width="1.8" stroke-dasharray="8 6" marker-end="url(#ar)"/>
+<rect x="1205.4" y="428" width="63.199999999999996" height="20" fill="#ffffff" opacity="0.95"/>
+<rect x="1182.6" y="447" width="108.8" height="20" fill="#ffffff" opacity="0.95"/>
+<text x="1237" y="438" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#4b5563" text-anchor="middle" font-weight="normal" dominant-baseline="middle">koneksi</text>
+<text x="1237" y="457" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#4b5563" text-anchor="middle" font-weight="normal" dominant-baseline="middle">mysql_testing</text>
+<rect x="30" y="800" width="1720" height="110" rx="6" fill="#fffbeb" stroke="#d97706" stroke-width="1.4"/>
+<text x="48" y="828" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#78350f" text-anchor="start" font-weight="normal" dominant-baseline="middle">CATATAN: Hanya lingkungan ini yang benar-benar dipakai. TIDAK ada server produksi, domain, HTTPS, cron/systemd untuk schedule:run, maupun backup yang sudah dipasang.</text>
+<text x="48" y="854" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#78350f" text-anchor="start" font-weight="normal" dominant-baseline="middle">Rancangan produksi (Nginx + PHP-FPM 8.4 + MySQL 8.4 di Linux, HTTPS) adalah USULAN pada Deployment Diagram asli: docs/uml/Development Diagram.drawio.png (TBD-10).</text>
+<text x="48" y="880" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#78350f" text-anchor="start" font-weight="normal" dominant-baseline="middle">Instance MySQL lokal dipakai bersama proyek lain di mesin pengembang; aplikasi hanya memakai dua skema di atas dengan akun basis data terpisah.</text>
+</svg>

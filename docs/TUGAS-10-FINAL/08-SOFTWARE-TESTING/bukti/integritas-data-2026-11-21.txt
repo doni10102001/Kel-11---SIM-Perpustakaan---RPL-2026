@@ -1,0 +1,18 @@
+# Pemeriksaan integritas data (READ-ONLY) — 2026-11-21 20:25 WIB
+# Alat: App\Support\PemeriksaInvarianData::periksa() (hanya DB::select), via php artisan tinker
+# Target: sim_perpustakaan_db (database development lokal)
+
+pelanggaran_invarian_dev = 0
+booking_disetujui_lewat_batas_48_jam_belum_diproses_dev = 2
+
+# Catatan:
+# - Dua booking tersebut adalah data development yang sudah melewati Batas Pengambilan,
+#   tetapi penjadwal (php artisan schedule:work) tidak sedang berjalan di lingkungan dev.
+# - Sesuai aturan keselamatan Tugas 10, `bookings:expire` TIDAK dijalankan terhadap database development.
+# - Aplikasi tetap aman: setiap peminjaman/persetujuan/realisasi/pembatalan memanggil rekonsiliasi
+#   (LayananKedaluwarsaBooking::rekonsiliasiEksemplar / terapkanTerkunci) sebelum memproses eksemplar terkait.
+
+# Jumlah baris database development sebelum & sesudah seluruh pengujian ulang (harus identik):
+sebelum = {"users":12,"members":11,"books":10,"book_copies":19,"bookings":8,"loans":12,"returns":6,"audit_logs":9}
+sesudah = {"users":12,"members":11,"books":10,"book_copies":19,"bookings":8,"loans":12,"returns":6,"audit_logs":9}
+# Database uji sim_perpustakaan_test setelah semua eksekusi: semua tabel 0 baris.

@@ -1,0 +1,33 @@
+---
+title: "S-IMPL-07 — Setujui Booking (BookingAdminController::setujui, LayananBooking::setujui)"
+---
+sequenceDiagram
+    autonumber
+    actor A as Admin
+    participant V as Vue 3 + Inertia<br/>Admin/Booking/Verifikasi.vue
+    participant C as BookingAdminController
+    participant S as LayananBooking
+    participant O as Eloquent<br/>Member, Booking, BookCopy
+    participant DB as MySQL 8.4
+    A->>V: Pilih booking Diajukan → Setujui → konfirmasi
+    V->>C: POST /admin/booking/{kode}/setujui (Gate kelola-transaksi)
+    C->>S: setujui(kodeBooking, admin)
+    S->>S: rekonsiliasiEksemplar() pada eksemplar booking
+    rect rgb(235, 242, 255)
+        Note over S,DB: DB::transaction — kunci members → bookings → book_copies
+        S->>DB: SELECT … FOR UPDATE ×3
+        alt Bukan Diajukan / anggota Nonaktif / eksemplar tidak tersedia
+            S-->>V: galat validasi — pesan galat (booking dapat ditolak)
+        else Valid
+            S->>O: Booking → Disetujui, decided_at, expires_at = +48 jam, staff_id
+            O->>DB: UPDATE bookings (UNIQUE reserved_copy_id)
+            alt Eksemplar sudah direservasi booking lain (1062)
+                S-->>V: galat validasi — → ROLLBACK
+            end
+            S->>O: BookCopy → Dipesan
+            O->>DB: UPDATE book_copies
+            S->>DB: INSERT audit_logs booking.disetujui (batas_pengambilan UTC)
+            S->>DB: COMMIT
+        end
+    end
+    C-->>V: 302 + flash berisi Batas Pengambilan (WIB)

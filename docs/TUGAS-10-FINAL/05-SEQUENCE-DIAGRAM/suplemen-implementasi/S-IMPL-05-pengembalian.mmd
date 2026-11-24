@@ -1,0 +1,33 @@
+---
+title: "S-IMPL-05 — Pengembalian (PeminjamanController::kembalikan, LayananPeminjaman::kembalikan)"
+---
+sequenceDiagram
+    autonumber
+    actor A as Admin
+    participant V as Vue 3 + Inertia<br/>Admin/Pengembalian.vue
+    participant R as ProsesPengembalianRequest<br/>(Gate kelola-transaksi)
+    participant C as PeminjamanController
+    participant S as LayananPeminjaman
+    participant O as Eloquent<br/>Loan, BookCopy, BookReturn
+    participant DB as MySQL 8.4
+    A->>V: Pilih peminjaman Aktif → Proses Pengembalian → konfirmasi
+    V->>C: POST /admin/pengembalian (idPeminjaman)
+    C->>R: authorize() + rules()
+    C->>S: kembalikan(kodePeminjaman, admin)
+    rect rgb(235, 242, 255)
+        Note over S,DB: DB::transaction — urutan kunci members → book_copies → loans
+        S->>DB: SELECT … FOR UPDATE (members, book_copies, loans)
+        alt Loan bukan Aktif / sudah ada returns
+            S-->>V: galat validasi — "sudah dikembalikan"
+        else Eksemplar bukan Dipinjam
+            S-->>V: galat validasi — periksa konsistensi data
+        end
+        S->>O: BookReturn::save() returned_at, staff_id
+        O->>DB: INSERT returns (UNIQUE loan_id cegah pengembalian ganda)
+        S->>O: Loan → Selesai, BookCopy → Tersedia
+        O->>DB: UPDATE loans, UPDATE book_copies
+        S->>DB: INSERT audit_logs pengembalian.dibuat
+        S->>DB: COMMIT
+    end
+    Note over S: Status anggota tidak diperiksa — anggota Nonaktif tetap dapat mengembalikan buku
+    C-->>V: 302 /admin/pengembalian + flash kode KB-…
