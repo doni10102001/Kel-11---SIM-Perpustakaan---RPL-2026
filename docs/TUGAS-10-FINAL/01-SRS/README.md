@@ -5,7 +5,7 @@
 | Dokumen | *Software Requirements Specification for Sistem Informasi Manajemen Perpustakaan* |
 | Versi | **1.1** (sampul: "Version 1.1 - Approved", 24 Oktober 2026). Catatan: §1.1 dan §1.4 di dalam dokumen masih menyebut 1.1 sebagai "rancangan revisi / DRAFT". |
 | Template | Karl E. Wiegers (struktur IEEE-style) |
-| Penyusun | Kelompok 11 — Doni Suhendar, Abdurrahman Wahid, Rafli Apriadi, Sarah Tirta Kencana |
+| Penyusun | Kelompok 11. Sampul SRS v1.1 (24 Okt 2026) mencantumkan empat nama sesuai susunan kelompok saat itu; dokumen ini adalah **arsip sebelum perubahan susunan kelompok** dan tidak diubah. Anggota final Tugas 10: Doni Suhendar, Abdurrahman Wahid, Sarah Tirta Kencana (lihat [README paket](../README.md#anggota-kelompok)). |
 | Berkas asli | [`docs/requirements/Tugas_2_SRS_FINAL.pdf`](../../requirements/Tugas_2_SRS_FINAL.pdf) (22 halaman, dapat dibuka dan diekstrak; diverifikasi 21 Nov 2026) |
 | Status paket | **COMPLETE** — berkas asli dirujuk langsung, tidak disalin dan tidak diubah |
 

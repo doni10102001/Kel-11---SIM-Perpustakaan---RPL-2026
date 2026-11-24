@@ -3,6 +3,8 @@
 **Tugas Besar Rekayasa Perangkat Lunak (RPL) — Kelompok 11**
 Aplikasi Web Terintegrasi Berbasis Laravel 13, MySQL 8.4, Inertia.js, Vue 3, dan Bootstrap 5.3.
 
+**Anggota Kelompok 11:** Doni Suhendar (202243501242) · Abdurrahman Wahid (202343500460) · Sarah Tirta Kencana (202343500443)
+
 > 📦 **[Dokumentasi Pengumpulan Tugas 10](docs/TUGAS-10-FINAL/README.md)** — paket 10 deliverable (SRS, UML, desain UI/UX, pengujian, hasil sistem, dan PPT presentasi).
 
 ---

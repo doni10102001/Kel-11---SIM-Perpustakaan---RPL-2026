@@ -14,12 +14,11 @@ SIM Perpustakaan adalah aplikasi web untuk mengelola katalog buku dan eksemplar,
 | --- | --- |
 | Doni Suhendar | 202243501242 |
 | Abdurrahman Wahid | 202343500460 |
-| Rafli Apriadi | 202343500400 |
 | Sarah Tirta Kencana | 202343500443 |
 
-Nama sesuai sampul SRS v1.1. NPM diambil dari dokumen kelompok `Tugas_10_Konstruksi_SIM_Perpustakaan.pdf` (berkas lokal pemilik, bukan bagian repositori). Keempat NPM juga cocok dengan `Tugas_09_Panduan_UIUX_Kelompok11.pdf`.
+Susunan final Kelompok 11 untuk pengumpulan Tugas 10 terdiri dari **tiga anggota** di atas, sesuai keputusan pemilik proyek (24 Nov 2026). Nama dan NPM cocok dengan dokumen kelompok `Kelompok 11 - RPL - Tugas Final.pdf` (22 Nov 2026) serta dokumen Tugas 9, 10, dan 11 (berkas lokal pemilik, bukan bagian repositori).
 
-> **Perlu konfirmasi pemilik:** dokumen kelompok terbaru `Kelompok 11 - RPL - Tugas Final.pdf` (22 Nov 2026) hanya mencantumkan **tiga** anggota (Doni Suhendar, Abdurrahman Wahid, Sarah Tirta Kencana) dengan NPM yang sama, **tanpa Rafli Apriadi**. Dokumen Tugas 9, 10, dan 11 mencantumkan empat anggota. Paket ini tetap memuat empat nama sesuai SRS. Pastikan susunan anggota final sebelum mengumpulkan, lalu sesuaikan tabel ini dan slide 1 PPT bila perlu.
+> **Catatan arsip:** dokumen yang disusun sebelum perubahan susunan kelompok, yaitu sampul SRS v1.1 (`docs/requirements/`) dan dokumen Tugas 9–11, masih mencantumkan empat nama. Dokumen tersebut adalah arsip yang sudah dikumpulkan atau disahkan, sehingga tidak diubah.
 
 ## Teknologi
 

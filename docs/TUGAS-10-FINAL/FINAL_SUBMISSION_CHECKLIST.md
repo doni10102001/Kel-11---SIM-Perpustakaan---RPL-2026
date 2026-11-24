@@ -35,7 +35,7 @@ Legenda: ✅ terpenuhi · ⚠️ terpenuhi dengan catatan · ❌ belum terpenuhi
 | Screenshot aplikasi tidak disajikan sebagai ekspor Stitch | ✅ | Tiga jenis bukti visual (A prototipe, B ekspor Stitch, C aplikasi final) dipisah di 07 §3 |
 | Diagram suplemen tidak menggantikan diagram asli | ✅ | SRS dan UML asli tidak diubah |
 | Klaim "desain Stitch memandu implementasi" | ⚠️ | **Tidak didukung bukti**. Kronologi yang terbukti: aplikasi lebih dulu, lalu mockup Stitch dibuat menyamai aplikasi |
-| Identitas anggota dan NPM | ⚠️ | Empat nama dan NPM cocok di dokumen Tugas 9, 10, dan 11. Dokumen "Tugas Final" 22 Nov hanya mencantumkan **tiga** anggota (tanpa Rafli Apriadi); pemilik perlu mengonfirmasi |
+| Identitas anggota dan NPM | ✅ | Susunan final **tiga anggota** (Doni Suhendar 202243501242, Abdurrahman Wahid 202343500460, Sarah Tirta Kencana 202343500443), keputusan pemilik 24 Nov 2026. NPM cocok dengan dokumen "Tugas Final" 22 Nov dan dokumen Tugas 9–11. Dokumen arsip lama (SRS v1.1, Tugas 9–11) yang masih memuat empat nama tidak diubah |
 
 ## C. Pengujian
 
@@ -83,11 +83,10 @@ Syarat sebelum repositori dibuka (publik atau undangan dosen): **K-1 (MySQL uji)
    - Tanyakan ke dosen secara tertulis apakah Google Stitch (berbasis AI) diterima sebagai pengganti Figma.
    - Atur berbagi tautan dan uji di *incognito*.
    - Ekspor layar ke `07-GOOGLE-STITCH/ekspor-stitch/`.
-3. **Konfirmasi susunan anggota** (3 atau 4 orang) dan NPM. Sesuaikan README paket dan slide 1 bila perlu.
-4. Tinjau paket, lalu commit di cabang, push, dan gabungkan ke `main` lewat PR agar terlihat di GitHub.
-5. Beri dosen akses ke repositori privat **setelah** langkah 1.
-6. Buka PPTX sekali di PowerPoint (font Calibri) untuk memastikan tata letak.
-7. Tenggat yang tercantum (18 Nov 2026) sudah lewat. Konfirmasikan langsung ke dosen apakah pengumpulan masih diterima.
+3. Commit lokal sudah dibuat; setelah langkah 1, push cabang dan gabungkan ke `main` lewat PR agar terlihat di GitHub.
+4. Beri dosen akses ke repositori privat **setelah** langkah 1.
+5. Buka PPTX sekali di PowerPoint (font Calibri) untuk memastikan tata letak.
+6. Tenggat yang tercantum (18 Nov 2026) sudah lewat. Konfirmasikan langsung ke dosen apakah pengumpulan masih diterima.
 
 ## Penilaian kesiapan
 

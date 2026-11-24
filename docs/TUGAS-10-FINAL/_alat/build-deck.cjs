@@ -84,12 +84,13 @@ tb(s, 'TUGAS 10 · REKAYASA PERANGKAT LUNAK', { x: 0.7, y: 0.75, w: 6.6, h: 0.35
 tb(s, 'Sistem Informasi Manajemen Perpustakaan', { x: 0.7, y: 1.2, w: 6.7, h: 1.6, fontSize: 38, bold: true, color: C.background1, fontFace: THEME.headFontFace, valign: 'top' });
 tb(s, 'Aplikasi web Laravel 13 · Vue 3 · Inertia.js · MySQL 8.4', { x: 0.7, y: 2.95, w: 6.6, h: 0.4, fontSize: 18, color: 'D6E2F7' });
 tb(s, 'Kelompok 11 · Universitas Indraprasta PGRI · November 2026', { x: 0.7, y: 3.4, w: 6.6, h: 0.35, fontSize: 15, color: 'A9C4F5' });
-const anggota = [['Doni Suhendar', '202243501242'], ['Abdurrahman Wahid', '202343500460'], ['Rafli Apriadi', '202343500400'], ['Sarah Tirta Kencana', '202343500443']];
+// Susunan final Kelompok 11 untuk Tugas 10 (keputusan pemilik proyek, 24 Nov 2026): tiga anggota.
+const anggota = [['Doni Suhendar', '202243501242'], ['Abdurrahman Wahid', '202343500460'], ['Sarah Tirta Kencana', '202343500443']];
 anggota.forEach(([n, npm], i) => {
-    const x = 0.7 + (i % 2) * 3.3, y = 4.25 + Math.floor(i / 2) * 1.0;
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: 3.1, h: 0.82, rectRadius: 0.1, fill: { color: '163A66' }, line: { color: '2B5288', width: 0.75 }, objectName: 'anggota ' + n });
-    tb(s, n, { x: x + 0.2, y: y + 0.1, w: 2.8, h: 0.35, fontSize: 15, bold: true, color: C.background1 });
-    tb(s, 'NPM ' + npm, { x: x + 0.2, y: y + 0.45, w: 2.8, h: 0.3, fontSize: 12, color: 'A9C4F5' });
+    const x = 0.7, y = 4.2 + i * 0.82;
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: 6.4, h: 0.66, rectRadius: 0.1, fill: { color: '163A66' }, line: { color: '2B5288', width: 0.75 }, objectName: 'anggota ' + n });
+    tb(s, n, { x: x + 0.25, y: y + 0.13, w: 3.7, h: 0.4, fontSize: 16, bold: true, color: C.background1, valign: 'middle' });
+    tb(s, 'NPM ' + npm, { x: x + 3.95, y: y + 0.13, w: 2.25, h: 0.4, fontSize: 14, color: 'A9C4F5', align: 'right', valign: 'middle' });
 });
 {
     const p = fit('login.png', 7.75, 1.25, 5.0, 3.6);
@@ -97,7 +98,7 @@ anggota.forEach(([n, npm], i) => {
     s.addImage({ path: img('login.png'), x: p.x, y: p.y, w: p.w, h: p.h, altText: 'Screenshot halaman Masuk aplikasi SIM Perpustakaan' });
     tb(s, 'Halaman Masuk aplikasi yang berjalan (screenshot nyata, 21 Nov 2026)', { x: 7.75, y: p.y + p.h + 0.15, w: 5.0, h: 0.3, fontSize: 11, color: 'A9C4F5', align: 'center' });
 }
-s.addNotes('Pembukaan. Perkenalkan Kelompok 11 dan topik: SIM Perpustakaan berbasis web. Sebutkan bahwa seluruh isi presentasi diambil dari repositori proyek: SRS v1.1, diagram UML, kode, dan hasil uji yang dijalankan ulang pada 21 November 2026.');
+s.addNotes('Pembukaan. Perkenalkan ketiga anggota Kelompok 11 (Doni Suhendar, Abdurrahman Wahid, Sarah Tirta Kencana) dan topik: SIM Perpustakaan berbasis web. Sebutkan bahwa seluruh isi presentasi diambil dari repositori proyek: SRS v1.1, diagram UML, kode, dan hasil uji yang dijalankan ulang pada 21 November 2026.');
 
 // 2 — LATAR BELAKANG
 s = pres.addSlide({ masterName: 'KONTEN', sectionTitle: 'Pembuka' });

@@ -15,7 +15,7 @@ Status: **COMPLETE** — berkas PowerPoint asli (dapat diedit), lolos validasi s
 
 | # | Judul | Visual utama (sumber) |
 | --- | --- | --- |
-| 1 | Sampul — Sistem Informasi Manajemen Perpustakaan | Screenshot halaman Masuk (09-HASIL-SISTEM) · nama & NPM anggota |
+| 1 | Sampul — Sistem Informasi Manajemen Perpustakaan | Screenshot halaman Masuk (09-HASIL-SISTEM) · nama & NPM **tiga anggota final** |
 | 2 | Latar Belakang | Kebutuhan SRS §1.4 |
 | 3 | Rumusan Masalah | Diturunkan dari SRS §1.4 & §2.2 |
 | 4 | Tujuan Sistem dan Manfaat | — |
@@ -35,6 +35,8 @@ Status: **COMPLETE** — berkas PowerPoint asli (dapat diedit), lolos validasi s
 | 18 | Kesimpulan & Demo | Pencapaian, agenda demo 10 langkah, status kesiapan (termasuk syarat rotasi kredensial dan persetujuan Stitch) |
 
 ## Pembaruan 24 Nov 2026
+
+**Revisi anggota:** slide 1 kini memuat tiga anggota final (Doni Suhendar, Abdurrahman Wahid, Sarah Tirta Kencana) dalam tiga kartu bertumpuk, sesuai keputusan pemilik proyek. Catatan pembicara slide 1 ikut diperbarui. Slide lain tidak memuat daftar anggota.
 
 Slide 6, 13, 17, dan 18 diperbarui teksnya: tanggal uji ulang, risiko instruksi dosen "bukan dengan AI" untuk Stitch, label dan cakupan assertion Browser QA lama vs E2E demo terverifikasi, serta syarat rotasi kredensial. Gambar dan struktur slide tidak berubah. Generator diganti nama menjadi `build-deck.cjs` agar dapat dijalankan dari dalam repositori (`package.json` proyek memakai `"type": "module"`).
 
