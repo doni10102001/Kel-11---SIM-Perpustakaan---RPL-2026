@@ -37,7 +37,13 @@ Browser (Vue 3 + Bootstrap 5.3) ──Inertia XHR──▶ Laravel 13 (Routes �
 
 ## Galeri screenshot aplikasi nyata (21 Nov 2026)
 
-**Bagaimana screenshot dibuat:** aplikasi dijalankan dengan `php artisan serve` dan dihubungkan **hanya** ke database uji `sim_perpustakaan_test` yang diisi `DemoPerpustakaanSeeder`. Chrome headless (1440 px) menjalankan skenario demo. Kata sandi akun demo dibangkitkan acak saat runtime dan tidak pernah ditampilkan. Setelah selesai, database uji dikosongkan kembali, dan jumlah baris database development terverifikasi identik sebelum dan sesudahnya. Semua nama dan kontak adalah data demo fiktif dari seeder proyek.
+**Cara screenshot dibuat:**
+
+- Aplikasi dijalankan dengan `php artisan serve` dan dihubungkan **hanya** ke database uji `sim_perpustakaan_test` yang berisi data dari `DemoPerpustakaanSeeder`.
+- Chrome headless (lebar 1440 px) menjalankan skenario demo.
+- Kata sandi akun demo dibangkitkan acak saat skrip berjalan dan tidak pernah ditampilkan.
+- Setelah selesai, database uji dikosongkan kembali. Jumlah baris database development terverifikasi identik sebelum dan sesudahnya.
+- Semua nama dan kontak adalah data demo fiktif dari seeder proyek.
 
 ### Admin
 
@@ -89,4 +95,4 @@ Pratinjau:
 
 ![Dashboard Admin](screenshots/admin/01-dashboard.png)
 
-> Screenshot di [`docs/screenshots/`](../../screenshots/) (7 Nov 2026) berasal dari **prototipe statis sebelum MySQL**. Screenshot itu dipertahankan sebagai acuan desain (lihat [07-GOOGLE-STITCH](../07-GOOGLE-STITCH/README.md)), bukan sebagai bukti hasil sistem final.
+> Screenshot di [`docs/archive/screenshots-prototipe/`](../../archive/screenshots-prototipe/) (7 Nov 2026) berasal dari **prototipe statis sebelum MySQL**. Screenshot itu dipertahankan sebagai acuan desain (lihat [07-GOOGLE-STITCH](../07-GOOGLE-STITCH/README.md)), bukan sebagai bukti hasil sistem final.

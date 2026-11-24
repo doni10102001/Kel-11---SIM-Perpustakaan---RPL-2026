@@ -6,7 +6,7 @@ Folder ini **sengaja kosong** sampai pemilik proyek mengekspor layar dari proyek
 ## Aturan
 
 - Isi folder ini **hanya** dengan berkas yang benar-benar diekspor dari Stitch (PNG atau PDF).
-- **Jangan** memasukkan screenshot aplikasi: tidak dari `docs/screenshots/` dan tidak dari `09-HASIL-SISTEM/screenshots/`. Keduanya bukan desain Stitch.
+- **Jangan** memasukkan screenshot aplikasi: tidak dari `docs/archive/screenshots-prototipe/` dan tidak dari `09-HASIL-SISTEM/screenshots/`. Keduanya bukan desain Stitch.
 - Pakai nama berkas sesuai tabel cakupan di [README nomor 7 §3](../README.md#cakupan-layar-dan-nama-berkas-ekspor-yang-diharapkan), misalnya `admin/01-login.png` dan `anggota/01-dashboard.png`.
 - Jangan ubah isi ekspor (tanpa edit dan tanpa crop yang menghilangkan bagian layar).
 

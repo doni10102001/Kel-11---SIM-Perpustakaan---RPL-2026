@@ -1,12 +1,18 @@
 # Remediasi Kredensial QA & Prosedur Rotasi
 
-Tanggal: **24 November 2026** · Status: **kode sudah diperbaiki (commit `b06049b`); rotasi kredensial BELUM dilakukan (menunggu otorisasi pemilik)**
+Tanggal: **24 November 2026** · Status per 24 Nov 2026:
+
+| Item | Status |
+| --- | --- |
+| Perbaikan kode | Selesai (commit `b06049b`) |
+| K-1 (MySQL uji) | **Dirotasi** 24 Nov 2026 |
+| K-2 (Admin development) | **Belum dirotasi**; nilai lama masih berlaku |
 
 ## 1. Temuan
 
 Commit `5f7a030` (16 Nov 2026, sudah ada di `origin/main` dan `origin/phase-9b-buku-eksemplar`) menulis dua kredensial aktif sebagai teks biasa di `scripts/qa-browser-journey.mjs`:
 
-| # | Kredensial | Dipakai untuk | Status per 24 Nov 2026 (diperiksa tanpa mencetak nilai) |
+| # | Kredensial | Dipakai untuk | Status saat ditemukan (24 Nov 2026, diperiksa tanpa mencetak nilai) |
 | --- | --- | --- | --- |
 | K-1 | Kata sandi akun MySQL `sim_perpus_test` (`DB_TEST_PASSWORD`) | Database uji `sim_perpustakaan_test` (`@localhost` dan `@127.0.0.1`) | **Masih aktif**: koneksi `mysql_testing` berhasil dengan nilai `.env` yang sama |
 | K-2 | Kata sandi akun aplikasi `admin` (`SEED_ADMIN_PASSWORD`) | Login Admin pada database **development** `sim_perpustakaan_db` | **Masih aktif**: `Hash::check` terhadap hash Admin di DB development bernilai benar |
@@ -15,7 +21,7 @@ Skrip yang sama juga memuat kata sandi akun anggota QA `siti.qa`. Akun ini hanya
 
 Kredensial lain yang diperiksa dan **tidak** ditemukan di berkas terlacak maupun riwayat Git: `DB_PASSWORD` (akun `sim_perpus_app`) dan `APP_KEY`. `REDIS_PASSWORD`, `MAIL_PASSWORD`, dan `AWS_*` kosong atau null.
 
-## 2. Perbaikan kode (commit lokal `b06049b`, belum di-push)
+## 2. Perbaikan kode (commit `b06049b`)
 
 - `scripts/qa-browser-journey.mjs` tidak lagi memuat kata sandi apa pun.
   - `DB_TEST_USERNAME` dan `DB_TEST_PASSWORD` **wajib** diberikan lewat environment. Tidak ada nilai bawaan; bila kosong, skrip berhenti dengan exit code 2 sebelum menyentuh database.
@@ -98,8 +104,42 @@ Catatan penting: `DemoPerpustakaanSeeder` **tidak** mengubah akun yang sudah ada
 2. Ubah status di `docs/TUGAS-10-FINAL/FINAL_SUBMISSION_CHECKLIST.md` bagian D menjadi ✅.
 3. Baru setelah itu pertimbangkan membuka akses repositori (publik atau undangan kolaborator dosen).
 
-## 5. Yang sengaja tidak dilakukan
+## 5. Hasil rotasi
 
-- Tidak merotasi kredensial nyata (perlu otorisasi eksplisit pemilik).
+### 5.1 K-1 — dirotasi 24 Nov 2026
+
+Dijalankan atas persetujuan eksplisit pemilik. Caranya sedikit berbeda dari §4.1 dan tidak memakai akun root:
+
+- Login sebagai `sim_perpus_test` lewat socket untuk entri `@localhost`, lalu lewat TCP untuk entri `@127.0.0.1`.
+- Pada masing-masing koneksi dijalankan `ALTER USER CURRENT_USER() IDENTIFIED BY <baru> REPLACE <lama>`.
+- Dengan cara ini akun lain di MySQL bersama tidak mungkin ikut berubah.
+
+| Verifikasi | Hasil |
+| --- | --- |
+| Kata sandi baru, `@localhost` dan `@127.0.0.1` | Diterima |
+| Kata sandi lama, kedua host | **Ditolak (ERROR 1045)** |
+| GRANT kedua host dan daftar database yang terlihat | Identik dengan sebelum rotasi |
+| Akses ke `sim_perpustakaan_db` | Tetap ditolak (ERROR 1044) |
+| Uptime MySQL | Terus naik (tidak ada restart) |
+| `.env` | Hanya baris `DB_TEST_PASSWORD` yang berubah |
+| Koneksi Laravel `mysql_testing` | Berhasil |
+
+Kata sandi baru dibangkitkan acak, tidak pernah dicetak, dan dikirim lewat stdin. Berkas sementaranya sudah dihapus.
+
+### 5.2 K-2 — belum dirotasi
+
+Pada 24 Nov 2026, pemilik melaporkan bahwa penggantian kata sandi lewat `/admin/kata-sandi` berhasil. Namun pemeriksaan basis data development tidak menemukan perubahan apa pun:
+
+- Hash kata sandi Admin masih sama.
+- Tidak ada baris audit `akun.kata_sandi.diubah`.
+- Sesi lama masih ada dan tidak ada sesi login baru.
+- Kata sandi lama masih cocok dengan hash Admin.
+
+Karena itu K-2 dinyatakan **belum dirotasi**. `SEED_ADMIN_PASSWORD` lama di `.env` sengaja dipertahankan sampai verifikasi K-2 selesai, lalu dihapus sesuai §4.2 langkah 3.
+
+## 6. Yang sengaja tidak dilakukan
+
+- Tidak merotasi kredensial tanpa persetujuan eksplisit pemilik. K-1 dirotasi setelah disetujui; K-2 harus diganti pemilik sendiri lewat aplikasi.
+- Tidak mengubah kata sandi Admin lewat SQL langsung.
 - Tidak menulis ulang riwayat Git, tidak force-push, dan tidak menghapus commit.
 - Tidak mengubah akun MySQL lain, tidak me-restart MySQL, dan tidak mengubah logika bisnis aplikasi.

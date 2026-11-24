@@ -38,8 +38,8 @@ Sistem dibangun menggunakan pendekatan arsitektur monolit modern (*Modern Monoli
 
 ### 3.1 Autentikasi & Manajemen Pengguna
 - **Pemisahan Peran Tegas**: Mendukung dua peran pengguna utama, yaitu **Admin Perpustakaan** (mengelola seluruh operasional) dan **Anggota** (melihat katalog, riwayat, dan melakukan reservasi). Akses lintas peran dicegah secara ketat oleh middleware otorisasi server (HTTP 403).
-- **Keamanan Sesi & CSRF**: Sesi tersimpan aman pada tabel basis data (`sessions`) dengan perlindungan token CSRF ganda (`XSRF-TOKEN`).
-- **Penyimpanan Kredensial Aman**: Seluruh kata sandi di-hash menggunakan algoritma modern bergaram (Argon2id/Bcrypt). Hash tidak pernah diekspos ke respon antarmuka pengguna.
+- **Keamanan Sesi & CSRF**: Sesi disimpan di tabel basis data (`sessions`). Setiap permintaan yang mengubah data dilindungi token CSRF Laravel (cookie `XSRF-TOKEN` dibaca otomatis oleh Inertia).
+- **Penyimpanan Kredensial Aman**: Kata sandi di-hash dengan bcrypt (driver bawaan Laravel). Hash tidak pernah dikirim ke antarmuka pengguna.
 - **Proteksi Brute-Force**: Dilengkapi *rate limiter* otomatis pada endpoint masuk untuk menangkal serangan tebak kredensial.
 - **Alur Wajib Ganti Kata Sandi**: Anggota baru atau akun yang kata sandinya direset oleh Admin diwajibkan mengganti kata sandi awal pada saat login pertama kali.
 - **Pengendalian Akun Terpadu**: Penonaktifan status anggota secara otomatis memutus sesi aktif pengguna yang bersangkutan.
@@ -67,7 +67,7 @@ Sistem dibangun menggunakan pendekatan arsitektur monolit modern (*Modern Monoli
 - Seluruh tindakan sistem ini dicatat secara akuntabel pada tabel `audit_logs`.
 
 ### 3.6 Dashboard Analitik & Statistik
-- **Dashboard Admin**: Menyajikan ringkasan metrik perpustakaan secara *real-time* (total anggota, buku, eksemplar tersedia/dipesan/dipinjam, transaksi aktif/selesai, dan status booking) menggunakan agregasi SQL efisien (`COUNT`, conditional `SUM`, `GROUP BY`) tanpa memuat seluruh tabel ke memori browser.
+- **Dashboard Admin**: Menyajikan ringkasan metrik perpustakaan yang dihitung ulang setiap kali halaman dibuka (total anggota, buku, eksemplar tersedia/dipesan/dipinjam, transaksi aktif/selesai, dan status booking) menggunakan agregasi SQL efisien (`COUNT`, conditional `SUM`, `GROUP BY`) tanpa memuat seluruh tabel ke memori browser.
 - **Dashboard Anggota**: Statistik personal terisolasi (pinjaman aktif anggota, riwayat selesai, status booking) yang diekstraksi eksklusif dari relasi akun sesi server untuk mencegah manipulasi parameter URL.
 
 ### 3.7 Modul Pelaporan Sirkulasi
@@ -182,22 +182,22 @@ unset DB_TEST_PASSWORD
 
 ---
 
-## 8. Panduan Dokumentasi Teknis
+## 8. Panduan Dokumentasi
 
-Dokumentasi rancangan dan laporan teknis lengkap tersimpan terstruktur pada direktori `docs/`:
+Indeks lengkap dokumentasi ada di [`docs/README.md`](docs/README.md).
 
-| Direktori / Berkas | Isi & Ruang Lingkup |
+| Lokasi | Isi |
 | --- | --- |
-| [`docs/KEPUTUSAN_DESAIN.md`](docs/KEPUTUSAN_DESAIN.md) | Catatan keputusan arsitektur, batasan sistem, dan aturan bisnis terintegrasi |
-| [`docs/database/`](docs/database/) | Desain skema basis data MySQL 8.4, diagram relasi, dan berkas DDL SQL |
-| [`docs/fitur/`](docs/fitur/) | Spesifikasi modul CRUD Anggota, Buku & Eksemplar, Transaksi Sirkulasi, serta Locking & Konkurensi |
-| [`docs/keamanan/`](docs/keamanan/) | Model autentikasi, otorisasi RBAC, manajemen kredensial, dan audit keamanan sistem |
-| [`docs/kinerja/`](docs/kinerja/) | Analisis kinerja kueri (EXPLAIN plan), optimasi indeks komposit, dan modul pelaporan dinamis |
-| [`docs/pengujian/`](docs/pengujian/) | Laporan pengujian kualitas sistem (QA), hasil uji transaksi, dan checklist kepatuhan |
-| [`docs/analisis/`](docs/analisis/) | Matriks keterlacakan kebutuhan (SRS) dan kepatuhan diagram UML |
-| [`docs/uml/`](docs/uml/) | Berkas gambar diagram rancangan UML lengkap (Use Case, Activity, Sequence, Class Diagram) |
-| [`docs/screenshots/`](docs/screenshots/) | Tangkapan layar seluruh halaman antarmuka pengguna sistem |
-| [`docs/requirements/`](docs/requirements/) | Dokumen spesifikasi kebutuhan perangkat lunak resmi (*Software Requirements Specification* - SRS) |
+| [`docs/TUGAS-10-FINAL/`](docs/TUGAS-10-FINAL/README.md) | **Paket pengumpulan Tugas 10**: SRS, lima diagram UML, desain UI/UX Google Stitch, pengujian, hasil sistem, dan PPT |
+| [`docs/KEPUTUSAN_DESAIN.md`](docs/KEPUTUSAN_DESAIN.md) | Keputusan desain dan aturan bisnis per phase |
+| [`docs/requirements/`](docs/requirements/) | SRS v1.1 asli (arsip, tidak diubah) |
+| [`docs/uml/`](docs/uml/) | Diagram UML asli Tugas 3–7 (arsip, tidak diubah) |
+| [`docs/database/`](docs/database/) | Desain skema MySQL 8.4 dan DDL |
+| [`docs/fitur/`](docs/fitur/) | Desain fitur: CRUD Anggota, Buku & Eksemplar, transaksi, kedaluwarsa booking, konkurensi |
+| [`docs/keamanan/`](docs/keamanan/) | Autentikasi, otorisasi, manajemen kredensial, audit keamanan, dan rotasi kredensial QA |
+| [`docs/kinerja/`](docs/kinerja/) | Kinerja kueri, dashboard, dan pelaporan |
+| [`docs/pengujian/`](docs/pengujian/) | Laporan QA sistem dan uji transaksi |
+| [`docs/archive/`](docs/archive/README.md) | Arsip tahap prototipe (7 Nov 2026), termasuk screenshot prototipe acuan Google Stitch |
 
 ---
 **Kelompok 11 — Rekayasa Perangkat Lunak 2026**

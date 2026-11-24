@@ -27,7 +27,7 @@ Status: **COMPLETE** — berkas PowerPoint asli (dapat diedit), lolos validasi s
 | 10 | Activity Diagram | A04 asli + A10 suplemen |
 | 11 | Sequence Diagram: Peminjaman Langsung | S-IMPL-04 |
 | 12 | Deployment Diagram | Lokal **aktual** vs produksi **usulan** |
-| 13 | UI/UX — Google Stitch (Pengganti Figma) | Screenshot acuan (dilabeli *bukan ekspor Stitch*), kronologi Git, risiko instruksi dosen "bukan dengan AI", status bukti yang belum ada |
+| 13 | Hasil Desain UI/UX — Google Stitch | Screenshot acuan (dilabeli *bukan ekspor Stitch*), kronologi Git, izin dosen menurut pemilik, status bukti yang belum ada |
 | 14 | Hasil Implementasi | Screenshot aplikasi MySQL (Dashboard Admin, Dashboard Anggota, Data Buku) |
 | 15 | Proses Peminjaman & Pengembalian | Alur status + screenshot pengembalian & realisasi |
 | 16 | Booking & Kedaluwarsa Otomatis | Siklus status, 48 jam, 5 menit, screenshot persetujuan |
@@ -35,6 +35,8 @@ Status: **COMPLETE** — berkas PowerPoint asli (dapat diedit), lolos validasi s
 | 18 | Kesimpulan & Demo | Pencapaian, agenda demo 10 langkah, status kesiapan (termasuk syarat rotasi kredensial dan persetujuan Stitch) |
 
 ## Pembaruan 24 Nov 2026
+
+**Revisi Stitch dan keamanan:** judul slide 13 menjadi "Hasil Desain UI/UX — Google Stitch". Slide 7, 13, dan 18 kini menyebut izin dosen atas Stitch menurut pemilik proyek, serta status rotasi kredensial (K-1 sudah, K-2 belum).
 
 **Revisi anggota:** slide 1 kini memuat tiga anggota final (Doni Suhendar, Abdurrahman Wahid, Sarah Tirta Kencana) dalam tiga kartu bertumpuk, sesuai keputusan pemilik proyek. Catatan pembicara slide 1 ikut diperbarui. Slide lain tidak memuat daftar anggota.
 

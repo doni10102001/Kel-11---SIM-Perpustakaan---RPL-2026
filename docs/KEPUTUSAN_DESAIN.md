@@ -6,7 +6,7 @@ Catatan keputusan yang telah disetujui pemilik proyek. Dokumen ini **khusus peng
 
 1. **SRS v1.1** (`docs/requirements/Tugas_2_SRS_FINAL.pdf`) adalah referensi utama untuk fungsi, field, status, dan aturan bisnis.
 2. **UML** (`docs/uml/`) dipakai untuk alur, state, dan relasi data. Bila berbeda dengan SRS v1.1, **SRS v1.1 yang dipakai**.
-3. Transkripsi Activity/Sequence Diagram: `docs/analysis/uml-activity-sequence.md` (hasil transkripsi, bukan dokumen otoritatif).
+3. Transkripsi Activity/Sequence Diagram: `docs/archive/analisis/uml-activity-sequence.md` (hasil transkripsi, bukan dokumen otoritatif).
 4. Website Laravel/Vue menjadi acuan visual antarmuka sistem.
 
 ## Keputusan Phase 0 (disetujui 7 November 2026)
@@ -111,7 +111,7 @@ Identitas tidak peka huruf besar/kecil dan spasi di tepi diabaikan. Kedua akun p
 
 ## Penambahan scope pasca-Final Audit: Akses Login Anggota (7 November 2026)
 
-Fitur ini ditambahkan **setelah** Final Compliance Audit. Laporan di `docs/audit/FINAL_*` dan matriks keterlacakan **tidak diubah** dan tidak mencakup fitur ini; temuan khusus fitur ada di `docs/audit/ADDENDUM_AKSES_LOGIN_ANGGOTA.md`. SRS dan UML asli tidak diubah.
+Fitur ini ditambahkan **setelah** Final Compliance Audit. Laporan `docs/archive/pengujian/AUDIT_KEPATUHAN.md` dan `CHECKLIST_SUBMISI.md` dan matriks keterlacakan **tidak diubah** dan tidak mencakup fitur ini; temuan khusus fitur ada di `docs/archive/keamanan/ADDENDUM_AKSES_LOGIN_ANGGOTA.md`. SRS dan UML asli tidak diubah.
 
 | # | Topik | Keputusan | Dasar | Status |
 | --- | --- | --- | --- | --- |
@@ -129,7 +129,7 @@ Fitur ini ditambahkan **setelah** Final Compliance Audit. Laporan di `docs/audit
 
 > **Hanya Status Anggota yang mengendalikan status aktif/nonaktif Anggota dan izin login. Status Akses tidak dikelola terpisah.**
 
-Menggantikan L.2, L.4, L.5, dan bagian status pada L.6. Catatan perubahan & regresi: `docs/audit/REGRESI_STATUS_ANGGOTA_TUNGGAL.md`.
+Menggantikan L.2, L.4, L.5, dan bagian status pada L.6. Catatan perubahan & regresi: `docs/archive/pengujian/REGRESI_STATUS_ANGGOTA_TUNGGAL.md`.
 
 | # | Topik | Keputusan | Status |
 | --- | --- | --- | --- |
@@ -141,14 +141,14 @@ Menggantikan L.2, L.4, L.5, dan bagian status pada L.6. Catatan perubahan & regr
 
 ## Catatan untuk phase berikutnya
 
-- **Phase 2 (selesai):** data mock terpusat di `resources/js/data/mock/`; akun pratinjau di `config/demo.js` kini diambil dari dataset (Admin USR-001 Rina Wulandari, Anggota AG-001 Nadia Rahmawati). Pemetaan field dan penyesuaian terhadap Object Diagram ("Anggota A/B" → nama fiktif realistis) dijelaskan di `docs/analysis/mock-data.md`.
+- **Phase 2 (selesai):** data mock terpusat di `resources/js/data/mock/`; akun pratinjau di `config/demo.js` kini diambil dari dataset (Admin USR-001 Rina Wulandari, Anggota AG-001 Nadia Rahmawati). Pemetaan field dan penyesuaian terhadap Object Diagram ("Anggota A/B" → nama fiktif realistis) dijelaskan di `docs/archive/analisis/mock-data.md`.
 - **Phase 3–5 (selesai):** seluruh rute memakai halaman final; komponen sementara `Sistem/HalamanDisiapkan` dihapus di Phase 5.
 - **Phase 4 — field petugas pemroses:** SRS 6.1 (`loans.staff_id`, `returns.staff_id`, `bookings.staff_id`) dan FR-024/FR-028/FR-033 mencatat identitas *petugas* yang memproses transaksi. Field ini **tetap ada** (tidak diubah); di prototipe nilainya diisi akun Admin yang sedang aktif. Label field final (mis. "Petugas Proses" sesuai file phase) dikonfirmasi saat Phase 4.
 - **Tanggal demo** tetap `2026-11-07` (`TANGGAL_DEMO`) agar tampilan dan screenshot deterministik.
 
 ## Phase 7A — Fondasi database MySQL (14 November 2026)
 
-Rincian teknis: `docs/database/phase7/PHASE_7A_DATABASE_SETUP.md` §8. Dokumen SRS dan UML asli **tidak diubah**.
+Rincian teknis: `docs/database/SKEMA_DATABASE.md`. Dokumen SRS dan UML asli **tidak diubah**.
 
 - Dasar: MySQL 8.4 LTS/InnoDB/utf8mb4, dua peran, Anggota dibuat Admin, akun Anggota opsional, satu Status Anggota, `loans.due_date` DATE, F-01 opsi A, migrasi bertahap.
 - Stage B (14 Nov 2026): database `sim_perpustakaan_db` + `sim_perpustakaan_test`, user least-privilege `sim_perpus_app` + `sim_perpus_test`.
@@ -175,7 +175,7 @@ Keputusan awal "timezone `Asia/Jakarta`" diamandemen menjadi: **penyimpanan dan 
 
 ## Phase 8A — Autentikasi nyata (14 November 2026)
 
-Rincian: `docs/auth/PHASE_8A_AUTENTIKASI.md`.
+Rincian: `docs/keamanan/AUTENTIKASI_DAN_AKSES.md`.
 
 - Autentikasi username + kata sandi terhadap `users` MySQL, guard `web`, sesi server di tabel `sessions` (`SESSION_DRIVER=database`), tanpa registrasi mandiri dan tanpa "Ingat saya".
 - Rute aplikasi dipindah dari `/demo/{peran}/*` ke `/admin/*` dan `/anggota/*`, dilindungi `auth`, `auth.session`, `akun.aktif`, `peran:{peran}`. URL `/demo/*` lama hanya redirect.
@@ -185,7 +185,7 @@ Rincian: `docs/auth/PHASE_8A_AUTENTIKASI.md`.
 
 ## Integrasi Baca MySQL & Privasi Data (14 November 2026)
 
-Rincian: `docs/keamanan/INTEGRASI_DATA_SERVER.md`.
+Rincian: `docs/archive/keamanan/INTEGRASI_DATA_SERVER.md`.
 
 - Data mock (anggota, akun, buku, transaksi) dan store mock dikeluarkan dari bundel frontend ke `tests/js/fixtures/`; build publik diverifikasi bebas data seed.
 - Seluruh halaman Admin dan Anggota membaca MySQL lewat `HalamanController` → `App\Queries\DataPerpustakaan` (Eloquent, eager loading) → prop Inertia `data` berbentuk sama dengan prototipe; komponen Vue tidak didesain ulang.
